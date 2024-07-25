@@ -7,7 +7,7 @@
 #include "CPP_CharacterPaul.generated.h"
 
 UCLASS()
-class TEKKEN8_API ACPP_CharacterPaul : public ACharacter
+class KYOULEE_API ACPP_CharacterPaul : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -25,5 +25,14 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/**
+	 * @Title 프레임 시스템을 만듬니다.
+	 * @brief 1초당 60프레임으로 실행 되는 시스템입니다.
+	 */
+	void FrameSystem();
+
+	float fFrameTime = 1 / 60;
+	float fCurrTimeForFrame = 0;
 
 };
