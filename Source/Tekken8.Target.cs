@@ -10,6 +10,6 @@ public class Tekken8Target : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.Add("Tekken8");
-	}
+        ExtraModuleNames.AddRange(new string[] { "Tekken8", "LSJ", "Kyoulee", "JMH" });
+    }
 }
