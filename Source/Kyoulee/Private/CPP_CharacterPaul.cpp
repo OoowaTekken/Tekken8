@@ -10,10 +10,12 @@ ACPP_CharacterPaul::ACPP_CharacterPaul()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	USkeletalMeshComponent* tempMesh = this->GetMesh();
+	USkeletalMeshComponent* tempCharacterMesh = this->GetMesh();
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSkeletalMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny'"));
 	if (tempSkeletalMesh.Succeeded())
-		tempMesh->SetSkeletalMeshAsset(tempSkeletalMesh.Object);
+		tempCharacterMesh->SetSkeletalMeshAsset(tempSkeletalMesh.Object);
+	tempCharacterMesh->SetRelativeLocation(FVector(0,0,-90));
+	tempCharacterMesh->SetRelativeRotation(FRotator(0,0,-90));
 }
 
 // Called when the game starts or when spawned

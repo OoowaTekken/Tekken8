@@ -35,4 +35,8 @@ public:
 	float fFrameTime = 1 / 60;
 	float fCurrTimeForFrame = 0;
 
+	/**
+	*
+	*/
+	float 
 };
