@@ -1,0 +1,13 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\admin\\mayue\\project\\tekken8\\plugins\\developer\\riderlink\\source\\riderdebuggersupport\\private\\debuglogger.cpp",
+        "ProvidedModule": "",
+        "Includes": [
+            "c:\\users\\admin\\mayue\\project\\tekken8\\plugins\\developer\\riderlink\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\riderdebuggersupport\\definitions.h",
+            "c:\\users\\admin\\mayue\\project\\tekken8\\plugins\\developer\\riderlink\\source\\riderdebuggersupport\\private\\debuglogger.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
