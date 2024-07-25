@@ -11,6 +11,18 @@
 			"AdditionalDependencies": [
 				"Engine"
 			]
+		},
+		{
+			"Name": "LSJ",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "Kyoulee",
+			"Type": "Runtime"
+		},
+		{
+			"Name": "JMH",
+			"Type": "Runtime"
 		}
 	],
 	"Plugins": [
