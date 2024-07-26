@@ -1,8 +1,8 @@
-"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Source\RD\thirdparty\spdlog\src\file_sinks.cpp"
-/FI"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Definitions.h"
-/Fo"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\file_sinks.cpp.obj"
-/sourceDependencies "C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\file_sinks.cpp.dep.json"
-@"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\RD.Shared.rsp"
+"C:\Users\Admin\Documents\Unreal Projects\Tekken8\Plugins\Developer\RiderLink\Source\RD\thirdparty\spdlog\src\file_sinks.cpp"
+/FI"C:\Users\Admin\Documents\Unreal Projects\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Definitions.h"
+/Fo"C:\Users\Admin\Documents\Unreal Projects\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\file_sinks.cpp.obj"
+/sourceDependencies "C:\Users\Admin\Documents\Unreal Projects\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\file_sinks.cpp.dep.json"
+@"C:\Users\Admin\Documents\Unreal Projects\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\RD.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi
