@@ -15,7 +15,6 @@ ACPP_MainCameraLookPoint::ACPP_MainCameraLookPoint()
 void ACPP_MainCameraLookPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
