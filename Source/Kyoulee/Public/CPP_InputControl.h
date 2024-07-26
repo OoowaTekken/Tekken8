@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "CPP_InputControl.generated.h"
 
 UCLASS()
@@ -25,5 +26,15 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+
+	UPROPERTY(EditDefaultsOnly)
+	class UInputMappingContext* uIMC_Player;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UInputAction* IA_CharaterMove;
+
+	UFUNCTION()
+	void OnMyActionMove(const FInputActionValue& ActionValue);
 
 };

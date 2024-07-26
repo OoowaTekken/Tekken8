@@ -1,7 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CPP_InputControl.h"
+#include "../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include "../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 
 // Sets default values
 ACPP_InputControl::ACPP_InputControl()
@@ -15,7 +17,16 @@ ACPP_InputControl::ACPP_InputControl()
 void ACPP_InputControl::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+// 	APlayerController* tempPlayerController = Cast<APlayerController> ( this->Controller );
+// 
+// 	if ( tempPlayerController )
+// 	{
+// 		UEnhancedInputLocalPlayerSubsystem* tempSubSys
+// 			= ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem> ( tempPlayerController->GetLocalPlayer( ) );
+// 		if ( tempSubSys )
+// 			tempSubSys->AddMappingContext ( uIMC_Player , 0 );
+// 	}
 }
 
 // Called every frame
@@ -30,5 +41,14 @@ void ACPP_InputControl::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+
+// 	UEnhancedInputComponent* enhancedInputComp = Cast<UEnhancedInputComponent> ( PlayerInputComponent );
+// 
+// 	if ( enhancedInputComp )
+// 	{
+// 		// Player 1
+// 		enhancedInputComp->BindAction ( this->IA_CharaterMove , ETriggerEvent::Started , this , &ACPP_InputControl::OnMyActionMove );
+// 
+// 	}
 }
 
