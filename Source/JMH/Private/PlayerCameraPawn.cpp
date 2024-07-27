@@ -14,8 +14,12 @@ APlayerCameraPawn::APlayerCameraPawn()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	
+	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
+	SetRootComponent(RootComp);
+	
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetupAttachment(RootComp);
 	//카메라
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -34,11 +38,19 @@ void APlayerCameraPawn::BeginPlay()
 	{
 		if (FoundActors.Num() >= 2)
 		{
-			// 플레이어 캐릭터에 대한 작업 수행
+			// 플레이어 A,B
 			playerA = Cast<ACharacter>(FoundActors[0]);
 			playerB = Cast<ACharacter>(FoundActors[1]);
 		}
 	}
+
+	// 초기화
+	PreviousPlayerDistance = 0.0f;
+	DistanceThreshold = 350.0f; // 이상의 변화가 있을 때만 arm 길이 조정
+	
+	playerALoc = playerA->GetActorLocation();
+	playerBLoc = playerB->GetActorLocation();
+	
 }
 
 // Called every frame
@@ -59,42 +71,31 @@ void APlayerCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 {
+	if (!playerA || !playerB) return;
 	
-	FVector playerALoc = playerA->GetActorLocation();
-	FVector playerBLoc = playerB->GetActorLocation();
-
-	FRotator playerARot = playerA->GetActorRotation();
-	FRotator playerBRot = playerB->GetActorRotation();
-	
-	FVector centralLocation = (playerALoc-playerBLoc) * 0.5f + playerBLoc;
-	//SetActorLocation(centralLocation);
-
-	FRotator centralRotation = FMath::Lerp(playerARot, playerBRot, 0.5f);
-	//SetActorRotation(centralRotation);
+	FVector centralLocation = (playerALoc+playerBLoc) * 0.5f;// + playerBLoc; //그게 그거인듯
 	
 	// 카메라와 플레이어들 간의 거리 계산
 	float playerDistance = FVector::Dist(playerALoc, playerBLoc);
 
-	// 카메라와 플레이어 간의 거리 조정 (MinDistance와 MaxDistance 사이로 제한)
-	float distanceRatio = FMath::Clamp(playerDistance, MinDistance, MAxDistance);
-	FVector direction = (centralLocation - GetActorLocation()).GetSafeNormal();
-	FVector desiredCameraLocation = centralLocation - direction * distanceRatio;
+	// 거리 변화가 임계값을 초과하는지 확인
+	float distanceChange = FMath::Abs(playerDistance - PreviousPlayerDistance);
 
-	// 카메라의 현재 위치와 회전 가져오기
-	FVector currentCameraLocation = CameraComp->GetComponentLocation();
-	FRotator currentCameraRotation = CameraComp->GetComponentRotation();
-
-	// 중앙 위치와 카메라가 바라보는 방향 계산
-	FVector desiredDirection = (centralLocation - desiredCameraLocation).GetSafeNormal();
-	FRotator desiredCameraRotation = desiredDirection.Rotation();
-
-	// 위치와 회전을 보간하여 새로운 카메라 위치와 회전 설정
-	FVector newCameraLocation = FMath::VInterpTo(currentCameraLocation, desiredCameraLocation, DeltaTime, CameraLagSpeed);
-	FRotator newCameraRotation = FMath::RInterpTo(currentCameraRotation, desiredCameraRotation, DeltaTime, CameraLagSpeed);
+	if (distanceChange > DistanceThreshold)
+	{
+		float newArmLength = FMath::Clamp(baseArmLength + playerDistance * 0.5f, MinDistance, MaxDistance);
+		SpringArmComp->TargetArmLength = newArmLength;
+	}
+	// 두 플레이어 사이의 방향 벡터 계산
+	FVector directionVector = playerBLoc - playerALoc;
+	directionVector.Normalize();
+	
+	// 방향 벡터를 회전으로 변환
+	FRotator centralRotation = directionVector.Rotation();
 	
 	// 카메라의 위치와 회전 업데이트
-	CameraComp->SetWorldLocation(centralLocation);
-	CameraComp->SetWorldRotation(centralRotation);
+	SetActorLocation(centralLocation+FVector(0,0,20));
+	SetActorRotation(centralRotation+FRotator(0,90,0));
 }
 
 

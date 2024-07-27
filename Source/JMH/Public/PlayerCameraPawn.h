@@ -25,6 +25,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USceneComponent* RootComp;
 	
 	UPROPERTY(EditDefaultsOnly)
 	class USpringArmComponent* SpringArmComp;
@@ -32,24 +35,30 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComp;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class ACharacter* playerA;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class ACharacter* playerB;
 
+	FVector playerALoc;
+	FVector playerBLoc;
+	
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float MinDistance = 500.f;
+	float baseArmLength = 50.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float MinDistance = 50.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float MaxDistance = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float MAxDistance = 2000.f;
+	float CameraLagSpeed = 1.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Camera")
-	float CameraLagSpeed = 5.0f;
-
-	// 카메라가 직각으로 바라보게 할 방향 조정
-	UPROPERTY(EditAnywhere, Category = "Camera")
-	float CameraOffsetDistance = 500.0f;
+private:
+	float PreviousPlayerDistance; // 이전 플레이어 거리 저장 변수
+	float DistanceThreshold; // 거리 변화 임계값
 	
 	UFUNCTION()
 	void UpdateCameraDynamic(float DeltaTime);
