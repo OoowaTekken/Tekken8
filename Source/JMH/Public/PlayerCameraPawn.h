@@ -58,12 +58,14 @@ public:
 
 private:
 	FVector InitialDirection;
+	FVector PreviousDirection;
 	float DistanceThreshold; // 거리 변화 임계값
 	float RotationThreshold = 10.0f;// 회전 변화 임계값
+
+	bool bIsRotationFixed;
 	
 	UFUNCTION()
 	void UpdateCameraDynamic(float DeltaTime);
 
-	
 
 };
