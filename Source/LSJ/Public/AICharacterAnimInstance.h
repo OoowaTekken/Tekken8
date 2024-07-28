@@ -18,13 +18,13 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class ACharacter* owner;
 
-	protected:
+protected:
 	UFUNCTION(BlueprintCallable, Category = "Update Properties")
 	virtual void UpdateProperties();
 	virtual void NativeUpdateAnimation ( float DeltaSeconds ) override;
 	virtual void NativeInitializeAnimation ( ) override;
 
-	public:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float movementSpeed;
 

@@ -21,6 +21,8 @@ AAICharacterController::AAICharacterController ( )
 
 void AAICharacterController::OnPossess ( APawn* InPawn )
 {
+	Super::OnPossess ( InPawn );
+
 	if ( !RunBehaviorTree ( behaviortree ) )
 	{
 		UE_LOG ( LogTemp , Error , TEXT ( "AIController couldn't run behavior tree!" ) );
