@@ -48,8 +48,15 @@ void APlayerCameraPawn::BeginPlay()
 	PreviousPlayerDistance = 0.0f;
 	DistanceThreshold = 350.0f; // 이상의 변화가 있을 때만 arm 길이 조정
 	
-	playerALoc = playerA->GetActorLocation();
-	playerBLoc = playerB->GetActorLocation();
+	// 플레이어의 초기 위치 저장
+	if (playerA && playerB)
+	{
+		InitialPlayerALoc = playerA->GetActorLocation();
+		InitialPlayerBLoc = playerB->GetActorLocation();
+	}
+
+	//playerALoc = playerA->GetActorLocation();
+	//playerBLoc = playerB->GetActorLocation();
 	
 }
 
@@ -72,6 +79,9 @@ void APlayerCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 {
 	if (!playerA || !playerB) return;
+	
+	FVector playerALoc = playerA->GetActorLocation();
+	FVector playerBLoc = playerB->GetActorLocation();
 	
 	FVector centralLocation = (playerALoc+playerBLoc) * 0.5f;// + playerBLoc; //그게 그거인듯
 	
@@ -96,6 +106,8 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	// 카메라의 위치와 회전 업데이트
 	SetActorLocation(centralLocation+FVector(0,0,20));
 	SetActorRotation(centralRotation+FRotator(0,90,0));
+	
+	PreviousPlayerDistance = playerDistance;
 }
 
 

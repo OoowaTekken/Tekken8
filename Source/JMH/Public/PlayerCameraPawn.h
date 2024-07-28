@@ -41,8 +41,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class ACharacter* playerB;
 
-	FVector playerALoc;
-	FVector playerBLoc;
+	//FVector playerALoc;
+	//FVector playerBLoc;
+
+	FVector InitialPlayerALoc;
+	FVector InitialPlayerBLoc;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float baseArmLength = 50.f;
