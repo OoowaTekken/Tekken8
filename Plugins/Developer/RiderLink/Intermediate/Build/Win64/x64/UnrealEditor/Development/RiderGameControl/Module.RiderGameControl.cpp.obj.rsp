@@ -1,8 +1,8 @@
-"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp"
-/FI"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Definitions.h"
-/Fo"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp.obj"
-/sourceDependencies "C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp.dep.json"
-@"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\RiderGameControl.Shared.rsp"
+"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp"
+/FI"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Definitions.h"
+/Fo"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp.obj"
+/sourceDependencies "C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp.dep.json"
+@"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\RiderGameControl.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi
