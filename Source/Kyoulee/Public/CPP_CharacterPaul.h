@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -35,8 +35,8 @@ public:
 	bool bKey9 : 1;
 
 	// 왼쪽
-	bool bLeftArm : 1;
-	bool bRightArm : 1;
+	bool bLeftPunch : 1;
+	bool bRightPunch : 1;
 	bool bLeftKick : 1;
 	bool bRightKick : 1;
 };
@@ -84,13 +84,21 @@ public:
 	FInputKey CurrInputKey;
 	
 	UFUNCTION()
-	int32 GetCurrInputKey();
+	int32 GetCurrInputKeyValue();
+
+	UFUNCTION ( )
+	FInputKey GetCurrInputKey ( );
 
 	UFUNCTION()
-	bool SetCurrInputKey(int32 value);
+	bool SetCurrInputKeyValue(int32 value);
 	
 	UFUNCTION()
-	int32 ShowInputKey(int ArrowKey, bool LeftArm, bool RightArm, bool LeftKick, bool RightKick);
+	bool SetCurrInputKey( FInputKey value);
+
+	UFUNCTION()
+	int32 InputKeyValue(int ArrowKey, bool LeftArm, bool RightArm, bool LeftKick, bool RightKick);
+
+	void SettingMove(int32 ArrowNum, bool Value );
 
 	/**
 	 * @title Command Tree
@@ -103,10 +111,6 @@ public:
 	FCommandTree *CreateCommandTree(int32 timingStart, int32 timingEnd, int32 timingAction, void (ACPP_CharacterPaul::*fptr)());
 	
 	FCommandTree *AddCommandTree(TMap<int32, FCommandTree*>& CurrCommandTree, int32 keyValue, int32 timingStart, int32 timingEnd, int32 timingAction, void(ACPP_CharacterPaul::* fptr)());
-
-
-
-
 
 protected:
 	// Called when the game starts or when spawned
