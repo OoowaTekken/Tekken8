@@ -41,11 +41,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class ACharacter* playerB;
 
-	//FVector playerALoc;
-	//FVector playerBLoc;
-
-	FVector InitialPlayerALoc;
-	FVector InitialPlayerBLoc;
+	FVector playerALoc;
+	FVector playerBLoc;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float baseArmLength = 50.f;
@@ -60,8 +57,9 @@ public:
 	float CameraLagSpeed = 1.0f;
 
 private:
-	float PreviousPlayerDistance; // 이전 플레이어 거리 저장 변수
+	FVector InitialDirection;
 	float DistanceThreshold; // 거리 변화 임계값
+	float RotationThreshold = 10.0f;// 회전 변화 임계값
 	
 	UFUNCTION()
 	void UpdateCameraDynamic(float DeltaTime);
