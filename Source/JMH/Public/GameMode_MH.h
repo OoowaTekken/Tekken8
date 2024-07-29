@@ -28,7 +28,18 @@ class JMH_API AGameMode_MH : public AGameModeBase
 public:
 	AGameMode_MH();
 
+	//카운트다운함수
+	UFUNCTION()
+	void CountDown(float DeltaTime);
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float roundTimer = 60.f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float gameTimer;
+	
 protected:
+	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
 	// 현재 게임 상태
@@ -51,5 +62,10 @@ protected:
 
 	// 게임 오버 조건을 만족하는지 체크하는 함수
 	bool IsGameOverConditionMet();
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<class UinGameUI> inGameWidget;
+	//상태 초기화(플레이어 HP, 타이머 시간, 라운드 표시 반영)
+	
 	
 };
