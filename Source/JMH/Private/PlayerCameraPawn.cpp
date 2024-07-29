@@ -85,19 +85,30 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	float distanceToPlayerB = FVector::Dist(GetActorLocation(), playerBLoc);
 
 	// 더 가까운 플레이어를 기준으로 방향 설정
-	FVector closerPlayerLoc = (distanceToPlayerA < distanceToPlayerB) ? playerALoc : playerBLoc;
-	FVector fartherPlayerLoc = (distanceToPlayerA < distanceToPlayerB) ? playerBLoc : playerALoc;
+	//FVector closerPlayerLoc = (distanceToPlayerA < distanceToPlayerB) ? playerALoc : playerBLoc;
+	//FVector fartherPlayerLoc = (distanceToPlayerA < distanceToPlayerB) ? playerBLoc : playerALoc;
 	
-	// 두 플레이어 사이의 방향 벡터 계산
-	FVector currentDirection = (fartherPlayerLoc - closerPlayerLoc).GetSafeNormal();
+	FVector currentDirection = (playerBLoc - playerALoc).GetSafeNormal();
 
-	// 초기 방향과 현재 방향 벡터의 각도 차이 계산 //모르겠음.. 각도 차이로 계산하면 딱 마주보고있을 때엔 되는데 조금이라도 비틀어지면 안됌.. 어차피 플레이어들 가로축 이동기준이라 괜찮으려나?
 	float angleDifference = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(PreviousDirection, currentDirection)));
-	if (FMath::Abs(angleDifference) < 170.0f || FMath::Abs(angleDifference) > 190.0f)
+
+	if (angleDifference < 100.0f || angleDifference > 300.0f)
 	{
+		if (!bIsRotationFixed)
+		{
 			FRotator centralRotation = currentDirection.Rotation();
 			SetActorRotation(centralRotation + FRotator(0, 90, 0));
 			PreviousDirection = currentDirection;
+		}
+	}
+	else
+	{
+		bIsRotationFixed = true;
+	}
+
+	if (FMath::Abs(angleDifference) < 90.0f)
+	{
+		bIsRotationFixed = false;
 	}
 	
 	// 플레이어들 간의 거리 계산
