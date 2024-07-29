@@ -54,7 +54,10 @@ public:
 	float MaxDistance = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float CameraLagSpeed = 1.0f;
+	float CameraLagSpeed = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float CameraLagRotSpeed = 10.f;
 	
 	UFUNCTION()
 	void UpdateCameraDynamic(float DeltaTime);
