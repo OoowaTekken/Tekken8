@@ -55,17 +55,35 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float CameraLagSpeed = 1.0f;
+	
+	UFUNCTION()
+	void UpdateCameraDynamic(float DeltaTime);
+	
+	UFUNCTION()
+	void CameraZoom(float DeltaTime, float playerDistance);
 
 private:
+	
 	FVector InitialDirection;
 	FVector PreviousDirection;
 	float DistanceThreshold; // 거리 변화 임계값
 	float RotationThreshold = 10.0f;// 회전 변화 임계값
-
-	bool bIsRotationFixed;
+	float newArmLength;
 	
+	bool bIsRotationFixed;
+
 	UFUNCTION()
-	void UpdateCameraDynamic(float DeltaTime);
+	void RequestZoomEffect(FVector TargetLocation, float InZoomAmount, float InShakingValue, float InDuration);
+private:
+	FVector ZoomTargetLocation;
+	float ZoomAmount = 0.5f;
+	float ShakingValue = 0.0f;
+	bool bIsZoomActive= false;
+	float ZoomDuration = 0.0f;
+	float ZoomElapsedTime = 0.0f;
+	
+
+	
 
 
 };
