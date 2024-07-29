@@ -8,8 +8,7 @@
 #include "AIStateComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE ( FOnStateComplete );
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE ( FOnStateWalkForwardComplete );
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LSJ_API UAIStateComponent : public UActorComponent , public IAIStateInterface
 {
@@ -33,6 +32,6 @@ public:
 	virtual void Exit ( ) override;
 	virtual void SetStateOwner (class ACharacter* pOwner);
 
-	UPROPERTY(BlueprintAssignable)
-    FOnStateComplete OnStateComplete;
+		UPROPERTY(BlueprintAssignable)
+    FOnStateWalkForwardComplete OnStateComplete;
 };

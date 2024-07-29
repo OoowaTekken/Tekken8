@@ -11,15 +11,14 @@
 void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
-	animInstace = pAnimInstance;
-	
+	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	animInstace->PlayerWalkForwardMontage();
 	//GetWorld( )->GetFirstPlayerController()
 }
 
 void UAIStateWalkForward::Execute ( )
 {
 	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector()*5.0f);
-	Exit ( );
 }
 
 void UAIStateWalkForward::Exit ( )
@@ -29,10 +28,7 @@ void UAIStateWalkForward::Exit ( )
 void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
-	TArray<AActor*> outActors;
-	UGameplayStatics::GetAllActorsOfClass ( GetWorld ( ) , ACharacter::StaticClass ( ) , outActors );
-	FRotator lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , outActors[2]->GetActorLocation ( ) );
-	owner->SetActorRotation ( lookPlayerRotator );
+	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 0.1f ) );
 	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkForward" ) );
 	// ...
 }

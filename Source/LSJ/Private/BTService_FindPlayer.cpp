@@ -5,7 +5,7 @@
 #include "BehaviorTree/BlackBoardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
-
+#include "CPP_CharacterPaul.h"
 
 UBTService_FindPlayer::UBTService_FindPlayer ( )
 {
@@ -15,7 +15,5 @@ UBTService_FindPlayer::UBTService_FindPlayer ( )
 
 void UBTService_FindPlayer::TickNode ( UBehaviorTreeComponent& OwnerComp , uint8* NodeMemory , float DeltaSeconds )
 {
-	TArray<AActor*> outActors;
-	UGameplayStatics::GetAllActorsOfClass ( GetWorld ( ) , ACharacter::StaticClass ( ) , outActors );
-	OwnerComp.GetBlackboardComponent ( )->SetValueAsObject ( FName("Player" ) , outActors[2] );
+	OwnerComp.GetBlackboardComponent ( )->SetValueAsObject ( FName("Player" ) , UGameplayStatics::GetActorOfClass ( GetWorld ( ) , ACPP_CharacterPaul::StaticClass ( ) ) );
 }

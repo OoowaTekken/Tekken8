@@ -6,6 +6,6 @@
 /NAME:"UnrealEditor-RiderLogging.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\Module.RiderLogging.cpp.obj"
-"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
-/OUT:"C:\Project2A\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\UnrealEditor-RiderLogging.lib"
+"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\Module.RiderLogging.cpp.obj"
+"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
+/OUT:"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLogging\UnrealEditor-RiderLogging.lib"

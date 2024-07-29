@@ -49,4 +49,7 @@ public:
 	// 상태 객체에 대한 접근 메서드 추가
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
 	UAIStateWalkBack* GetAIStateWalkBack ( ) const { return stateWalkBack; }
+	//animation montage End
+	UFUNCTION()
+    void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 };

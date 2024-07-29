@@ -27,7 +27,6 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 			UActorComponent* stateComponent = nullptr;
 
 			// 적절한 상태 클래스에 따라 상태 변경
-			  // 적절한 상태 클래스에 따라 상태 변경
 			if ( newStateClass == UAIStateWalkBack::StaticClass ( ) )
 			{
 				stateComponent = Enemy->GetAIStateWalkBack ( );
@@ -39,11 +38,10 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 
 			if ( stateComponent )
 			{
-				Enemy->ChangeState ( Cast<IAIStateInterface> ( stateComponent ) );
-
 				// 상태 완료시 호출될 델리게이트 바인딩
 				if ( UAIStateWalkBack* stateWalkBack = Cast<UAIStateWalkBack> ( stateComponent ) )
 				{
+					if ( !stateWalkBack->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkBack->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 					/*				FTimerHandle handle;
 									GetWorld ( )->GetTimerManager ( ).SetTimer ( handle , FTimerDelegate::CreateLambda ( [stateWalkBack]( ) {
@@ -52,6 +50,7 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 				}
 				else if ( UAIStateWalkForward* stateWalkForward = Cast<UAIStateWalkForward> ( stateComponent ) )
 				{
+					if ( !stateWalkForward->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkForward->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 					/*		FTimerHandle handle;
 							GetWorld ( )->GetTimerManager ( ).SetTimer ( handle , FTimerDelegate::CreateLambda ( [stateWalkForward]( ) {
@@ -61,13 +60,13 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 
 				bIsWaitingForState = true;
 				cachedOwnerComp = &OwnerComp;
-
+				Enemy->ChangeState ( Cast<IAIStateInterface> ( stateComponent ) );
 				return EBTNodeResult::InProgress;
 			}
 		}
 	}
 
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Failed;
 }
 
 void UBTTaskNode_ChangeState::TickTask ( UBehaviorTreeComponent& OwnerComp , uint8* NodeMemory , float DeltaSeconds )
@@ -84,9 +83,4 @@ void UBTTaskNode_ChangeState::TickTask ( UBehaviorTreeComponent& OwnerComp , uin
 void UBTTaskNode_ChangeState::OnStateCompleted ( )
 {
 	bIsWaitingForState = false;
-
-	if ( cachedOwnerComp )
-	{
-		FinishLatentTask ( *cachedOwnerComp , EBTNodeResult::Succeeded );
-	}
 }

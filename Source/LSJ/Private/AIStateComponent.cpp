@@ -4,7 +4,7 @@
 #include "AIStateComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
-
+#include "CPP_CharacterPaul.h"
 // Sets default values for this component's properties
 UAIStateComponent::UAIStateComponent()
 {
@@ -38,6 +38,8 @@ void UAIStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UAIStateComponent::Enter ( class UAICharacterAnimInstance* pAnimInstance )
 {
 	SetComponentTickEnabled ( true );
+	animInstace = pAnimInstance;
+	player = Cast<ACharacter>(UGameplayStatics::GetActorOfClass ( GetWorld ( ) , ACPP_CharacterPaul::StaticClass ( ) ));
 }
 
 void UAIStateComponent::Execute ( )
@@ -48,8 +50,7 @@ void UAIStateComponent::Execute ( )
 void UAIStateComponent::Exit ( )
 {
 	SetComponentTickEnabled ( false );
-
-	// 상태 종료 알림
+	if( OnStateComplete .IsBound())
 	OnStateComplete.Broadcast ( );
 }
 
@@ -57,4 +58,3 @@ void UAIStateComponent::SetStateOwner (ACharacter* pOwner )
 {
 	owner = pOwner;
 }
-

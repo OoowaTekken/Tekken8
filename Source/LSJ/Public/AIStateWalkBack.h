@@ -9,11 +9,12 @@
 /**
  * 
  */
+
 UCLASS()
 class LSJ_API UAIStateWalkBack : public UAIStateComponent
 {
 	GENERATED_BODY()
-	
+	FRotator lookPlayerRotator;
 public:
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( ) override;
