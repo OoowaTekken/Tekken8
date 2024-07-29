@@ -13,12 +13,12 @@ enum class ECharacterState
 	Idle, //별표상태
 	//Attack, //공격상태 //상대가 헛발질 할때의 상황을 가져올 수 있나?
 	//상단 중단 하단 가드하기 위해 Attack 위치가 필요하다
-	AttackLower,
+	AttackLower, 
 	AttackMiddle,
 	AttackTop, 
 	Air, //공중상태
-	HitGround, //지상에서 Hit 상태
-	HitFalling, //공중에서 Hit 상태
+	HitGround, //지상에서 Hit 상태 //
+	HitFalling, //공중에서 Hit 상태 //trace?
 	GuardStand, //서있는 가드상태
 	GuardSit, //앉은 가드상태
 	Sit, //앉아있는 상태
