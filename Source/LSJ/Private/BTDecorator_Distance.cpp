@@ -12,6 +12,7 @@ UBTDecorator_Distance::UBTDecorator_Distance()
 	NodeName = TEXT ( "DistancePlayer" );
 }
 
+
 bool UBTDecorator_Distance::CalculateRawConditionValue ( UBehaviorTreeComponent& OwnerComp , uint8* NodeMemory ) const
 {
 	bool bResult = Super::CalculateRawConditionValue ( OwnerComp , NodeMemory );
@@ -26,6 +27,6 @@ bool UBTDecorator_Distance::CalculateRawConditionValue ( UBehaviorTreeComponent&
 	/*TArray<AActor*> outActors;
 	UGameplayStatics::GetAllActorsOfClass ( GetWorld ( ) , ACharacter::StaticClass ( ) , outActors );*/
 
-	bResult = (Target->GetDistanceTo(ControllingPawn ) <= 200.0f);
+	bResult = (Target->GetDistanceTo(ControllingPawn ) <= distance);
 	return bResult;
 }

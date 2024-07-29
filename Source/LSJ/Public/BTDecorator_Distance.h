@@ -13,7 +13,9 @@ UCLASS()
 class LSJ_API UBTDecorator_Distance : public UBTDecorator
 {
 	GENERATED_BODY()
-	
+	//attack range < walk range < run range
+	UPROPERTY(EditAnywhere,Category="Distance",meta=(AllowPrivateAccess="true") )
+	float distance;
 public:
 	UBTDecorator_Distance ( );
 
