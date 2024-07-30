@@ -15,7 +15,10 @@ class LSJ_API UAIStateWalkForward : public UAIStateComponent
 {
 	GENERATED_BODY()
 	FRotator lookPlayerRotator;
+
 public:
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float distance=200.0f;
 	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( ) override;
 	virtual void Exit ( ) override;

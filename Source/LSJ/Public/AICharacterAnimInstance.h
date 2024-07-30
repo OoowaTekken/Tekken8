@@ -21,6 +21,8 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* walkForwardMontage;
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* walkBackMontage;
+	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
+	bool bStateWalkForward;
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Update Properties")
 	virtual void UpdateProperties();
@@ -43,4 +45,6 @@ public:
     void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 	void PlayerWalkForwardMontage();
 	void PlayerWalkBackMontage();
+	bool StateWalkForward ( ) const { return bStateWalkForward; }
+	void StateWalkForward ( bool val ) { bStateWalkForward = val; }
 };

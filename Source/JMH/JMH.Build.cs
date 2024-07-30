@@ -6,7 +6,7 @@ public class JMH : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" , "UMG", "Kyoulee","LSJ" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" , "UMG", "Kyoulee","LSJ", "Niagara" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
     }

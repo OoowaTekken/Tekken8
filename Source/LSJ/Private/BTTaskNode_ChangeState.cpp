@@ -35,7 +35,6 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 			{
 				stateComponent = Enemy->GetAIStateWalkForward ( );
 			}
-
 			if ( stateComponent )
 			{
 				// 상태 완료시 호출될 델리게이트 바인딩
