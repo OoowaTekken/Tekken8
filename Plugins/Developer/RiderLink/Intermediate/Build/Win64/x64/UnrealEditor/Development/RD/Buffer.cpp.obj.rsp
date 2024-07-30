@@ -1,8 +1,8 @@
-"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main\protocol\Buffer.cpp"
-/FI"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Definitions.h"
-/Fo"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Buffer.cpp.obj"
-/sourceDependencies "C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Buffer.cpp.dep.json"
-@"C:\Project2\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\RD.Shared.rsp"
+"C:\SecondProject\Tekken8\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main\protocol\Buffer.cpp"
+/FI"C:\SecondProject\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Definitions.h"
+/Fo"C:\SecondProject\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Buffer.cpp.obj"
+/sourceDependencies "C:\SecondProject\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\Buffer.cpp.dep.json"
+@"C:\SecondProject\Tekken8\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\RD.Shared.rsp"
 /Zc:inline
 /nologo
 /Oi
