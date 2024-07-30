@@ -18,9 +18,15 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
+	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
 	class UTextBlock* text_Timer;
 
+	UPROPERTY()
+	class AGameMode_MH* gm;
+
+	UFUNCTION()
+	void UpdateTimerDisplay(float TimerValue);
+	
 	/*
 	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
 	class UImage* VictoryPoint1;
@@ -30,6 +36,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
 	class UImage* VictoryPoint3;
+	
+	if(gameMode)
+	{
+		FString ValueAsString = FString::Printf(TEXT("%.0f") , gameMode->gameTimer);
+		text_Timer->SetText(FText::FromString(ValueAsString));
+	}
 */
 
 	
