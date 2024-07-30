@@ -39,8 +39,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float gameTimer;
 	
-protected:
 	virtual void Tick(float DeltaTime) override;
+protected:
 	virtual void BeginPlay() override;
 
 	// 현재 게임 상태
@@ -76,6 +76,6 @@ protected:
 	//상태 초기화(플레이어 HP, 타이머 시간, 라운드 표시 반영)
 	
 public:
-	UPROPERTY()
-	UinGameUI* inGameUI;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UinGameUI* inGameUI;
 };

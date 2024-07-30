@@ -8,18 +8,21 @@
 
 AGameMode_MH::AGameMode_MH()
 {
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 
 void AGameMode_MH::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	StartGame();
-	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
 }
 
 void AGameMode_MH::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+	
 	if (CurrentState == EGameState::InProgress)
 	{
 		CountDown(DeltaTime);
@@ -56,7 +59,6 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	case EGameState::GameStart:
 		//라운드 시작
 		//라운드 초기화
-		GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("GameStart!"));
 		StartRound();
 		break;
 	case EGameState::RoundStart:
@@ -96,10 +98,8 @@ void AGameMode_MH::StartGame()
 
 void AGameMode_MH::StartRound()
 {
-	GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("StartRound!"));
-
 	//게임 UI생성 (타이머, HP,라운드카운트,캐릭터 이미지)
-
+	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
 	if (inGameUI)
 	{
 		inGameUI->AddToViewport();
@@ -111,6 +111,7 @@ void AGameMode_MH::StartRound()
 
 void AGameMode_MH::CheckForGameOver()
 {
+	GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("GameOver"));
 	if (IsGameOverConditionMet())
 	{
 		SetGameState(EGameState::GameOver);
