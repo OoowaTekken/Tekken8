@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Tekken8CharacterParent.h"
+#include "CPP_IFCharacterInteraction.h"
 #include "CPP_CharacterPaul.generated.h"
 
 
@@ -69,7 +71,7 @@ public:
 
 
 UCLASS()
-class KYOULEE_API ACPP_CharacterPaul : public ACharacter
+class KYOULEE_API ACPP_CharacterPaul : public ATekken8CharacterParent, public ICPP_IFCharacterInteraction
 {
 	GENERATED_BODY()
 
@@ -139,6 +141,14 @@ public:
 	void skillfinctiontest() {};
 	
 	float fUpVector;
+
+	/**
+	 * @title Owner State
+	 * @brief 상태 정보입니다.
+	 */
+	class USkeletalMeshComponent* uCharacterMesh;
+
+
 	/**
 	 * @title Target Point
 	 * @brief 상대에 대한 정보
@@ -155,6 +165,9 @@ public:
 	void SetToLocationPoint(float x, float y, float z);
 	void SetToLocationPoint ( FVector vector );
 	void SetToWorldLocationPoint ( FVector vector );
+
+
+	FVector RelativePointVector ( float x , float y , float z );
 	/**
 	* @title 메인트리
 	* @brief 시작 지점 트리를 가지고 있습니다.
@@ -170,5 +183,11 @@ public:
 	void CommandMoveLateralUp ( );
 	void CommandDownCrouch ( );
 	void CommandMoveLateralDown( );
+	void CommandLeftRightCombo_1 ( );
+	void CommandLeftRightCombo_2 ( );
+
+
+	virtual int32 GetCurrentHp ( ) const override {return 0;};
+	virtual bool HitDecision ( eHitDecision hitPosition , float Damage ) const override { return false;};
 };
 	            

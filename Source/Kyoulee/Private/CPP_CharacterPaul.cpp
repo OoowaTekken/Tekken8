@@ -9,12 +9,13 @@ ACPP_CharacterPaul::ACPP_CharacterPaul()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	USkeletalMeshComponent* tempCharacterMesh = this->GetMesh();
+	this->uCharacterMesh = this->GetMesh ( );
+
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSkeletalMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny'"));
 	if (tempSkeletalMesh.Succeeded())
-		tempCharacterMesh->SetSkeletalMeshAsset(tempSkeletalMesh.Object);
-	tempCharacterMesh->SetRelativeLocation(FVector(0,0,-90));
-	tempCharacterMesh->SetRelativeRotation(FRotator(0,0,-90));
+		uCharacterMesh->SetSkeletalMeshAsset(tempSkeletalMesh.Object);
+	uCharacterMesh->SetRelativeLocation(FVector(0,0,-90));
+	uCharacterMesh->SetRelativeRotation(FRotator(0,0,-90));
 
 }
 // Called when the game starts or when spawned
@@ -60,7 +61,7 @@ void ACPP_CharacterPaul::FrameSystem()
 		if (this->mCurrCommandTree.Find( currKeyValue ))
 		{
 			FCommandTree* temptree = this->mCurrCommandTree[currKeyValue];
-			// UE_LOG ( LogTemp , Warning , TEXT ( "input : %i" ) , this->GetCurrInputKeyValue ( ) );
+			//UE_LOG ( LogTemp , Warning , TEXT ( "input : %i " ) , this->GetCurrInputKeyValue ( ) );
 			if( temptree != nullptr )
 			{
 				temptree->action.Execute ( );
@@ -108,6 +109,18 @@ void ACPP_CharacterPaul::SetToLocationPoint ( FVector vector)
 void ACPP_CharacterPaul::SetToWorldLocationPoint ( FVector vector )
 {
 	this->ToLocation = vector;
+}
+
+FVector ACPP_CharacterPaul::RelativePointVector ( float x , float y , float z )
+{
+	FVector relativePoint = this->GetActorLocation ( ) +
+		(
+			this->GetActorForwardVector ( ) * x +
+			this->GetActorRightVector ( ) * y +
+			this->GetActorUpVector ( ) * z
+		);
+
+	return relativePoint;
 }
 
 /**
@@ -170,10 +183,10 @@ int32 ACPP_CharacterPaul::InputKeyValue ( int ArrowKey , bool LeftArm , bool Rig
 	int32 inputValue = 0;
 
 	inputValue = (ArrowKey ? 1 << (ArrowKey - 1) : 0) +
-		this->CurrInputKey.bLeftPunch * 0b0000001000000000 +
-		this->CurrInputKey.bRightPunch * 0b0000010000000000 +
-		this->CurrInputKey.bLeftKick * 0b0000100000000000 +
-		this->CurrInputKey.bRightKick * 0b0001000000000000;
+		LeftArm		* 0b0000001000000000 +
+		RightArm	* 0b0000010000000000 +
+		LeftKick	* 0b0000100000000000 +
+		RightKick	* 0b0001000000000000;
 	return inputValue;
 }
 
@@ -247,6 +260,19 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveLateralDown );
 	mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees[downkey]->NextTrees.Add ( downkey , mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees[downkey] );
 
+	// Crouch
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[downkey]->NextTrees , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
+	mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[downkey]->NextTrees.Add ( downkey , mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[downkey] );
+
+	// LeftRightCombo
+	int32 LP = InputKeyValue ( 0 , true , 0 , 0 , 0 );
+	int32 RP = InputKeyValue ( 0 , 0 , true , 0 , 0 );
+	// LeftRight 1 
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_1 );
+	// LeftRight 2
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[LP]->NextTrees , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_2 );
+
 	//mTempTarget.Add ( InputKeyValue ( 6 , 0 , 0 , 0 , 0 ) , mTempTree[InputKeyValue ( 6 , 0 , 0 , 0 , 0 )] );
 
 	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 4 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveForward );
@@ -301,6 +327,10 @@ void ACPP_CharacterPaul::SetupPlayerInputComponent ( UInputComponent* PlayerInpu
 void ACPP_CharacterPaul::CommandIdle ( )
 {
 	//UE_LOG ( LogTemp , Warning , TEXT ( "CommandIdle Pressed" ) );
+
+	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 1 , 1 , 1 ) );
+	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -90 ) );
+
 	if ( this->CountIdle3Frame > 3 )
 	{
 		UE_LOG ( LogTemp , Warning , TEXT ( "Clean Command" ) );
@@ -333,20 +363,22 @@ void ACPP_CharacterPaul::CommandMoveForwarDash()
 
 void ACPP_CharacterPaul::CommandMoveBack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command3 Pressed"));
+	UE_LOG(LogTemp, Warning, TEXT("CommandMoveBack Pressed"));
 	this->SetToLocationPoint ( -30 , 0 , 0 );
 }
 
 void ACPP_CharacterPaul::CommandMoveBackDash ()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command4 Pressed"));
+	UE_LOG(LogTemp, Warning, TEXT("CommandMoveBackDash Pressed"));
 	this->SetToLocationPoint ( -200 , 0 , 0 );
 }
 
 void ACPP_CharacterPaul::CommandJump ()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CommandJump Pressed"));
-	
+
+	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
+	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , 130 ) );
 }
 
 void ACPP_CharacterPaul::CommandMoveLateralUp ()
@@ -362,8 +394,9 @@ void ACPP_CharacterPaul::CommandMoveLateralUp ()
 
 void ACPP_CharacterPaul::CommandDownCrouch ()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command8 Pressed"));
-	this->SetToLocationPoint(0, 0, 10);
+	UE_LOG(LogTemp, Warning, TEXT("CommandDownCrouch Pressed"));
+	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
+	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -130 ) );
 }
 
 void ACPP_CharacterPaul::CommandMoveLateralDown ()
@@ -374,3 +407,34 @@ void ACPP_CharacterPaul::CommandMoveLateralDown ()
 
 }
 
+void ACPP_CharacterPaul::CommandLeftRightCombo_1 ( )
+{
+	UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeftRightCombo_1 Pressed" ) );
+	FSkellInfo skellinfo;
+
+	skellinfo.skellHitDecision = eHitDecision::Top;
+	skellinfo.skellDamage = 5;
+	skellinfo.skellEffectLocation = this->RelativePointVector ( 50 , 5 , 80 );
+	skellinfo.skellNuckbuck = FVector( -10, 0, 0 );
+	skellinfo.cameraShake = 0;
+	skellinfo.cameraZoom = 0;
+
+	this->SetToLocationPoint ( 30 , 0 , 0 );
+
+	DrawDebugSphere(GetWorld(), skellinfo.skellEffectLocation, 12, 26, FColor(0,255,0), true, 2);
+}
+
+void ACPP_CharacterPaul::CommandLeftRightCombo_2 ( )
+{
+	UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeftRightCombo_2 Pressed" ) );
+	FSkellInfo skellinfo;
+
+	skellinfo.skellHitDecision = eHitDecision::Top;
+	skellinfo.skellDamage = 12;
+	skellinfo.skellEffectLocation = this->RelativePointVector( 70 , -5 , 60 );
+	skellinfo.skellNuckbuck = FVector ( -10 , 0 , 0 );
+	skellinfo.cameraShake = 0;
+	skellinfo.cameraZoom = 0;
+
+	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , 12 , 26 , FColor ( 225 , 0 , 225 ) , true , 2 );
+}
