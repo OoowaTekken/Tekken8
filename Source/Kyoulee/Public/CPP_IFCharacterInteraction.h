@@ -13,8 +13,6 @@ class UCPP_IFCharacterInteraction : public UInterface
 	GENERATED_BODY()
 };
 
-
-
 enum eHitDecision
 {
 	Top,
@@ -25,6 +23,42 @@ enum eHitDecision
 	GuardBreak,
 	Other
 };
+
+
+
+/**
+ * @Title 키에대한 입력처리를 위한 스트럭트입니다.
+ */
+USTRUCT(Atomic, BlueprintType)
+struct FSkellInfo
+{
+	GENERATED_BODY()
+public:
+
+	/**
+	 * Skell Info
+	 */
+	// 공격 분류
+	eHitDecision skellHitDecision = eHitDecision::Top;
+
+	// 데미지
+	int32 skellDamage = 0;
+	
+	// Effect Location
+	FVector skellEffectLocation = FVector(0);
+
+	// 넉백
+	FVector skellNuckbuck = FVector ( 0 );
+
+	/**
+	 * Camera Send Info
+	 */
+	 float cameraShake = 0;
+	 float cameraZoom = 0;
+	 // skellEffectLocation; 상위 참조
+ };
+ 
+
 
 
 /**
@@ -38,10 +72,11 @@ class KYOULEE_API ICPP_IFCharacterInteraction
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
+	
 	/**
 	 * @brie 현재 체력을 확인하기위한 함수
 	 */
-	virtual float GetCurrentHp() const = 0;
+	virtual int32 GetCurrentHp() const = 0;
 
 	/**
 	 * @func HitDecision
@@ -51,12 +86,5 @@ public:
 	 * 반환에 true 맞은것 false 막은것
 	 */
 	virtual bool HitDecision(eHitDecision hitPosition, float Damage) const = 0;
-
-	/**
-	 * @brie Actor 의 위치가 아닌 상대가 바라보고 있어야 하는 위치를 반환한다.
-	 * @return 얼굴 혹은 특정 위치의 소켓 혹은 본 Location 을 반환하는 식을 완성한다.
-	 */
-	virtual FVector GetLocationForLook() const = 0;
-
 
 };
