@@ -2,7 +2,7 @@
 
 
 #include "CPP_CharacterPaul.h"
-
+#include  "Kismet/KismetMathLibrary.h"
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul()
 {
@@ -27,118 +27,6 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	// 위치 세팅
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
 }
-
-FInputKey ACPP_CharacterPaul::GetCurrInputKey ( )
-{
-	return this->CurrInputKey;
-}
-
-int32 ACPP_CharacterPaul::GetCurrInputKeyValue()
-{
-	int32 KeyValue = 
-		//this->CurrInputKey.bKey1		* 0b0000000000000001 +
-		this->CurrInputKey.bKey2		* 0b0000000000000010 +
-		//this->CurrInputKey.bKey3		* 0b0000000000000100 +
-		this->CurrInputKey.bKey4		* 0b0000000000001000 +
-		//this->CurrInputKey.bKey5		* 0b0000000000010000 +
-		this->CurrInputKey.bKey6		* 0b0000000000100000 +
-		//this->CurrInputKey.bKey7		* 0b0000000001000000 +
-		this->CurrInputKey.bKey8		* 0b0000000010000000 +
-		//this->CurrInputKey.bKey9		* 0b0000000100000000 +
-		this->CurrInputKey.bLeftPunch	* 0b0000001000000000 +
-		this->CurrInputKey.bRightPunch	* 0b0000010000000000 +
-		this->CurrInputKey.bLeftKick	* 0b0000100000000000 +
-		this->CurrInputKey.bRightKick	* 0b0001000000000000;
-
-	return KeyValue;
-}
-
-bool ACPP_CharacterPaul::SetCurrInputKeyValue (int32 value)
-{
-	//this->CurrInputKey.bKey1		= value & 0b0000000000000001;
-	this->CurrInputKey.bKey2		= value & 0b0000000000000010;
-	//this->CurrInputKey.bKey3		= value & 0b0000000000000100;
-	this->CurrInputKey.bKey4		= value & 0b0000000000001000;
-	//this->CurrInputKey.bKey5		= value & 0b0000000000010000;
-	this->CurrInputKey.bKey6		= value & 0b0000000000100000;
-	//this->CurrInputKey.bKey7		= value & 0b0000000001000000;
-	this->CurrInputKey.bKey8		= value & 0b0000000010000000;
-	//this->CurrInputKey.bKey9		= value & 0b0000000100000000;
-	this->CurrInputKey.bLeftPunch	= value & 0b0000001000000000;
-	this->CurrInputKey.bRightPunch	= value & 0b0000010000000000;
-	this->CurrInputKey.bLeftKick	= value & 0b0000100000000000;
-	this->CurrInputKey.bRightKick	= value & 0b0001000000000000;
-
-	return true;
-}
-
-bool ACPP_CharacterPaul::SetCurrInputKey ( FInputKey value )
-{
-	this->CurrInputKey = value;
-	return true;
-}
-
-int32 ACPP_CharacterPaul::InputKeyValue(int ArrowKey, bool LeftArm, bool RightArm, bool LeftKick, bool RightKick)
-{
-	int32 inputValue = 0;
-	
-	inputValue = (ArrowKey ? 1 << (ArrowKey - 1) : 0) + 
-	this->CurrInputKey.bLeftPunch * 0b0000001000000000 +
-	this->CurrInputKey.bRightPunch * 0b0000010000000000 +
-	this->CurrInputKey.bLeftKick * 0b0000100000000000 +
-	this->CurrInputKey.bRightKick * 0b0001000000000000;
-	return inputValue;
-}
-
-
-void ACPP_CharacterPaul::SettingCommandTree()
-{
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(1, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command1);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(2, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command2);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(3, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command3);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(4, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command4);
-	this->AddCommandTree(mBaseCommandTree, InputKeyValue(6, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command6);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(7, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command7);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(8, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command8);
- 	this->AddCommandTree(mBaseCommandTree, InputKeyValue(9, 0, 0, 0, 0), 4, 1, 2, &ACPP_CharacterPaul::Command9);
-}
-
-
-FCommandTree* ACPP_CharacterPaul::CreateCommandTree(int32 timingStart, int32 timingEnd, int32 timingAction, void (ACPP_CharacterPaul::* fptr)())
-{
-	FCommandTree *NewCommand = new FCommandTree();
-	
-	//NewCommand->PrevTrees;
-	//NewCommand->NextTrees;
-	NewCommand->timingStart = timingStart;
-	NewCommand->timingEnd = timingEnd;
-	NewCommand->timingAction = timingAction;
-	NewCommand->action.BindUObject(this, fptr);
-
-	//NewCommand->action.Execute();
-	return NewCommand;
-}
-
-FCommandTree* ACPP_CharacterPaul::AddCommandTree(TMap<int32, FCommandTree*> &CurrCommandTree,int32 keyValue, int32 timingStart, int32 timingEnd, int32 timingAction, void(ACPP_CharacterPaul::* fptr)())
-{
-//  음 빈거 확인해야 하는데 잘안됨 확인할 필요있음
-// 	if (!CurrCommandTree && nullptr == CurrCommandTree[keyValue])
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("Error: befor add CommandTree was settinged!! %i"), keyValue);
-// 		return nullptr;
-// 	}
-
-	CurrCommandTree.Add(keyValue, this->CreateCommandTree(timingStart,timingEnd, timingAction, fptr));
-	return CurrCommandTree[keyValue];
-}
-
-// Called to bind functionality to input
-void ACPP_CharacterPaul::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-
 // Called every frame
 void ACPP_CharacterPaul::Tick(float DeltaTime)
 {
@@ -156,14 +44,6 @@ void ACPP_CharacterPaul::Tick(float DeltaTime)
 }
 
 
-/**
- * @title 인풋처리를 위한 함수 입니다.
- */
-
-void ACPP_CharacterPaul::SettingMove (int32 ArrowNum, bool Value )
-{
-
-}
 
 /**
  * @title Frame 시스템을 위한 함수입니다.
@@ -171,24 +51,29 @@ void ACPP_CharacterPaul::SettingMove (int32 ArrowNum, bool Value )
 void ACPP_CharacterPaul::FrameSystem()
 {
 	 FVector dir = (this->ToLocation - this->GetActorLocation()) / 60;
+	 int32 currKeyValue = this->GetCurrInputKeyValue ( );
 	 this->SetActorLocation ( this->GetActorLocation ( ) + dir );
-
-	if (!(fCurrFrame % 5))
+	 if ( currKeyValue )
+		 this->SetActorRotation ( UKismetMathLibrary::FindLookAtRotation ( this->GetActorLocation ( ) , this->aOpponentPlayer->GetActorLocation ( ) ) );
+	if (!(fCurrFrame % 2))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("test frame"));dff
-		FCommandTree** temptree = this->mBaseCommandTree.Find ( this->GetCurrInputKeyValue ( ) );
-		if( temptree )
-		{ 
-			if ( *temptree && &(*temptree)->action )
-			{ 
-				//UE_LOG(LogTemp, Warning, TEXT("input : %i") , this->GetCurrInputKeyValue ( ) );
-				(*temptree)->action.Execute();
-			}
-			else
+		if (this->mCurrCommandTree.Find( currKeyValue ))
+		{
+			FCommandTree* temptree = this->mCurrCommandTree[currKeyValue];
+			// UE_LOG ( LogTemp , Warning , TEXT ( "input : %i" ) , this->GetCurrInputKeyValue ( ) );
+			if( temptree != nullptr )
 			{
-				//UE_LOG ( LogTemp , Warning , TEXT ( "no Action :" )  );
+				temptree->action.Execute ( );
 
+				if (this->mCurrCommandTree.Find(currKeyValue) )
+					mCurrCommandTree = this->mCurrCommandTree[currKeyValue]->NextTrees;
+				else
+					mCurrCommandTree = mBaseCommandTree;
 			}
+		}
+		else
+		{
+			this->CommandIdle();
 		}
 	}
 	if (fCurrFrame > 60)
@@ -201,65 +86,291 @@ void ACPP_CharacterPaul::SetToLocationPoint(float x, float y, float z)
 {
 	FVector moveToPoint = this->GetActorLocation() +
 	(
-		this->GetActorForwardVector() * x * 10 +
-		this->GetActorRightVector() * y * 10 +
-		this->GetActorUpVector() * z * 10
+		this->GetActorForwardVector() * x +
+		this->GetActorRightVector() * y +
+		this->GetActorUpVector() * z
 	);
 	this->ToLocation = moveToPoint;
 }
 
+void ACPP_CharacterPaul::SetToLocationPoint ( FVector vector)
+{
+	FVector moveToPoint = this->GetActorLocation ( ) +
+		(
+			this->GetActorForwardVector ( ) * vector.X +
+			this->GetActorRightVector ( ) * vector.Y +
+			this->GetActorUpVector ( ) * vector.Z 
+		);
+	this->ToLocation = moveToPoint;
+}
 
 
+void ACPP_CharacterPaul::SetToWorldLocationPoint ( FVector vector )
+{
+	this->ToLocation = vector;
+}
 
+/**
+ * @title 인풋처리를 위한 함수 입니다.
+ */
+
+
+FInputKey ACPP_CharacterPaul::GetCurrInputKey ( )
+{
+	return this->CurrInputKey;
+}
+
+int32 ACPP_CharacterPaul::GetCurrInputKeyValue ( )
+{
+	int32 KeyValue =
+		//this->CurrInputKey.bKey1		* 0b0000000000000001 +
+		this->CurrInputKey.bKey2 * 0b0000000000000010 +
+		//this->CurrInputKey.bKey3		* 0b0000000000000100 +
+		this->CurrInputKey.bKey4 * 0b0000000000001000 +
+		//this->CurrInputKey.bKey5		* 0b0000000000010000 +
+		this->CurrInputKey.bKey6 * 0b0000000000100000 +
+		//this->CurrInputKey.bKey7		* 0b0000000001000000 +
+		this->CurrInputKey.bKey8 * 0b0000000010000000 +
+		//this->CurrInputKey.bKey9		* 0b0000000100000000 +
+		this->CurrInputKey.bLeftPunch * 0b0000001000000000 +
+		this->CurrInputKey.bRightPunch * 0b0000010000000000 +
+		this->CurrInputKey.bLeftKick * 0b0000100000000000 +
+		this->CurrInputKey.bRightKick * 0b0001000000000000;
+
+	return KeyValue;
+}
+
+bool ACPP_CharacterPaul::SetCurrInputKeyValue ( int32 value )
+{
+	//this->CurrInputKey.bKey1		= value & 0b0000000000000001;
+	this->CurrInputKey.bKey2 = value & 0b0000000000000010;
+	//this->CurrInputKey.bKey3		= value & 0b0000000000000100;
+	this->CurrInputKey.bKey4 = value & 0b0000000000001000;
+	//this->CurrInputKey.bKey5		= value & 0b0000000000010000;
+	this->CurrInputKey.bKey6 = value & 0b0000000000100000;
+	//this->CurrInputKey.bKey7		= value & 0b0000000001000000;
+	this->CurrInputKey.bKey8 = value & 0b0000000010000000;
+	//this->CurrInputKey.bKey9		= value & 0b0000000100000000;
+	this->CurrInputKey.bLeftPunch = value & 0b0000001000000000;
+	this->CurrInputKey.bRightPunch = value & 0b0000010000000000;
+	this->CurrInputKey.bLeftKick = value & 0b0000100000000000;
+	this->CurrInputKey.bRightKick = value & 0b0001000000000000;
+
+	return true;
+}
+
+bool ACPP_CharacterPaul::SetCurrInputKey ( FInputKey value )
+{
+	this->CurrInputKey = value;
+	return true;
+}
+
+int32 ACPP_CharacterPaul::InputKeyValue ( int ArrowKey , bool LeftArm , bool RightArm , bool LeftKick , bool RightKick )
+{
+	int32 inputValue = 0;
+
+	inputValue = (ArrowKey ? 1 << (ArrowKey - 1) : 0) +
+		this->CurrInputKey.bLeftPunch * 0b0000001000000000 +
+		this->CurrInputKey.bRightPunch * 0b0000010000000000 +
+		this->CurrInputKey.bLeftKick * 0b0000100000000000 +
+		this->CurrInputKey.bRightKick * 0b0001000000000000;
+	return inputValue;
+}
+
+
+void ACPP_CharacterPaul::SettingMove ( int32 ArrowNum , bool Value )
+{
+
+}
+
+// Command Setting Function
+
+void ACPP_CharacterPaul::SettingCommandTree ( )
+{
+	FCommandTree* mTempTarget = new FCommandTree();
+
+	this->AddCommandTree ( mBaseCommandTree , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	mBaseCommandTree[0]->NextTrees.Add ( InputKeyValue ( 0 , 0 , 0 , 0 , 0 ) , mBaseCommandTree[0] );
+
+	/**
+	 * MoveMent 
+	 */
+	// MoveForward;
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , 32 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveForward );
+	mBaseCommandTree[0]->NextTrees[32]->NextTrees.Add ( 32, mBaseCommandTree[0]->NextTrees[32] );
+	
+	// MoveForward Dash
+ 	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[32]->NextTrees , 0, 0, 0, 0 , &ACPP_CharacterPaul::CommandIdle );
+	// dash 3프레임후 초기화
+	mBaseCommandTree[0]->NextTrees[32]->NextTrees[0]->NextTrees.Add(0, mBaseCommandTree[0]->NextTrees[32]->NextTrees[0]);
+	// DASH while
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[32]->NextTrees[0]->NextTrees , 32 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveForwarDash );
+	mBaseCommandTree[0]->NextTrees[32]->NextTrees[0]->NextTrees[32]->NextTrees.Add ( 32 , mBaseCommandTree[0]->NextTrees[32]->NextTrees[0]->NextTrees[32] );
+
+	// MoveBack;
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , 8 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveBack );
+	mBaseCommandTree[0]->NextTrees[8]->NextTrees.Add ( 8 , mBaseCommandTree[0]->NextTrees[8] );
+
+	// MoveBack Dash
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[8]->NextTrees , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	// dash 3프레임후 초기화
+	mBaseCommandTree[0]->NextTrees [8]->NextTrees[0]->NextTrees.Add ( 0 , mBaseCommandTree[0]->NextTrees[8]->NextTrees[0] );
+	// DASH while
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[8]->NextTrees[0]->NextTrees , 8 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveBackDash );
+	mBaseCommandTree[0]->NextTrees[8]->NextTrees[0]->NextTrees[8]->NextTrees.Add ( 8 , mBaseCommandTree[0]->NextTrees[8]->NextTrees[0]->NextTrees[8] );
+
+
+	// Move Lateral Plus
+	int32 upkey = InputKeyValue ( 8 , 0 , 0 , 0 , 0 );
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	// 3frame wait
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[upkey]->NextTrees , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveLateralUp );
+	mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[0]->NextTrees.Add ( 0 , mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[0] );
+	// Move while Lateral
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[0]->NextTrees, upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveLateralUp );
+	mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[0]->NextTrees[upkey]->NextTrees.Add ( upkey , mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[0]->NextTrees[upkey] );
+
+
+	// Jump
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[upkey]->NextTrees , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandJump );
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[upkey]->NextTrees , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[upkey]->NextTrees.Add ( upkey , mBaseCommandTree[0]->NextTrees[upkey]->NextTrees[upkey] );
+
+	// Move Lateral Minus
+	int32 downkey = InputKeyValue ( 2 , 0 , 0 , 0 , 0 );
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	// 3frame wait
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[downkey]->NextTrees , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveLateralDown );
+	mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees.Add ( 0 , mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0] );
+	// Move while Lateral
+	this->AddCommandTree ( mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveLateralDown );
+	mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees[downkey]->NextTrees.Add ( downkey , mBaseCommandTree[0]->NextTrees[downkey]->NextTrees[0]->NextTrees[downkey] );
+
+	//mTempTarget.Add ( InputKeyValue ( 6 , 0 , 0 , 0 , 0 ) , mTempTree[InputKeyValue ( 6 , 0 , 0 , 0 , 0 )] );
+
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 4 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveForward );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 4 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveForwarDash );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 4 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveForwarDash );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 6 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveBack );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 8 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveBackDash );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 6 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandJump );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 8 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveLateralPlus );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 6 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandDownCrouch );
+	// 	this->AddCommandTree ( mBaseCommandTree , InputKeyValue ( 8 , 0 , 0 , 0 , 0 ) , 4 , 1 , 2 , &ACPP_CharacterPaul::CommandMoveLateralMinus );
+	this->mCurrCommandTree = mBaseCommandTree;
+}
+
+
+FCommandTree* ACPP_CharacterPaul::CreateCommandTree ( int32 timingStart , int32 timingEnd , int32 timingAction , void (ACPP_CharacterPaul::* fptr)() )
+{
+	FCommandTree* NewCommand = new FCommandTree ( );
+
+	//NewCommand->PrevTrees;
+	NewCommand->NextTrees = TMap<int32 , FCommandTree*>();
+	NewCommand->timingStart = timingStart;
+	NewCommand->timingEnd = timingEnd;
+	NewCommand->timingAction = timingAction;
+	NewCommand->action.BindUObject ( this , fptr );
+
+	//NewCommand->action.Execute();
+	return NewCommand;
+}
+
+FCommandTree* ACPP_CharacterPaul::AddCommandTree ( TMap<int32 , FCommandTree*>& CurrCommandTree , int32 keyValue , int32 timingStart , int32 timingEnd , int32 timingAction , void(ACPP_CharacterPaul::* fptr)() )
+{
+	//  음 빈거 확인해야 하는데 잘안됨 확인할 필요있음
+	if (&CurrCommandTree && CurrCommandTree.Find(keyValue) )
+	{
+		UE_LOG ( LogTemp , Warning , TEXT ( "Error: befor add CommandTree was settinged!! %i" ) , keyValue );
+		return CurrCommandTree[keyValue];
+	}
+
+	CurrCommandTree.Add ( keyValue , this->CreateCommandTree ( timingStart , timingEnd , timingAction , fptr ) );
+	return CurrCommandTree[keyValue];
+}
+
+// Called to bind functionality to input
+void ACPP_CharacterPaul::SetupPlayerInputComponent ( UInputComponent* PlayerInputComponent )
+{
+	Super::SetupPlayerInputComponent ( PlayerInputComponent );
+}
 
 // Command Funtion
 
-void ACPP_CharacterPaul::Command1()
+void ACPP_CharacterPaul::CommandIdle ( )
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command1 Pressed"));
-	this->SetToLocationPoint(-5, 0, 0);
+	//UE_LOG ( LogTemp , Warning , TEXT ( "CommandIdle Pressed" ) );
+	if ( this->CountIdle3Frame > 3 )
+	{
+		UE_LOG ( LogTemp , Warning , TEXT ( "Clean Command" ) );
+		this->mCurrCommandTree = mBaseCommandTree;
+		this->CountIdle3Frame = 0;
+		return;
+	}
+	CountIdle3Frame++;
 }
 
-void ACPP_CharacterPaul::Command2()
+void ACPP_CharacterPaul::CommandStar ( )
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command2 Pressed"));
-	this->SetToLocationPoint(0, 0, -10);
+	UE_LOG ( LogTemp , Warning , TEXT ( "CommandIdle Pressed" ) );
 }
 
-void ACPP_CharacterPaul::Command3()
+void ACPP_CharacterPaul::CommandMoveForward()
+{
+	UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveForward Pressed" ) );
+	this->SetToLocationPoint(30, 0, 0);
+	this->CountIdle3Frame = 0;
+}
+
+void ACPP_CharacterPaul::CommandMoveForwarDash()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MoveForwarDash Pressed"));
+	this->SetToLocationPoint ( 200 , 0 , 0 );
+	this->CountIdle3Frame = 0;
+
+}
+
+void ACPP_CharacterPaul::CommandMoveBack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Command3 Pressed"));
-	this->SetToLocationPoint(5, 0, 0);
+	this->SetToLocationPoint ( -30 , 0 , 0 );
 }
 
-void ACPP_CharacterPaul::Command4()
+void ACPP_CharacterPaul::CommandMoveBackDash ()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Command4 Pressed"));
-	this->SetToLocationPoint(-10, 0, 0);
+	this->SetToLocationPoint ( -200 , 0 , 0 );
 }
 
-void ACPP_CharacterPaul::Command6()
+void ACPP_CharacterPaul::CommandJump ()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command6 Pressed"));
-	this->SetToLocationPoint(10, 0, 0);
+	UE_LOG(LogTemp, Warning, TEXT("CommandJump Pressed"));
+	
 }
 
-void ACPP_CharacterPaul::Command7()
+void ACPP_CharacterPaul::CommandMoveLateralUp ()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command7 Pressed"));
-	this->SetToLocationPoint(-10, 0, 10);
+	UE_LOG(LogTemp, Warning, TEXT("CommandMoveLateralPlus Pressed"));
+	
+	FVector dir = this->aOpponentPlayer->GetActorLocation() - this->GetActorLocation();
+	dir.Normalize();
+	FQuat Q = FQuat(dir,0);
+
+	this->SetToLocationPoint ( 30 , -150 , 0 );
 }
 
-void ACPP_CharacterPaul::Command8()
+void ACPP_CharacterPaul::CommandDownCrouch ()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Command8 Pressed"));
 	this->SetToLocationPoint(0, 0, 10);
 }
 
-void ACPP_CharacterPaul::Command9()
+void ACPP_CharacterPaul::CommandMoveLateralDown ()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Command9 Pressed"));
-	this->SetToLocationPoint(10, 0, 10);
+	UE_LOG(LogTemp, Warning, TEXT("CommandMoveLateralDown Pressed"));
+	
+	this->SetToLocationPoint(30, 150, 0);
 
 }
 
