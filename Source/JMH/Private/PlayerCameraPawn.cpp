@@ -3,6 +3,7 @@
 
 #include "PlayerCameraPawn.h"
 
+#include "GameMode_MH.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -30,6 +31,8 @@ void APlayerCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	gm = Cast<AGameMode_MH>(GetWorld()->GetAuthGameMode());
+
 	//월드에 있는 플레이어 변수에 적용
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
@@ -39,8 +42,11 @@ void APlayerCameraPawn::BeginPlay()
 		if (FoundActors.Num() >= 2)
 		{
 			// 플레이어 A,B
-			playerA = Cast<ACharacter>(FoundActors[0]);
-			playerB = Cast<ACharacter>(FoundActors[1]);
+			if (gm)
+			{
+				playerA = gm->playerA;
+				playerB = gm->playerB;
+			}
 		}
 	}
 
@@ -73,7 +79,7 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 			// 흔들림 값 초기화 등 필요한 기본값 복귀
 			ZoomAmount = 0.5f;
 			ShakingValue = 0.0f;
-			bIsZoomActive= false;
+			bIsZoomActive = false;
 			ZoomDuration = 0.0f;
 			ZoomElapsedTime = 0.0f;
 		}
@@ -99,7 +105,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	float playerDistance = FVector::Dist(playerALoc , playerBLoc);
 	// 거리 변화가 임계값을 초과하는지 확인
 	float distanceChange = FMath::Abs(playerDistance);
-	
+
 	playerALoc = playerA->GetActorLocation();
 	playerBLoc = playerB->GetActorLocation();
 
@@ -116,19 +122,20 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		{
 			shakeOffset = FMath::VRand() * ShakingValue;
 		}
-		
+
 		//test용
 		//FVector centralLocation = (playerALoc + playerBLoc) * 0.5f;
 		//FVector cameraLocation = FMath::VInterpTo(GetActorLocation(), centralLocation + shakeOffset, DeltaTime, CameraLagSpeed);
-		
-		FVector cameraLocation = FMath::VInterpTo(GetActorLocation(), ZoomTargetLocation + shakeOffset, DeltaTime, CameraLagSpeed);
+
+		FVector cameraLocation = FMath::VInterpTo(GetActorLocation() , ZoomTargetLocation + shakeOffset , DeltaTime ,
+		                                          CameraLagSpeed);
 		SetActorLocation(cameraLocation);
 	}
 	else
 	{
 		//playerALoc = playerA->GetActorLocation();
 		//playerBLoc = playerB->GetActorLocation();
-		
+
 		FVector centralLocation = (playerALoc + playerBLoc) * 0.5f; // + playerBLoc; //그게 그거인듯
 		// 카메라의 위치 업데이트
 		SetActorLocation(centralLocation + FVector(0 , 0 , 20));
@@ -139,23 +146,23 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 
 		//
 		// 목표 회전 계산
-		FRotator targetRotation = currentDirection.Rotation() + FRotator(0, 90, 0);
+		FRotator targetRotation = currentDirection.Rotation() + FRotator(0 , 90 , 0);
 		// 현재 회전값 가져오기
 		FRotator currentRotation = GetActorRotation();
 		//
-		
+
 		//카메라 회전각 제어(180도 무시)
 		if (angleDifference < 100.0f || angleDifference > 300.0f)
 		{
 			if (!bIsRotationFixed)
 			{
-
 				//
 				// 목표 회전을 부드럽게 보간
-				FRotator newRotation = FMath::RInterpTo(currentRotation, targetRotation, DeltaTime, CameraLagRotSpeed);
+				FRotator newRotation = FMath::RInterpTo(currentRotation , targetRotation , DeltaTime ,
+				                                        CameraLagRotSpeed);
 				SetActorRotation(newRotation);
 				//
-				
+
 				//FRotator centralRotation = currentDirection.Rotation();
 				//SetActorRotation(centralRotation + FRotator(0 , 90 , 0));
 				PreviousDirection = currentDirection;

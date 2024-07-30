@@ -28,14 +28,6 @@ public:
 	void UpdateTimerDisplay(float TimerValue);
 	
 	/*
-	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
-	class UImage* VictoryPoint1;
-
-	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
-	class UImage* VictoryPoint2;
-
-	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
-	class UImage* VictoryPoint3;
 	
 	if(gameMode)
 	{

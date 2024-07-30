@@ -5,10 +5,26 @@
 
 #include "inGameUI.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 AGameMode_MH::AGameMode_MH()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
+	
+	for (AActor* Actor : FoundActors)
+	{
+		if (FoundActors.Num() >= 2)
+		{
+			// 플레이어 A,B
+			playerA = Cast<ACharacter>(FoundActors[0]);
+			playerB = Cast<ACharacter>(FoundActors[1]);
+		}
+	}
+	
 }
 
 

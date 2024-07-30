@@ -78,4 +78,10 @@ protected:
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UinGameUI* inGameUI;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class ACharacter* playerA;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class ACharacter* playerB;
 };

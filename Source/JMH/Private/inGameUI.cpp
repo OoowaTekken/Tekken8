@@ -8,7 +8,7 @@
 
 void UinGameUI::NativeConstruct()
 {
-
+	Super::NativeConstruct();
 }
 
 void UinGameUI::UpdateTimerDisplay(float TimerValue)

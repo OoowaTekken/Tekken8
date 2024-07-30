@@ -57,7 +57,7 @@ public:
 	float CameraLagSpeed = 1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float CameraLagRotSpeed = 10.f;
+	float CameraLagRotSpeed = 15.f;
 	
 	UFUNCTION()
 	void UpdateCameraDynamic(float DeltaTime);
@@ -70,10 +70,13 @@ private:
 	FVector InitialDirection;
 	FVector PreviousDirection;
 	float DistanceThreshold; // 거리 변화 임계값
-	float RotationThreshold = 10.0f;// 회전 변화 임계값
+	float RotationThreshold = 1.0f;// 회전 변화 임계값
 	float newArmLength;
 	
 	bool bIsRotationFixed;
+
+	UPROPERTY()
+	class AGameMode_MH* gm;
 
 	UFUNCTION()
 	void RequestZoomEffect(FVector TargetLocation, float InZoomAmount, float InShakingValue, float InDuration);
