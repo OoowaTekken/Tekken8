@@ -27,14 +27,19 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 			UActorComponent* stateComponent = nullptr;
 
 			// 적절한 상태 클래스에 따라 상태 변경
-			if ( newStateClass == UAIStateWalkBack::StaticClass ( ) )
+			if ( newStateClass == UAIStateWalkBack::StaticClass())
 			{
-				stateComponent = Enemy->GetAIStateWalkBack ( );
+				stateComponent = Enemy->GetAIStateWalkBack();
 			}
-			else if ( newStateClass == UAIStateWalkForward::StaticClass ( ) )
+			else if ( newStateClass == UAIStateWalkForward::StaticClass())
 			{
-				stateComponent = Enemy->GetAIStateWalkForward ( );
+				stateComponent = Enemy->GetAIStateWalkForward();
 			}
+			else if ( newStateClass == UAIStateBackDash::StaticClass())
+			{
+				stateComponent = Enemy->GetAIStateBackDash();
+			}
+
 			if ( stateComponent )
 			{
 				// 상태 완료시 호출될 델리게이트 바인딩
@@ -47,6 +52,11 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 				{
 					if ( !stateWalkForward->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkForward->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
+				}
+				else if ( UAIStateBackDash* stateBackDash = Cast<UAIStateBackDash> ( stateComponent ) )
+				{
+					if ( !stateBackDash->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
+						stateBackDash->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 				}
 
 				bIsWaitingForState = true;

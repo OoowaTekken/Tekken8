@@ -94,7 +94,7 @@ void AAICharacter::UpdateState()
 
 void AAICharacter::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
 {
-	currentState->Exit();
+	//currentState->Exit();
 	// Montage가 끝났을 때의 처리 로직
 	if ( bInterrupted )
 	{

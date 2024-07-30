@@ -78,3 +78,8 @@ void UAICharacterAnimInstance::PlayerWalkBackMontage ( )
 //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
     Montage_Play (walkBackMontage,1.0f, EMontagePlayReturnType::MontageLength,0.0f,true);
 }
+void UAICharacterAnimInstance::PlayerBackDashMontage ( )
+{
+    //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play ( walkBackMontage , 3.0f , EMontagePlayReturnType::MontageLength , 0.0f , true );
+}

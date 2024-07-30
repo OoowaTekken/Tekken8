@@ -50,7 +50,7 @@ void UAIStateComponent::Execute ( )
 void UAIStateComponent::Exit ( )
 {
 	SetComponentTickEnabled ( false );
-	if( OnStateComplete .IsBound())
+	//if( OnStateComplete .IsBound())
 	OnStateComplete.Broadcast ( );
 }
 

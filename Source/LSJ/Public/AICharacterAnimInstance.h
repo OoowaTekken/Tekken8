@@ -45,6 +45,7 @@ public:
     void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 	void PlayerWalkForwardMontage();
 	void PlayerWalkBackMontage();
+	void PlayerBackDashMontage();
 	bool StateWalkForward ( ) const { return bStateWalkForward; }
 	void StateWalkForward ( bool val ) { bStateWalkForward = val; }
 };

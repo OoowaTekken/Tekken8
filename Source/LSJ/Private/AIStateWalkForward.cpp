@@ -28,10 +28,10 @@ void UAIStateWalkForward::Exit ( )
 void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( GetOwner ( )->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
 	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime ,200.0f ) );
 	Execute();
-	if(GetOwner()->GetDistanceTo(player)<distance)
+	if( owner->GetDistanceTo(player)<distance)
 		Exit();
 	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkForward" ) );
 	// ...
