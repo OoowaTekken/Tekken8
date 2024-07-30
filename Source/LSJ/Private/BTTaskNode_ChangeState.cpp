@@ -43,19 +43,11 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 				{
 					if ( !stateWalkBack->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkBack->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
-					/*				FTimerHandle handle;
-									GetWorld ( )->GetTimerManager ( ).SetTimer ( handle , FTimerDelegate::CreateLambda ( [stateWalkBack]( ) {
-										stateWalkBack->Exit ( );
-										} ) , 1.0f , false );*/
 				}
 				else if ( UAIStateWalkForward* stateWalkForward = Cast<UAIStateWalkForward> ( stateComponent ) )
 				{
 					if ( !stateWalkForward->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkForward->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
-					/*		FTimerHandle handle;
-							GetWorld ( )->GetTimerManager ( ).SetTimer ( handle , FTimerDelegate::CreateLambda ( [stateWalkForward]( ) {
-								stateWalkForward->Exit ( );
-								} ) , 1.0f , false );*/
 				}
 
 				bIsWaitingForState = true;

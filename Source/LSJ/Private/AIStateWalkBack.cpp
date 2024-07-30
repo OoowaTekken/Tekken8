@@ -19,7 +19,7 @@ void UAIStateWalkBack::Enter ( UAICharacterAnimInstance* pAnimInstance )
 
 void UAIStateWalkBack::Execute ( )
 {
-	owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) * -5.0f );
+	owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) * -1.0f );
 }
 
 void UAIStateWalkBack::Exit ( )
@@ -31,6 +31,7 @@ void UAIStateWalkBack::TickComponent ( float DeltaTime , ELevelTick TickType , F
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
 	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 0.1f ));
+	Execute ( );
 	//애니메이션 에서 종료
 	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkBack" ) );
 	// ...

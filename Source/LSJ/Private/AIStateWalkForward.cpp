@@ -18,7 +18,7 @@ void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 
 void UAIStateWalkForward::Execute ( )
 {
-	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector()*5.0f);
+	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector());
 }
 
 void UAIStateWalkForward::Exit ( )
@@ -29,6 +29,7 @@ void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType 
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
 	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 0.1f ) );
+	Execute ( );
 	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkForward" ) );
 	// ...
 }

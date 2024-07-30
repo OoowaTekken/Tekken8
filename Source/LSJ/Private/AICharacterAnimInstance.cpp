@@ -75,5 +75,6 @@ void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 
 void UAICharacterAnimInstance::PlayerWalkBackMontage ( )
 {
-    Montage_Play ( walkBackMontage );
+//UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play (walkBackMontage,1.0f, EMontagePlayReturnType::MontageLength,0.0f,true);
 }

@@ -16,19 +16,20 @@ enum class ECharacterState
 	AttackLower, 
 	AttackMiddle,
 	AttackTop, 
+	HitGround , //지상에서 Hit 상태 //
+	HitFalling , //공중에서 Hit 상태 //trace?
 	Air, //공중상태
-	HitGround, //지상에서 Hit 상태 //
-	HitFalling, //공중에서 Hit 상태 //trace?
-	GuardStand, //서있는 가드상태
-	GuardSit, //앉은 가드상태
-	Sit, //앉아있는 상태
+	GuardStand, //서있는 가드상태 
+	GuardSit, //앉은 가드상태 
+	Sit, //앉아있는 상태 
 	Down, //넘어져있는상태
+	Turn , //횡이동 상태 //어디로 횡이동 하는지 알아야하나?
+
 	Up, //일어서고 있는 상태 Down -> Up, Sit -> Up 둘다 포함
 	WalkForward, //앞으로 걷고 있는 상태
 	WalkBack,//뒤로 걷고 있는 상태
 	Run, //앞으로 달리는 상태
 	BackDash, //뒤로 대쉬한 상태
-	Turn, //횡이동 상태 //어디로 횡이동 하는지 알아야하나?
 };
 
 //공격 범위

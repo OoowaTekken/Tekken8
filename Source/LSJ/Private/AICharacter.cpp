@@ -63,7 +63,7 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateState( );
+	//UpdateState( );
 }
 
 // Called to bind functionality to input
@@ -75,9 +75,10 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AAICharacter::ChangeState ( IAIStateInterface* NewState )
 {
-	if ( currentState ) {
-		currentState->Exit ( );
-	}
+	//hit 했을때 필요할거 같다.
+	//if ( currentState) {
+	//	currentState->Exit ( );
+	//}
 	currentState = NewState;
 
 	if ( currentState ) {
