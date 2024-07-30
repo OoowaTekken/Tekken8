@@ -105,12 +105,15 @@ public:
 	 * @brief 커멘트 트리에 대한 정보 및 세팅입니다.
 	 */
 	TMap<int32, FCommandTree*> mBaseCommandTree;
+	TMap<int32 , FCommandTree*> mCurrCommandTree;
+
+	int32 CountIdle3Frame = 0;
 
 	void SettingCommandTree();
 
 	FCommandTree *CreateCommandTree(int32 timingStart, int32 timingEnd, int32 timingAction, void (ACPP_CharacterPaul::*fptr)());
 	
-	FCommandTree *AddCommandTree(TMap<int32, FCommandTree*>& CurrCommandTree, int32 keyValue, int32 timingStart, int32 timingEnd, int32 timingAction, void(ACPP_CharacterPaul::* fptr)());
+	FCommandTree* AddCommandTree(TMap<int32, FCommandTree*>& CurrCommandTree, int32 keyValue, int32 timingStart, int32 timingEnd, int32 timingAction, void(ACPP_CharacterPaul::* fptr)());
 
 protected:
 	// Called when the game starts or when spawned
@@ -135,24 +138,37 @@ public:
 
 	void skillfinctiontest() {};
 	
+	float fUpVector;
+	/**
+	 * @title Target Point
+	 * @brief 상대에 대한 정보
+	 */
+
+	 UPROPERTY(EditDefaultsOnly)
+	 ACharacter *aOpponentPlayer;
+
 	/**
 	 * @title Next Location Data 처리
 	 * @brief 애니메이션을 위한 작업입니다.
 	 */
 	FVector ToLocation;
 	void SetToLocationPoint(float x, float y, float z);
+	void SetToLocationPoint ( FVector vector );
+	void SetToWorldLocationPoint ( FVector vector );
 	/**
 	* @title 메인트리
 	* @brief 시작 지점 트리를 가지고 있습니다.
 	*	모든 스킬트리는 맵형식의 반복된 값을 가지고 있음으로 참고 바랍니다.
  	*/
-	void Command1();
-	void Command2();
-	void Command3();
-	void Command4();
-	void Command6();
-	void Command7();
-	void Command8();
-	void Command9();
+	void CommandIdle ( );
+	void CommandStar ( );
+	void CommandMoveForward ( );
+	void CommandMoveForwarDash();
+	void CommandMoveBack ();
+	void CommandMoveBackDash();
+	void CommandJump ( );
+	void CommandMoveLateralUp ( );
+	void CommandDownCrouch ( );
+	void CommandMoveLateralDown( );
 };
 	            
