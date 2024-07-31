@@ -145,6 +145,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	bool DebugingMode = 0;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -203,6 +205,15 @@ public:
 	void AnimationFrame ();
 
 	FVector RelativePointVector ( float x , float y , float z );
+
+
+	/**
+	 * @title Collision sphere
+	 * @brief 히트의 충돌체를 만드는 작업 입니다.
+	 */
+	bool HitPointSphereCollision(FVector HitPoint, FVector &isHit );
+
+
 	/**
 	* @title 메인트리
 	* @brief 시작 지점 트리를 가지고 있습니다.
