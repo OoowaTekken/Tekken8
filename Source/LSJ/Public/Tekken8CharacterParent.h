@@ -108,7 +108,7 @@ class LSJ_API ATekken8CharacterParent : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ATekken8CharacterParent();
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

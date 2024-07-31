@@ -19,7 +19,7 @@ class LSJ_API UAIStateBackDash : public UAIStateComponent
 	FRotator lookPlayerRotator;
 public:
 	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance ) override;
-	virtual void Execute ( ) override;
+	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
 	virtual void TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction ) override;
 };

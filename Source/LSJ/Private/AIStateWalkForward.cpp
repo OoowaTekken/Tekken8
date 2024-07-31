@@ -21,7 +21,7 @@ void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 	animInstace->StateWalkForward(true);
 }
 
-void UAIStateWalkForward::Execute ( )
+void UAIStateWalkForward::Execute ( const float& deltatime )
 {
 	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector());
 }
@@ -36,7 +36,6 @@ void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType 
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
 	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
 	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime ,200.0f ) );
-	Execute();
 	if( owner->GetDistanceTo(player)<distance)
 		Exit();
 

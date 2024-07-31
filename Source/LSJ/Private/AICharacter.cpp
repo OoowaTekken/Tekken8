@@ -9,17 +9,20 @@
 #include "AIStateWalkBack.h"
 #include "AIStateWalkForward.h"
 #include "AIStateIdle.h"
+#include "Components/CapsuleComponent.h"
+#include "AIStateAttackLF.h"
+#include "AIStateAttackRH.h"
 // Sets default values
 AAICharacter::AAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Jaebin/Kazuya/T-Pose/T-Pose__1_.T-Pose__1_'" ) );
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Jaebin/Kazuya/T-Pose_Final/T-Pose2_UE.T-Pose2_UE'" ) );
 	if ( meshFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetSkeletalMesh (meshFinder.Object );
 	}
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/AB_AICharacter2.AB_AICharacter2_C'" ) );
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/ABP_AICharacter3.ABP_AICharacter3_C'" ) );
 	if ( animFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetAnimInstanceClass ( animFinder.Class );
@@ -37,6 +40,10 @@ AAICharacter::AAICharacter()
 	stateWalkForward->SetStateOwner ( this );
 	stateIdle = CreateDefaultSubobject<UAIStateIdle> ( TEXT ( "stateIdle" ) );
 	stateIdle->SetStateOwner ( this );
+	stateAttackLF = CreateDefaultSubobject<UAIStateAttackLF> ( TEXT ( "stateAttackLF" ) );
+	stateAttackLF->SetStateOwner ( this );
+	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
+	stateAttackRH->SetStateOwner ( this );
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -51,10 +58,15 @@ void AAICharacter::BeginPlay()
 	animInstance = Cast<UAICharacterAnimInstance> (GetMesh()->GetAnimInstance());
 	if ( animInstance )
 	{
+		
 		//animInstance->OnMontageEnded.AddDynamic ( this , &AAICharacter::HandleOnMontageEnded );
 	}
-	currentState = stateIdle;
-
+	
+	if ( IsPlayer1 )
+		GetCapsuleComponent ( )->SetCollisionProfileName ( FName ( TEXT ( "Player1Capsule" ) ) );
+	else
+		GetCapsuleComponent ( )->SetCollisionProfileName ( FName ( TEXT ( "Player2Capsule" ) ) );
+	//GetRootComponent()->SetCollisionName
 	//FTimerHandle handle;
 	//GetWorld ( )->GetTimerManager ( ).SetTimer ( handle ,FTimerDelegate::CreateLambda ([this]() {
 	//	ChangeState ( stateWalkBack );
@@ -65,7 +77,8 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//UpdateState( );
+	UpdateState( DeltaTime );
+	
 }
 
 // Called to bind functionality to input
@@ -88,24 +101,15 @@ void AAICharacter::ChangeState ( IAIStateInterface* NewState )
 	}
 }
 
-void AAICharacter::UpdateState()
+void AAICharacter::UpdateState(const float& deltatime)
 {
 	if ( currentState )
-		currentState->Execute ( );
+		currentState->Execute ( deltatime );
 }
 
-void AAICharacter::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
+void AAICharacter::ExitCurrentState ( )
 {
-	//currentState->Exit();
-	// Montage가 끝났을 때의 처리 로직
-	if ( bInterrupted )
-	{
-		// Animation Montage가 정상적으로 끝나지 않고 중간에 인터럽트되었습니다. 인터럽트는 다른 애니메이션이 재생되었거나, 명시적으로 중단되는 등의 이유로 발생할 수 있습니다.
-		
-	}
-	else
-	{
-		// Animation Montage가 정상적으로 끝났습니다.
-		
+	if ( currentState ) {
+		currentState->Exit ( );
 	}
 }

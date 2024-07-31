@@ -5,11 +5,12 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimMontage.h"
+#include "AICharacter.h"
 
 void UAICharacterAnimInstance::UpdateProperties ( )
 {
     if ( owner == nullptr )
-        owner = Cast<ACharacter> ( TryGetPawnOwner ( ) );	// 소유자의 Pawn 를 가져온다.
+        owner = Cast<AAICharacter> ( TryGetPawnOwner ( ) );	// 소유자의 Pawn 를 가져온다.
     if ( owner )
     {
         // 공중에 있는지
@@ -62,8 +63,9 @@ void UAICharacterAnimInstance::NativeInitializeAnimation ( )
 	Super::NativeInitializeAnimation ( );
 	if ( owner == nullptr )
 	{
-		owner = Cast<ACharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
+		owner = Cast<AAICharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
 	}
+    if ( !OnMontageEnded.IsAlreadyBound ( this , &UAICharacterAnimInstance::HandleOnMontageEnded ) )
     OnMontageEnded.AddDynamic ( this , &UAICharacterAnimInstance::HandleOnMontageEnded );
 }
 
@@ -77,6 +79,18 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalStep_Backward_Anim1_Montage.FinalStep_Backward_Anim1_Montage'" ) );
     if ( walkBackMontageFinder.Succeeded ( ) )
         walkBackMontage= walkBackMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>idleMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Idle_T1_Montage.KB_Idle_T1_Montage'" ) );
+    if ( idleMontageFinder.Succeeded ( ) )
+       idleMontage = idleMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackRHMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Punching_Anim1_Montage.Punching_Anim1_Montage'" ) );
+    if ( attackRHMontageFinder.Succeeded ( ) )
+        attackRHMontage = attackRHMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLFMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim_Montage.Kicking_Anim_Montage'" ) );
+    if ( attackLFMontageFinder.Succeeded ( ) )
+        attackLFMontage = attackLFMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -86,7 +100,14 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
         //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
         if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
     }
-  
+    if ( Montage == attackLFMontage )
+    {
+        owner->ExitCurrentState ();
+    }
+    if ( Montage == attackRHMontage )
+    {
+        owner->ExitCurrentState ( );
+    }
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
@@ -116,4 +137,17 @@ void UAICharacterAnimInstance::PlayerBackDashMontage ( )
 {
     //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
     Montage_Play ( walkBackMontage , 3.0f , EMontagePlayReturnType::MontageLength , 0.0f , true );
+}
+void UAICharacterAnimInstance::PlayeAttackRHMontage ( )
+{
+    Montage_Play ( attackRHMontage );
+}
+void UAICharacterAnimInstance::PlayeAttackLFMontage ( )
+{
+    Montage_Play ( attackLFMontage );
+}
+void UAICharacterAnimInstance::PlayerIdleMontage ( )
+{
+    //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play (idleMontage);
 }

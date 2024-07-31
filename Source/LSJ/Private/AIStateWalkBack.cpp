@@ -25,7 +25,7 @@ void UAIStateWalkBack::Enter ( UAICharacterAnimInstance* pAnimInstance )
 	startPos = owner->GetActorLocation();
 }
 
-void UAIStateWalkBack::Execute ( )
+void UAIStateWalkBack::Execute ( const float& deltatime )
 {
 	//lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( GetOwner ( )->GetActorLocation ( ) , player->GetActorLocation ( ) );
 	//owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) * -1.0f );
@@ -46,7 +46,7 @@ void UAIStateWalkBack::TickComponent ( float DeltaTime , ELevelTick TickType , F
 	//	Exit ( );
 	if (!animInstace->StateWalkBack())
 		Exit ( );
-	Execute ( );
+	Execute ( DeltaTime);
 	//owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 200.0f ) );
 	//애니메이션 에서 종료
 	// ...

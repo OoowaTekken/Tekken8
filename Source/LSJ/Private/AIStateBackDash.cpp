@@ -17,7 +17,7 @@ void UAIStateBackDash::Enter ( UAICharacterAnimInstance* pAnimInstance )
 	animInstace->PlayerBackDashMontage ( );
 }
 
-void UAIStateBackDash::Execute ( )
+void UAIStateBackDash::Execute ( const float& deltatime )
 {
 
 }
@@ -30,7 +30,7 @@ void UAIStateBackDash::Exit ( )
 void UAIStateBackDash::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
-	Execute ( );
+	Execute ( DeltaTime);
 	lerpAlpha+=DeltaTime;
 	owner->SetActorRelativeLocation (UKismetMathLibrary::VLerp ( startLocation,dashLocation, lerpAlpha ));
 	if ( lerpAlpha > 1.f )
