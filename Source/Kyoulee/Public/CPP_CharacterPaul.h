@@ -43,6 +43,25 @@ public:
 	bool bRightKick : 1;
 };
 
+
+/**
+ * @Title 키에대한 입력처리를 위한 스트럭트입니다.
+ */
+USTRUCT(Atomic, BlueprintType)
+struct FFrameStatus
+{
+	GENERATED_BODY()
+public:
+
+	// 사용중인 프레임 딜레이입니다.
+	// 0일시 기본으로 동작이 초기화 됩니다.
+	int32 FrameUsing = 0;
+	// 막힌 프레임 정보입니다.
+	// 이프레임 동안은 동작을 할 수 없습니다.
+	int32 FrameBlockUsing = 0;
+
+ };
+
 /**
  * @Title 키에대한 입력처리를 위한 스트럭트입니다.
  */
@@ -108,14 +127,19 @@ public:
 	 */
 	TMap<int32, FCommandTree*> mBaseCommandTree;
 	TMap<int32 , FCommandTree*> mCurrCommandTree;
-
-	int32 CountIdle3Frame = 0;
+	FCommandTree* sCurrCommand;
+	int32 CountIdleFrame = 0;
+	int32 CountStarFrame = 0;
+	int32 currKeyValue = 0;
 
 	void SettingCommandTree();
 
 	FCommandTree *CreateCommandTree(int32 timingStart, int32 timingEnd, int32 timingAction, void (ACPP_CharacterPaul::*fptr)());
 	
 	FCommandTree* AddCommandTree(TMap<int32, FCommandTree*>& CurrCommandTree, int32 keyValue, int32 timingStart, int32 timingEnd, int32 timingAction, void(ACPP_CharacterPaul::* fptr)());
+
+	FCommandTree* AddCommandBaseTree ( TArray<int> arrayTreeCommand , int32 keyValue , int32 timingStart , int32 timingEnd , int32 timingAction , void(ACPP_CharacterPaul::* fptr)() );
+	void SetSelfReLinkTree ( TArray<int32> arrayTreeCommand );
 
 protected:
 	// Called when the game starts or when spawned
@@ -133,11 +157,11 @@ public:
 	 * @brief 1초당 60프레임으로 실행 되는 시스템입니다.
 	 */
 	void FrameSystem();
-
+	FFrameStatus sFrameStatus;
 	float fFrameTime = (1 / 60)  * 1000 ;
 	float fCurrTimeForFrame = 60;
-	int32 fCurrFrame = 0;
-
+	int32 iCurrFrame = 0;
+	
 	void skillfinctiontest() {};
 	
 	float fUpVector;
@@ -161,11 +185,22 @@ public:
 	 * @title Next Location Data 처리
 	 * @brief 애니메이션을 위한 작업입니다.
 	 */
+	UPROPERTY(EditDefaultsOnly)
+	class UAnimMontage* uWalkMontage;
+	UPROPERTY(EditDefaultsOnly)
+	class UAnimMontage* uRunMontage;
+	UPROPERTY(EditDefaultsOnly)
+	class UAnimMontage* uJumpMontage;
+
+	
+	class UAnimMontage* uCurrMotage;
 	FVector ToLocation;
+	
 	void SetToLocationPoint(float x, float y, float z);
 	void SetToLocationPoint ( FVector vector );
 	void SetToWorldLocationPoint ( FVector vector );
 
+	void AnimationFrame ();
 
 	FVector RelativePointVector ( float x , float y , float z );
 	/**
@@ -185,6 +220,11 @@ public:
 	void CommandMoveLateralDown( );
 	void CommandLeftRightCombo_1 ( );
 	void CommandLeftRightCombo_2 ( );
+	void CommandLeadJab ( );
+	void CommandCrossStaight ( );
+	void CommandJingun ( );
+	void CommandHighKick ();
+
 
 
 	virtual int32 GetCurrentHp ( ) const override {return 0;};
