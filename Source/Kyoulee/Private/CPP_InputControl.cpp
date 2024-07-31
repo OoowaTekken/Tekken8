@@ -2,6 +2,8 @@
 
 
 #include "CPP_InputControl.h"
+
+#include "AICharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "CPP_CharacterPaul.h"
@@ -17,8 +19,6 @@ ACPP_InputControl::ACPP_InputControl()
 void ACPP_InputControl::BeginPlay()
 {
 	Super::BeginPlay();
-
-
 	APlayerController* PlayerController = Cast<APlayerController> ( this->GetController() );
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem> ( PlayerController->GetLocalPlayer ( ) );
@@ -26,20 +26,29 @@ void ACPP_InputControl::BeginPlay()
 	Subsystem->ClearAllMappings ( );
 	Subsystem->AddMappingContext ( InputMapping , 0 );
 
-	if ( this->Player1Class )
-	{
-		this->Player1 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ) );
-		
-	}
-	if ( this->Player2Class )
-	{
-		this->Player2 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player2Class , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
-		if (this->Player1)
-		{
-			this->Player1->aOpponentPlayer = Player2;
-			this->Player2->aOpponentPlayer = Player1;
-		}
-	}
+//	if ( this->Player1Class )
+//	{
+//		this->Player1 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ) );
+//		
+//	}
+//	if ( this->Player2Class )
+//	{
+//		this->Player2 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player2Class , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
+//		if (this->Player1)
+//		{
+//			this->Player1->aOpponentPlayer = Player2;
+//			this->Player2->aOpponentPlayer = Player1;
+//		}
+//	}
+
+//	if (!this->Player1Class)
+//	{
+//		GetWorld()->SpawnActor<AAICharacter>( PlayerAIClass , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ));
+//	}
+//	if (!this->Player2Class)
+//	{
+//		GetWorld()->SpawnActor<AAICharacter>( PlayerAIClass , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
+//	}
 }
 
 // Called every frame

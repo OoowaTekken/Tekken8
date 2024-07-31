@@ -84,4 +84,30 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class ACharacter* playerB;
+
+	
+
+	// ** for make Character **//
+	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite )
+	TSubclassOf<class ACPP_CharacterPaul> Player1Class;
+
+	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite )
+	TSubclassOf<class ACPP_CharacterPaul> Player2Class;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class ACPP_CharacterPaul* Player1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class ACPP_CharacterPaul* Player2 ;
+
+	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite )
+	TSubclassOf<class AAICharacter> PlayerAIClass;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class AAICharacter* PlayerAI1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class AAICharacter* PlayerAI2 ;
+
 };
