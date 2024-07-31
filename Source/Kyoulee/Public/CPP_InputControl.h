@@ -87,6 +87,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class ACPP_CharacterPaul* Player2 ;
 
+	UPROPERTY( EditDefaultsOnly , BlueprintReadWrite )
+	TSubclassOf<class AAICharacter> PlayerAIClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class AAICharacter* PlayerAI1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class AAICharacter* PlayerAI2 ;
+
 	// player1 setting
 	UFUNCTION()
 	void InputP1Up(const FInputActionValue& Value);
