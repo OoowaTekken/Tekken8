@@ -1,5 +1,6 @@
 #Fix Plugin
 Plugins/Developer/RiderLink/**
+Plugins/**
 # Visual Studio 2015 user specific files
 .vs/
 

@@ -26,10 +26,20 @@ void ACPP_InputControl::BeginPlay()
 	Subsystem->ClearAllMappings ( );
 	Subsystem->AddMappingContext ( InputMapping , 0 );
 
-	this->Player1 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class, FVector(0,-300,0), FRotator(0,90,0));
-	this->Player2 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class, FVector(0,300,0), FRotator(0,-90,0) );
-	this->Player1->aOpponentPlayer = Player2;
-	this->Player2->aOpponentPlayer = Player1;
+	if ( this->Player1Class )
+	{
+		this->Player1 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ) );
+		
+	}
+	if ( this->Player2Class )
+	{
+		this->Player2 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player2Class , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
+		if (this->Player1)
+		{
+			this->Player1->aOpponentPlayer = Player2;
+			this->Player2->aOpponentPlayer = Player1;
+		}
+	}
 }
 
 // Called every frame
@@ -96,7 +106,7 @@ void ACPP_InputControl::InputP1Up ( const FInputActionValue& Value )
 
 	 if (!this->Player1)
 		return;
-	 UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Up %d" ) , BoolValue );
+	 // UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Up %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey();
 	key.bKey8 = BoolValue;
@@ -109,7 +119,7 @@ void ACPP_InputControl::InputP1Down ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Down %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Down %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bKey2 = BoolValue;
@@ -121,7 +131,7 @@ void ACPP_InputControl::InputP1Back ( const FInputActionValue& Value )
 	bool BoolValue = Value.Get<bool> ( );
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Left %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Left %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bKey4 = BoolValue;
@@ -134,7 +144,7 @@ void ACPP_InputControl::InputP1Foward ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Right %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1Right %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bKey6 = BoolValue;
@@ -148,7 +158,7 @@ void ACPP_InputControl::InputP1LP ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1LP %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1LP %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bLeftPunch = BoolValue;
@@ -161,7 +171,7 @@ void ACPP_InputControl::InputP1RP ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1RP %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1RP %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bRightPunch = BoolValue;
@@ -174,7 +184,7 @@ void ACPP_InputControl::InputP1LK ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1LK %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1LK %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bLeftKick = BoolValue;
@@ -187,7 +197,7 @@ void ACPP_InputControl::InputP1RK ( const FInputActionValue& Value )
 
 	if ( !this->Player1 )
 		return;
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP1RK %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1RK %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
 	key.bLeftKick = BoolValue;
@@ -205,7 +215,7 @@ void ACPP_InputControl::InputP1RK ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2Up ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Up %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Up %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -218,7 +228,7 @@ void ACPP_InputControl::InputP2Up ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2Down ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Down %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Down %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -231,7 +241,7 @@ void ACPP_InputControl::InputP2Down ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2Back ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Left %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Left %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -244,7 +254,7 @@ void ACPP_InputControl::InputP2Back ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2Foward ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Right %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2Right %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -256,7 +266,7 @@ void ACPP_InputControl::InputP2Foward ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2LP ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2LP %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2LP %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -269,7 +279,7 @@ void ACPP_InputControl::InputP2LP ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2RP ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2RP %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2RP %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -281,7 +291,7 @@ void ACPP_InputControl::InputP2RP ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2LK ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2LK %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2LK %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
@@ -293,7 +303,7 @@ void ACPP_InputControl::InputP2LK ( const FInputActionValue& Value )
 void ACPP_InputControl::InputP2RK ( const FInputActionValue& Value )
 {
 	bool BoolValue = Value.Get<bool> ( );
-	UE_LOG ( LogTemp , Warning , TEXT ( "InputP2RK %d" ) , BoolValue );
+	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP2RK %d" ) , BoolValue );
 
 	if ( !this->Player2 )
 		return;
