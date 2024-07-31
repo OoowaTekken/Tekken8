@@ -8,6 +8,7 @@
 #include "CPP_InputControl.h"
 #include "inGameUI.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -28,6 +29,16 @@ AGameMode_MH::AGameMode_MH()
 			playerB = Cast<ACharacter>(FoundActors[1]);
 		}
 	}*/
+	if (FoundActors.Num() > 0)
+	{
+		// 첫 번째 카메라 액터를 선택
+		ACameraActor* CameraActor = Cast<ACameraActor>(FoundActors[0]);
+
+		if (CameraActor)
+		{
+			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
+		}
+	}
 	
 }
 
