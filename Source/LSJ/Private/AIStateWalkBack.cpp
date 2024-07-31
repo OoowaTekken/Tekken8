@@ -49,7 +49,6 @@ void UAIStateWalkBack::TickComponent ( float DeltaTime , ELevelTick TickType , F
 	Execute ( );
 	//owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 200.0f ) );
 	//애니메이션 에서 종료
-	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkBack" ) );
 	// ...
 
 }

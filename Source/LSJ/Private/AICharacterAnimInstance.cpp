@@ -74,7 +74,7 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/Step_Backward_Anim_Montage.Step_Backward_Anim_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalStep_Backward_Anim1_Montage.FinalStep_Backward_Anim1_Montage'" ) );
     if ( walkBackMontageFinder.Succeeded ( ) )
         walkBackMontage= walkBackMontageFinder.Object;
 }
@@ -84,19 +84,19 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
     if ( Montage == walkBackMontage )
     {
         //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
-        UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+        if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
     }
   
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
     // Animation Montage가 정상적으로 끝나지 않고 중간에 인터럽트되었습니다. 인터럽트는 다른 애니메이션이 재생되었거나, 명시적으로 중단되는 등의 이유로 발생할 수 있습니다.
-        UE_LOG ( LogTemp , Warning , TEXT ( "Montage was interrupted. %s" ),*Montage->GetName());
+
     }
     else
     {
     // Animation Montage가 정상적으로 끝났습니다.
-        UE_LOG ( LogTemp , Warning , TEXT ( "Montage ended successfully. %s" ), *Montage->GetName ());
+    
     }
 }
 

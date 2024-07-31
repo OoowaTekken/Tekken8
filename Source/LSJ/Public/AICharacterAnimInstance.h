@@ -29,6 +29,7 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	FVector BeforeLocation;
 	FVector NowLocation;
 	
+	bool OnLog = false;
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Update Properties")
 	virtual void UpdateProperties();

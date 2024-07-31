@@ -39,6 +39,6 @@ void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType 
 	Execute();
 	if( owner->GetDistanceTo(player)<distance)
 		Exit();
-	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkForward" ) );
+
 	// ...
 }
