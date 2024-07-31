@@ -22,6 +22,10 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 
         // AnimInstance에 있는 CalculateDriection() 메소드를 통해 방향을 구한다.
         direction = CalculateDirection ( velocity , owner->GetActorRotation ( ) );
+        
+		if ( bStateWalkBack && GetInstanceForMontage (walkBackMontage)!=nullptr &&GetInstanceForMontage ( walkBackMontage )->GetBlendTime ( ) < 0.1f )
+			bStateWalkBack = false;
+        //bStateWalkBack = //실행되고 있을때
     }
 }
 
@@ -38,23 +42,25 @@ void UAICharacterAnimInstance::NativeInitializeAnimation ( )
 	{
 		owner = Cast<ACharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
 	}
-    //OnMontageEnded.AddDynamic ( this , &UAICharacterAnimInstance::HandleOnMontageEnded );
+    OnMontageEnded.AddDynamic ( this , &UAICharacterAnimInstance::HandleOnMontageEnded );
 }
 
 UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 {
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkForwardMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/TEST/Animation/AM_WalkForward.AM_WalkForward'" ) );
+    ( TEXT ( "/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/TEST/Animation/AM_WalkBack.AM_WalkBack'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/Step_Backward_Anim_Montage.Step_Backward_Anim_Montage'" ) );
     if ( walkBackMontageFinder.Succeeded ( ) )
         walkBackMontage= walkBackMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
 {
+    if( Montage == walkBackMontage)
+        UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {

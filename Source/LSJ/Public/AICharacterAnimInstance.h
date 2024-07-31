@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 {
@@ -23,6 +24,8 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* walkBackMontage;
 	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
 	bool bStateWalkForward;
+	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
+	bool bStateWalkBack;
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Update Properties")
 	virtual void UpdateProperties();
@@ -48,4 +51,6 @@ public:
 	void PlayerBackDashMontage();
 	bool StateWalkForward ( ) const { return bStateWalkForward; }
 	void StateWalkForward ( bool val ) { bStateWalkForward = val; }
+	bool StateWalkBack ( ) const { return bStateWalkBack; }
+	void StateWalkBack ( bool val ) { bStateWalkBack = val; }
 };

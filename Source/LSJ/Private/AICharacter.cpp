@@ -14,16 +14,17 @@ AAICharacter::AAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple'" ) );
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Jaebin/Kazuya/T-Pose/T-Pose__1_.T-Pose__1_'" ) );
 	if ( meshFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetSkeletalMesh (meshFinder.Object );
 	}
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/AB_AICharacter.AB_AICharacter_C'" ) );
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/AB_AICharacter2.AB_AICharacter2_C'" ) );
 	if ( animFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetAnimInstanceClass ( animFinder.Class );
 	}
+	GetMesh ( )->SetRelativeScale3D ( FVector ( 0.1f , 0.1f , 0.1f ) );
 	GetMesh( )->SetRelativeLocation(FVector(0,0,-80.f));
 	GetMesh ( )->SetRelativeRotation ( FRotator (  0, -90.f , 0 ) );
 	stateBackDash = CreateDefaultSubobject<UAIStateBackDash>(TEXT("stateBackDash"));
@@ -36,6 +37,7 @@ AAICharacter::AAICharacter()
 	stateWalkForward->SetStateOwner ( this );
 	stateIdle = CreateDefaultSubobject<UAIStateIdle> ( TEXT ( "stateIdle" ) );
 	stateIdle->SetStateOwner ( this );
+
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -49,7 +51,7 @@ void AAICharacter::BeginPlay()
 	animInstance = Cast<UAICharacterAnimInstance> (GetMesh()->GetAnimInstance());
 	if ( animInstance )
 	{
-		animInstance->OnMontageEnded.AddDynamic ( this , &AAICharacter::HandleOnMontageEnded );
+		//animInstance->OnMontageEnded.AddDynamic ( this , &AAICharacter::HandleOnMontageEnded );
 	}
 	currentState = stateIdle;
 

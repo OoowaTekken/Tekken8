@@ -8,11 +8,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+void UAIStateWalkForward::SetDistance ( float pDistance )
+{
+	distance = pDistance;
+}
+
 void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
+	if ( owner->GetDistanceTo ( player ) < distance )
+		Exit ( );
 	animInstace->StateWalkForward(true);
-	//GetWorld( )->GetFirstPlayerController()
 }
 
 void UAIStateWalkForward::Execute ( )

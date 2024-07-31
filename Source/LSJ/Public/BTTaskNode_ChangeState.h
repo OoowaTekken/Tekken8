@@ -13,7 +13,8 @@ UCLASS()
 class LSJ_API UBTTaskNode_ChangeState : public UBTTaskNode
 {
 	GENERATED_BODY()
-
+	UPROPERTY(EditAnywhere,Category="Distance",meta=(AllowPrivateAccess="true") )
+	float distance;
 public:
 	UBTTaskNode_ChangeState ( );
 

@@ -45,11 +45,13 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 				// 상태 완료시 호출될 델리게이트 바인딩
 				if ( UAIStateWalkBack* stateWalkBack = Cast<UAIStateWalkBack> ( stateComponent ) )
 				{
+					stateWalkBack->SetDistance(distance);
 					if ( !stateWalkBack->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkBack->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 				}
 				else if ( UAIStateWalkForward* stateWalkForward = Cast<UAIStateWalkForward> ( stateComponent ) )
 				{
+					stateWalkForward->SetDistance ( distance );
 					if ( !stateWalkForward->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 					stateWalkForward->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 				}

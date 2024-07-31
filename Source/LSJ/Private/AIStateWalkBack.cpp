@@ -10,30 +10,46 @@
 
 
 
+void UAIStateWalkBack::SetDistance ( float pDistance )
+{
+	distance = pDistance;
+}
+
 void UAIStateWalkBack::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter ( pAnimInstance );
 	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
-	animInstace->PlayerWalkBackMontage ( );
+	owner->SetActorRotation (lookPlayerRotator);
+	animInstace->PlayerWalkBackMontage();
+	animInstace->StateWalkBack ( true );
+	startPos = owner->GetActorLocation();
 }
 
 void UAIStateWalkBack::Execute ( )
 {
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( GetOwner ( )->GetActorLocation ( ) , player->GetActorLocation ( ) );
-	owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) * -1.0f );
+	//lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( GetOwner ( )->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	//owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) * -1.0f );
 }
 
 void UAIStateWalkBack::Exit ( )
 {
+	//animInstace->StateWalkBack ( false );
+	//owner->SetActorLocation( owner->GetMesh());
 	Super::Exit ( );
+
 }
 
 void UAIStateWalkBack::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
+	//if ( (owner->GetActorLocation() -startPos).Size() > distance )
+	//	Exit ( );
+	if (!animInstace->StateWalkBack())
+		Exit ( );
 	Execute ( );
-	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 200.0f ) );
+	//owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 200.0f ) );
 	//애니메이션 에서 종료
 	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkBack" ) );
 	// ...
+
 }
