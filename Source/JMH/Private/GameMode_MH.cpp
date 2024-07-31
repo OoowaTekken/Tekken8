@@ -8,6 +8,7 @@
 #include "CPP_InputControl.h"
 #include "inGameUI.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -15,19 +16,22 @@ AGameMode_MH::AGameMode_MH()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/*
 	//카메라 적용
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
-	/*
-	for (AActor* Actor : FoundActors)
+	
+	if (FoundActors.Num() > 0)
 	{
-		if (FoundActors.Num() >= 2)
+		// 첫 번째 카메라 액터를 선택
+		ACameraActor* CameraActor = Cast<ACameraActor>(FoundActors[0]);
+
+		if (CameraActor)
 		{
-			// 플레이어 A,B
-			playerA = Cast<ACharacter>(FoundActors[0]);
-			playerB = Cast<ACharacter>(FoundActors[1]);
+			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
 		}
-	}*/
+	}
+	*/
 	
 }
 

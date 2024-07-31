@@ -34,21 +34,16 @@ void APlayerCameraPawn::BeginPlay()
 	gm = Cast<AGameMode_MH>(GetWorld()->GetAuthGameMode());
 
 	//월드에 있는 플레이어 변수에 적용
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
 
-	for (AActor* Actor : FoundActors)
+
+	// 플레이어 A,B
+	if (gm)
 	{
-		if (FoundActors.Num() >= 2)
-		{
-			// 플레이어 A,B
-			if (gm)
-			{
-				playerA = gm->playerA;
-				playerB = gm->playerB;
-			}
-		}
+		playerA = gm->playerA;
+		playerB = gm->playerB;
 	}
+		
+	
 
 	// 초기화
 	DistanceThreshold = 350.0f; // 이상의 변화가 있을 때만 arm 길이 조정
