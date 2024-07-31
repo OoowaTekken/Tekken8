@@ -80,6 +80,7 @@ private:
 
 	UFUNCTION()
 	void RequestZoomEffect(FVector TargetLocation, float InZoomAmount, float InShakingValue, float InDuration);
+	
 private:
 	FVector ZoomTargetLocation;
 	float ZoomAmount = 0.5f;

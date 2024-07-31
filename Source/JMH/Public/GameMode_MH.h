@@ -108,6 +108,9 @@ public:
 	class AAICharacter* PlayerAI1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class AAICharacter* PlayerAI2 ;
+	class AAICharacter* PlayerAI2;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<class APawn>  CameraPawn;
 
 };

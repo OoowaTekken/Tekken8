@@ -16,19 +16,11 @@ AGameMode_MH::AGameMode_MH()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/*
 	//카메라 적용
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
-	/*
-	for (AActor* Actor : FoundActors)
-	{
-		if (FoundActors.Num() >= 2)
-		{
-			// 플레이어 A,B
-			playerA = Cast<ACharacter>(FoundActors[0]);
-			playerB = Cast<ACharacter>(FoundActors[1]);
-		}
-	}*/
+	
 	if (FoundActors.Num() > 0)
 	{
 		// 첫 번째 카메라 액터를 선택
@@ -39,6 +31,7 @@ AGameMode_MH::AGameMode_MH()
 			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
 		}
 	}
+	*/
 	
 }
 
