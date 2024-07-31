@@ -26,6 +26,9 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	bool bStateWalkForward;
 	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
 	bool bStateWalkBack;
+	FVector BeforeLocation;
+	FVector NowLocation;
+	
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Update Properties")
 	virtual void UpdateProperties();

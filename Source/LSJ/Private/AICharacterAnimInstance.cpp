@@ -33,6 +33,28 @@ void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
 {
     Super::NativeUpdateAnimation ( DeltaSeconds );
     UpdateProperties ( );
+
+    if ( Montage_IsPlaying ( walkBackMontage ) )
+    {
+        //owner->GetMesh ( )->DetachFromParent();
+        if ( BeforeLocation == NowLocation )
+        {
+            //원점과 중앙좌표의 오차를 저장
+            NowLocation = owner->GetActorLocation ( ) - owner->GetMesh ( )->GetBoneTransform ( 0 ).GetLocation ( );
+        }
+        else
+        {
+            //이전의 좌표를 기억
+            BeforeLocation = NowLocation;
+            //원점과 중앙좌표의 오차를 저장
+            NowLocation = owner->GetActorLocation ( ) - owner->GetMesh ( )->GetBoneTransform ( 0 ).GetLocation ( );
+            FVector v = (BeforeLocation - NowLocation);
+            owner->SetActorLocation ( owner->GetActorLocation ( ) + v * DeltaSeconds );
+
+            //Z값은 언리얼의 Y좌표.캡슐에 지장이 생기니 X Y값만 조정한다
+            owner->GetMesh ( )->MoveComponent ( FVector ( NowLocation.X* DeltaSeconds , NowLocation.Y* DeltaSeconds , 0 ) , owner->GetActorRotation() , false );
+        }
+    }
 }
 
 void UAICharacterAnimInstance::NativeInitializeAnimation ( )
@@ -59,8 +81,12 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
 {
-    if( Montage == walkBackMontage)
+    if ( Montage == walkBackMontage )
+    {
+        //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
         UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+    }
+  
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
@@ -76,6 +102,8 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
 
 void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 {
+    NowLocation = owner->GetActorLocation ( );
+    BeforeLocation = NowLocation;
     Montage_Play( walkForwardMontage );
 }
 
