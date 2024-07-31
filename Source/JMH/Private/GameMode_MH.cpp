@@ -15,9 +15,10 @@ AGameMode_MH::AGameMode_MH()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	//카메라 적용
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
-	
+	/*
 	for (AActor* Actor : FoundActors)
 	{
 		if (FoundActors.Num() >= 2)
@@ -26,7 +27,7 @@ AGameMode_MH::AGameMode_MH()
 			playerA = Cast<ACharacter>(FoundActors[0]);
 			playerB = Cast<ACharacter>(FoundActors[1]);
 		}
-	}
+	}*/
 	
 }
 
