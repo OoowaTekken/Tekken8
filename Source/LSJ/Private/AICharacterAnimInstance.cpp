@@ -91,6 +91,14 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
     if ( attackLFMontageFinder.Succeeded ( ) )
         attackLFMontage = attackLFMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>hitTopMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    if ( hitTopMontageFinder.Succeeded ( ) )
+        hitTopMontage = hitTopMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>hitMiddleMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    if ( hitMiddleMontageFinder.Succeeded ( ) )
+        hitMiddleMontage = hitMiddleMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -99,15 +107,26 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
     {
         //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
         if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
-    }
-    if ( Montage == attackLFMontage )
-    {
-        owner->ExitCurrentState ();
-    }
-    if ( Montage == attackRHMontage )
-    {
-        owner->ExitCurrentState ( );
-    }
+    }else
+        if ( Montage == attackLFMontage )
+        {
+            owner->ExitCurrentState ();
+        }
+    else
+		if ( Montage == attackRHMontage )
+		{
+			owner->ExitCurrentState ( );
+		}
+    else
+        if ( Montage == hitTopMontage )
+        {
+            owner->ExitCurrentState ( );
+        }
+	else
+		if ( Montage == hitMiddleMontage )
+		{
+			owner->ExitCurrentState ( );
+		}
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
@@ -119,6 +138,16 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
     // Animation Montage가 정상적으로 끝났습니다.
     
     }
+}
+
+void UAICharacterAnimInstance::PlayHitTopMontage ( )
+{
+    Montage_Play ( hitTopMontage );
+}
+
+void UAICharacterAnimInstance::PlayHitMiddleMontage ( )
+{
+    Montage_Play ( hitMiddleMontage );
 }
 
 void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
