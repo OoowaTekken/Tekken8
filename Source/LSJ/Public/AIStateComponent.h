@@ -27,9 +27,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance ) override;
-	virtual void Execute ( ) override;
-	virtual void Exit ( ) override;
+	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance );
+	virtual void Execute ( const float& deltatime );
+	virtual void Exit ( );
 	virtual void SetStateOwner (class ACharacter* pOwner);
 
 		UPROPERTY(BlueprintAssignable)

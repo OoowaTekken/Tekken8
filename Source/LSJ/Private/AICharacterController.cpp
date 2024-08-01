@@ -25,7 +25,7 @@ void AAICharacterController::OnPossess ( APawn* InPawn )
 
 	if ( !RunBehaviorTree ( behaviortree ) )
 	{
-		UE_LOG ( LogTemp , Error , TEXT ( "AIController couldn't run behavior tree!" ) );
+		UE_LOG ( LogTemp , Error , TEXT ( "LSJ LSJ LSJ AIController couldn't run behavior tree!" ) );
 	}
 }
 

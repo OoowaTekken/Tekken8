@@ -10,7 +10,7 @@ UAIStateComponent::UAIStateComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
@@ -42,7 +42,7 @@ void UAIStateComponent::Enter ( class UAICharacterAnimInstance* pAnimInstance )
 	player = Cast<ACharacter>(UGameplayStatics::GetActorOfClass ( GetWorld ( ) , ACPP_CharacterPaul::StaticClass ( ) ));
 }
 
-void UAIStateComponent::Execute ( )
+void UAIStateComponent::Execute ( const float& deltatime )
 {
 
 }
@@ -50,7 +50,7 @@ void UAIStateComponent::Execute ( )
 void UAIStateComponent::Exit ( )
 {
 	SetComponentTickEnabled ( false );
-	if( OnStateComplete .IsBound())
+	//if( OnStateComplete .IsBound())
 	OnStateComplete.Broadcast ( );
 }
 

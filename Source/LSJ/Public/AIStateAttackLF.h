@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "AIStateComponent.h"
-#include "AIStateIdle.generated.h"
+#include "AIStateAttackLF.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAIStateIdle : public UAIStateComponent
+class LSJ_API UAIStateAttackLF : public UAIStateComponent
 {
 	GENERATED_BODY()
-protected:
-	virtual void BeginPlay ( ) override;
+	
 public:
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
+
 };

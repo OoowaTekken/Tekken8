@@ -16,8 +16,11 @@ class LSJ_API UAIStateWalkForward : public UAIStateComponent
 	GENERATED_BODY()
 	FRotator lookPlayerRotator;
 public:
+	void SetDistance ( float pDistance );
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float distance=200.0f;
 	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance ) override;
-	virtual void Execute ( ) override;
+	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
 	virtual void TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction ) override;
 };
