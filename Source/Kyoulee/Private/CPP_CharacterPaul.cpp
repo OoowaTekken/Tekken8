@@ -624,8 +624,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_
 
 
 
-void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
-{
+//void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
+//{
 // 	/**
 // 	 * @use SphereOverlapActors
 // 	 * @url https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Kismet/UKismetSystemLibrary/SphereOverlapActors?application_version=5.4
@@ -649,5 +649,5 @@ void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
 // 	// Class that the sphere should hit against and include in the outActors array (Can be null)
 // 	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
 // 	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
-// 	}
+//}
 
