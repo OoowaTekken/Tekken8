@@ -36,8 +36,20 @@ AAICharacter::AAICharacter()
 	collisionRH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRH" ) );
 	collisionLF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLF" ) );
 	collisionRF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRF" ) );
-	collisionLH->SetupAttachment(GetMesh(),FName(TEXT("middle_0_l" ) ) );
-	//collisionLH->SetAttachSocketName(GetMesh()->)
+	collisionLH->SetupAttachment(GetMesh(),TEXT("middle_02_l" ));
+	collisionLH->SetSphereRadius(92.f);
+	collisionLH->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	collisionRH->SetupAttachment ( GetMesh ( ) ,TEXT ( "middle_02_r" ));
+	collisionRH->SetSphereRadius ( 92.f );
+	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	collisionLF->SetupAttachment ( GetMesh ( ) , TEXT ( "ball_l" ) );
+	collisionLF->SetSphereRadius ( 92.f );
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	collisionRF->SetupAttachment ( GetMesh ( ) , TEXT ( "ball_r" ) );
+	collisionRF->SetSphereRadius ( 92.f );
+	collisionRF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	//콜리전 설정
+	//플레이어랑만 충돌
 
 	stateBackDash = CreateDefaultSubobject<UAIStateBackDash>(TEXT("stateBackDash"));
 	stateBackDash->SetStateOwner(this);
@@ -80,6 +92,7 @@ void AAICharacter::BeginPlay()
 	//GetWorld ( )->GetTimerManager ( ).SetTimer ( handle ,FTimerDelegate::CreateLambda ([this]() {
 	//	ChangeState ( stateWalkBack );
 	//	}) , 10.0f ,false);
+	collisionLF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnSphereBeginOverlap );
 }
 
 // Called every frame
@@ -121,4 +134,54 @@ void AAICharacter::ExitCurrentState ( )
 	if ( currentState ) {
 		currentState->Exit ( );
 	}
+}
+
+void AAICharacter::OnAttackCollisionLF ( )
+{
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::QueryOnly);
+}
+
+void AAICharacter::OnAttackCollisionRF ( )
+{
+}
+
+void AAICharacter::OnAttackCollisionLH ( )
+{
+}
+
+void AAICharacter::OnAttackCollisionRH ( )
+{
+}
+
+void AAICharacter::OffAttackCollisionLF ( )
+{
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionRF ( )
+{
+	collisionRF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionLH ( )
+{
+	collisionLH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionRH ( )
+{
+	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OnSphereBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if( IsAttacked )
+		return;
+	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
+	DrawDebugSphere ( GetWorld () , collisionLF->GetComponentLocation() , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , -1 , 0 , 2 );
+	IsAttacked = true;
 }

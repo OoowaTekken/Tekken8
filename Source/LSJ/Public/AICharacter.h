@@ -26,6 +26,8 @@ class LSJ_API AAICharacter : public ATekken8CharacterParent
 	class UAIStateWalkBack* stateWalkBack;
 	UPROPERTY ( )
 	class UAIStateWalkForward* stateWalkForward;
+
+	bool IsAttacked;
 	UPROPERTY ( )
 	class UAIStateAttackLF* stateAttackLF;
 	UPROPERTY ( )
@@ -71,4 +73,17 @@ public:
 	UAIStateRun* GetAIStateRun ( ) const { return stateRun; }
 	UAIStateBackDash* GetAIStateBackDash ( ) const { return stateBackDash; }
 
+	//공격 콜리전 켜기 끄기
+	void OnAttackCollisionLF();
+	void OnAttackCollisionRF ( );
+	void OnAttackCollisionLH ( );
+	void OnAttackCollisionRH ( );
+	//공격 콜리전 끄기
+	void OffAttackCollisionLF ( );
+	void OffAttackCollisionRF ( );
+	void OffAttackCollisionLH ( );
+	void OffAttackCollisionRH ( );
+	//공격 콜리전 Overlap
+	UFUNCTION()
+	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

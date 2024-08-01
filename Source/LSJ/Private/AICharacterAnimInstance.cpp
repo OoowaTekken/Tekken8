@@ -88,7 +88,7 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( attackRHMontageFinder.Succeeded ( ) )
         attackRHMontage = attackRHMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLFMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim_Montage.Kicking_Anim_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
     if ( attackLFMontageFinder.Succeeded ( ) )
         attackLFMontage = attackLFMontageFinder.Object;
 }
