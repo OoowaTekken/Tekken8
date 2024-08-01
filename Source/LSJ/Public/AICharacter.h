@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 //#include "GameFramework/Character.h"
-#include "Tekken8CharacterParent.h"
+#include "CPP_Tekken8CharacterParent.h"
 #include "AICharacter.generated.h"
 
 UCLASS()
-class LSJ_API AAICharacter : public ATekken8CharacterParent
+class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 {
 	GENERATED_BODY()
 
 	UPROPERTY (EditDefaultsOnly)
 	class UAICharacterAnimInstance * animInstance;
 
-	ECharacterState eCurrentState;
 	class IAIStateInterface* currentState;
 
 	UPROPERTY ()
@@ -34,6 +33,8 @@ class LSJ_API AAICharacter : public ATekken8CharacterParent
 	class UAIStateAttackRH* stateAttackRH;
 	UPROPERTY ( )
 	class UAIStateIdle* stateIdle;
+	UPROPERTY ( )
+	class UAIStateHit* stateHit;
 	bool IsPlayer1;
 public:
 	// Sets default values for this character's properties
@@ -93,5 +94,5 @@ public:
 	virtual void OnCollisionRFBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	virtual void OnCollisionLFBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer );
 };

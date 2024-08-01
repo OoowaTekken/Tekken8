@@ -24,7 +24,10 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* attackRHMontage;
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* attackLFMontage;
-
+		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* hitTopMontage;
+		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* hitMiddleMontage;
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class AAICharacter* owner;
 	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
@@ -55,6 +58,8 @@ public:
 	 // Animation Montage가 끝났을 때 호출될 함수
     UFUNCTION()
     virtual void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
+	virtual void PlayHitTopMontage ( );
+	virtual void PlayHitMiddleMontage ( );
 	virtual void PlayerWalkForwardMontage();
 	virtual void PlayerWalkBackMontage();
 	virtual void PlayerBackDashMontage();

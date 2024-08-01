@@ -13,6 +13,7 @@
 #include "AIStateAttackLF.h"
 #include "AIStateAttackRH.h"
 #include "Components/SphereComponent.h"
+#include "AIStateHit.h"
 // Sets default values
 AAICharacter::AAICharacter()
 {
@@ -65,6 +66,8 @@ AAICharacter::AAICharacter()
 	stateAttackLF->SetStateOwner ( this );
 	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
 	stateAttackRH->SetStateOwner ( this );
+	stateHit = CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateAttackRH" ) );
+	stateHit->SetStateOwner ( this );
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -216,4 +219,15 @@ void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
 	DrawDebugSphere ( GetWorld ( ) , collisionLF->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 	IsAttacked = true;
+}
+//공격 받았을 때
+bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
+{
+	//현재 상태와 공격정보를 확인해서 데미지 처리
+	//공격 받았다면 Hit State 상태 처리 attackInfo를 전달 return true;
+	//가드라면 ... return false;
+	//attackInfo
+	ExitCurrentState ();
+	ChangeState( stateHit );
+	return true;
 }
