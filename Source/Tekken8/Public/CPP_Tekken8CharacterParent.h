@@ -97,6 +97,8 @@ public:
 	float cameraShake = 0;
 	float cameraZoom = 0;
 	// skellEffectLocation; 상위 참조
+	
+
 // 
 // 	FAttackInfoInteraction ()
 // 	{
@@ -132,6 +134,10 @@ class TEKKEN8_API ACPP_Tekken8CharacterParent : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ACPP_Tekken8CharacterParent();
+
+	int32 HP = 300;
+	int32 RageGauge = 0;
+	int32 HitGauge = 100;
 
 protected:
 	// Called when the game starts or when spawned

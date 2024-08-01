@@ -1,10 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#define MYDEBUGMODE = 0;
+#define MYDEBUGMODE = 1;
 
 #include "CPP_CharacterPaul.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -19,6 +21,8 @@ ACPP_CharacterPaul::ACPP_CharacterPaul ( )
 		uCharacterMesh->SetSkeletalMeshAsset ( tempSkeletalMesh.Object );
 	uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -90 ) );
 	uCharacterMesh->SetRelativeRotation ( FRotator ( 0 , 0 , -90 ) );
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 // Called when the game starts or when spawned
 void ACPP_CharacterPaul::BeginPlay ( )
@@ -30,7 +34,7 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	// 위치 세팅
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
 	if ( !this->aOpponentPlayer )
-		this->aOpponentPlayer = GetWorld ( )->SpawnActor<ACharacter> ( );
+			this->aOpponentPlayer = GetWorld ( )->SpawnActor<ACharacter> ( );
 	this->sFrameStatus.FrameBlockUsing = 0;
 	this->sFrameStatus.FrameUsing = 0;
 }
@@ -54,7 +58,7 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 
 		if ( this->sFrameStatus.FrameBlockUsing <= 0 )
 			this->FrameSystem ( );
-	}
+ 	}
 }
 
 /**
@@ -131,9 +135,10 @@ void ACPP_CharacterPaul::SetToWorldLocationPoint ( FVector vector )
 
 void ACPP_CharacterPaul::AnimationFrame ( )
 {
-
+	
 	FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
-	this->SetActorLocation ( this->GetActorLocation ( ) + dir );
+	AddMovementInput(dir );
+	// this->SetActorLocation ( this->GetActorLocation ( ) + dir );
 
 	// 인풋이 있을 경우 상대를 바라본다 
 	if ( currKeyValue )
@@ -217,12 +222,6 @@ int32 ACPP_CharacterPaul::InputKeyValue ( int ArrowKey , bool LeftArm , bool Rig
 		LeftKick * 0b0000100000000000 +
 		RightKick * 0b0001000000000000;
 	return inputValue;
-}
-
-
-void ACPP_CharacterPaul::SettingMove ( int32 ArrowNum , bool Value )
-{
-
 }
 
 // Command Setting Function
@@ -486,7 +485,8 @@ void ACPP_CharacterPaul::CommandJump ( )
 
 
 	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
-	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , 130 ) );
+	this->SetToLocationPoint ( 0 , 0 , 130 );
+	
 	this->sFrameStatus.FrameUsing = 25;
 }
 
