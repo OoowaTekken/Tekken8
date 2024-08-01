@@ -32,26 +32,27 @@ AGameMode_MH::AGameMode_MH()
 		}
 	}
 	*/
-	
 }
 
 
 void AGameMode_MH::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	StartGame();
 
-	ACPP_InputControl* Control = Cast<ACPP_InputControl>( GetWorld()->GetFirstPlayerController()->GetPawn());
-	
-	if ( this->Player1Class )
+	ACPP_InputControl* Control = Cast<ACPP_InputControl>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	if (this->Player1Class)
 	{
-		this->Player1 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player1Class , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ) );
+		this->Player1 = this->GetWorld()->SpawnActor<ACPP_CharacterPaul>(
+			this->Player1Class , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
 		Control->Player1 = Player1;
 	}
-	if ( this->Player2Class )
+	if (this->Player2Class)
 	{
-		this->Player2 = this->GetWorld ( )->SpawnActor<ACPP_CharacterPaul> ( this->Player2Class , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
+		this->Player2 = this->GetWorld()->SpawnActor<ACPP_CharacterPaul>(
+			this->Player2Class , FVector(0 , 300 , 0) , FRotator(0 , -90 , 0));
 		Control->Player2 = Player2;
 		if (this->Player1)
 		{
@@ -59,23 +60,36 @@ void AGameMode_MH::BeginPlay()
 			this->Player2->aOpponentPlayer = Player1;
 		}
 	}
-	
+
 	if (!this->Player1Class)
 	{
-		GetWorld()->SpawnActor<AAICharacter>( PlayerAIClass , FVector ( 0 , -300 , 0 ) , FRotator ( 0 , 90 , 0 ));
+		GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
 	}
 	if (!this->Player2Class)
 	{
-		GetWorld()->SpawnActor<AAICharacter>( PlayerAIClass , FVector ( 0 , 300 , 0 ) , FRotator ( 0 , -90 , 0 ) );
+		GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , 300 , 0) , FRotator(0 , -90 , 0));
 	}
 	playerA = Player1;
 	playerB = Player2;
+
+	if (CameraPawn)
+	{
+		GetWorld()->SpawnActor<APawn>(CameraPawn);
+
+		TArray<AActor*> FoundActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
+		ACameraActor* CameraActor = Cast<ACameraActor>(FoundActors[0]);
+		if (CameraActor)
+		{
+			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
+		}
+	}
 }
 
 void AGameMode_MH::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (CurrentState == EGameState::InProgress)
 	{
 		CountDown(DeltaTime);
