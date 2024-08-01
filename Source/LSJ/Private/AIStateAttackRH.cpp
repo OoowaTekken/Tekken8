@@ -24,7 +24,7 @@ void UAIStateAttackRH::Execute ( const float& deltatime )
 	{
 		if ( hitResult.GetActor ( )->IsA ( ACPP_CharacterPaul::StaticClass ( ) ) )
 		{
-			auto* player= Cast<ACPP_CharacterPaul>((hitResult.GetActor()));
+			auto* playerP= Cast<ACPP_CharacterPaul>((hitResult.GetActor()));
 			//UE_LOG ( LogTemp , Error , TEXT ( "%s" ) , *hitResult.GetActor ( )->GetName ( ) );
 			//hitResult.GetActor ( )->SetActorLocation( hitResult.GetActor ( )->GetActorLocation() + 1000.0f*deltatime * aiCharacter->GetActorForwardVector ( ));
 		}
