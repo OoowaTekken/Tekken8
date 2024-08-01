@@ -4,19 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTaskNode_ChangeState.generated.h"
+#include "BTTaskNode_ChangeAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UBTTaskNode_ChangeState : public UBTTaskNode
+class LSJ_API UBTTaskNode_ChangeAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere,Category="Distance",meta=(AllowPrivateAccess="true") )
-	float distance;
+	
 public:
-	UBTTaskNode_ChangeState ( );
+	UBTTaskNode_ChangeAttack ( );
 
 	virtual EBTNodeResult::Type ExecuteTask ( UBehaviorTreeComponent& OwnerComp , uint8* NodeMemory ) override;
 	UPROPERTY(EditAnywhere, Category = "AI")
@@ -30,3 +29,4 @@ private:
 	bool bIsWaitingForState;
 	class UBehaviorTreeComponent* cachedOwnerComp;
 };
+

@@ -5,11 +5,12 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimMontage.h"
+#include "AICharacter.h"
 
 void UAICharacterAnimInstance::UpdateProperties ( )
 {
     if ( owner == nullptr )
-        owner = Cast<ACharacter> ( TryGetPawnOwner ( ) );	// 소유자의 Pawn 를 가져온다.
+        owner = Cast<AAICharacter> ( TryGetPawnOwner ( ) );	// 소유자의 Pawn 를 가져온다.
     if ( owner )
     {
         // 공중에 있는지
@@ -22,6 +23,10 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 
         // AnimInstance에 있는 CalculateDriection() 메소드를 통해 방향을 구한다.
         direction = CalculateDirection ( velocity , owner->GetActorRotation ( ) );
+        
+		if ( bStateWalkBack && GetInstanceForMontage (walkBackMontage)!=nullptr &&GetInstanceForMontage ( walkBackMontage )->GetBlendTime ( ) < 0.1f )
+			bStateWalkBack = false;
+        //bStateWalkBack = //실행되고 있을때
     }
 }
 
@@ -29,6 +34,28 @@ void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
 {
     Super::NativeUpdateAnimation ( DeltaSeconds );
     UpdateProperties ( );
+
+    //if ( Montage_IsPlaying ( walkBackMontage ) )
+    //{
+    //    //owner->GetMesh ( )->DetachFromParent();
+    //    if ( BeforeLocation == NowLocation )
+    //    {
+    //        //원점과 중앙좌표의 오차를 저장
+    //        NowLocation = owner->GetActorLocation ( ) - owner->GetMesh ( )->GetBoneTransform ( 0 ).GetLocation ( );
+    //    }
+    //    else
+    //    {
+    //        //이전의 좌표를 기억
+    //        BeforeLocation = NowLocation;
+    //        //원점과 중앙좌표의 오차를 저장
+    //        NowLocation = owner->GetActorLocation ( ) - owner->GetMesh ( )->GetBoneTransform ( 0 ).GetLocation ( );
+    //        FVector v = (BeforeLocation - NowLocation);
+    //        owner->SetActorLocation ( owner->GetActorLocation ( ) + v * DeltaSeconds );
+
+    //        //Z값은 언리얼의 Y좌표.캡슐에 지장이 생기니 X Y값만 조정한다
+    //        owner->GetMesh ( )->MoveComponent ( FVector ( NowLocation.X* DeltaSeconds , NowLocation.Y* DeltaSeconds , 0 ) , owner->GetActorRotation() , false );
+    //    }
+    //}
 }
 
 void UAICharacterAnimInstance::NativeInitializeAnimation ( )
@@ -36,44 +63,91 @@ void UAICharacterAnimInstance::NativeInitializeAnimation ( )
 	Super::NativeInitializeAnimation ( );
 	if ( owner == nullptr )
 	{
-		owner = Cast<ACharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
+		owner = Cast<AAICharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
 	}
-    //OnMontageEnded.AddDynamic ( this , &UAICharacterAnimInstance::HandleOnMontageEnded );
+    if ( !OnMontageEnded.IsAlreadyBound ( this , &UAICharacterAnimInstance::HandleOnMontageEnded ) )
+    OnMontageEnded.AddDynamic ( this , &UAICharacterAnimInstance::HandleOnMontageEnded );
 }
 
 UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 {
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkForwardMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/TEST/Animation/AM_WalkForward.AM_WalkForward'" ) );
+    ( TEXT ( "/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/TEST/Animation/AM_WalkBack.AM_WalkBack'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalStep_Backward_Anim1_Montage.FinalStep_Backward_Anim1_Montage'" ) );
     if ( walkBackMontageFinder.Succeeded ( ) )
         walkBackMontage= walkBackMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>idleMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Idle_T1_Montage.KB_Idle_T1_Montage'" ) );
+    if ( idleMontageFinder.Succeeded ( ) )
+       idleMontage = idleMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackRHMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Punching_Anim1_Montage.Punching_Anim1_Montage'" ) );
+    if ( attackRHMontageFinder.Succeeded ( ) )
+        attackRHMontage = attackRHMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLFMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    if ( attackLFMontageFinder.Succeeded ( ) )
+        attackLFMontage = attackLFMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
 {
+    if ( Montage == walkBackMontage )
+    {
+        //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+    }
+    if ( Montage == attackLFMontage )
+    {
+        owner->ExitCurrentState ();
+    }
+    if ( Montage == attackRHMontage )
+    {
+        owner->ExitCurrentState ( );
+    }
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
     // Animation Montage가 정상적으로 끝나지 않고 중간에 인터럽트되었습니다. 인터럽트는 다른 애니메이션이 재생되었거나, 명시적으로 중단되는 등의 이유로 발생할 수 있습니다.
-        UE_LOG ( LogTemp , Warning , TEXT ( "Montage was interrupted. %s" ),*Montage->GetName());
+
     }
     else
     {
     // Animation Montage가 정상적으로 끝났습니다.
-        UE_LOG ( LogTemp , Warning , TEXT ( "Montage ended successfully. %s" ), *Montage->GetName ());
+    
     }
 }
 
 void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 {
+    NowLocation = owner->GetActorLocation ( );
+    BeforeLocation = NowLocation;
     Montage_Play( walkForwardMontage );
 }
 
 void UAICharacterAnimInstance::PlayerWalkBackMontage ( )
 {
-    Montage_Play ( walkBackMontage );
+//UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play (walkBackMontage,1.0f, EMontagePlayReturnType::MontageLength,0.0f,true);
+}
+void UAICharacterAnimInstance::PlayerBackDashMontage ( )
+{
+    //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play ( walkBackMontage , 3.0f , EMontagePlayReturnType::MontageLength , 0.0f , true );
+}
+void UAICharacterAnimInstance::PlayeAttackRHMontage ( )
+{
+    Montage_Play ( attackRHMontage );
+}
+void UAICharacterAnimInstance::PlayeAttackLFMontage ( )
+{
+    Montage_Play ( attackLFMontage );
+}
+void UAICharacterAnimInstance::PlayerIdleMontage ( )
+{
+    //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
+    Montage_Play (idleMontage);
 }

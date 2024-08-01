@@ -26,7 +26,7 @@ bool UBTDecorator_Distance::CalculateRawConditionValue ( UBehaviorTreeComponent&
 		return false;
 	/*TArray<AActor*> outActors;
 	UGameplayStatics::GetAllActorsOfClass ( GetWorld ( ) , ACharacter::StaticClass ( ) , outActors );*/
-
-	bResult = (Target->GetDistanceTo(ControllingPawn ) <= distance);
+	//UE_LOG(LogTemp,Error,TEXT("%f" ), ControllingPawn->GetDistanceTo ( Target ) );
+	bResult = (ControllingPawn->GetDistanceTo(Target) <= distance);
 	return bResult;
 }
