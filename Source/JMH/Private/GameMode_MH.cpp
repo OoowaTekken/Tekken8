@@ -9,29 +9,13 @@
 #include "inGameUI.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 AGameMode_MH::AGameMode_MH()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	/*
-	//카메라 적용
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
-	
-	if (FoundActors.Num() > 0)
-	{
-		// 첫 번째 카메라 액터를 선택
-		ACameraActor* CameraActor = Cast<ACameraActor>(FoundActors[0]);
-
-		if (CameraActor)
-		{
-			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
-		}
-	}
-	*/
 }
 
 
@@ -48,6 +32,7 @@ void AGameMode_MH::BeginPlay()
 		this->Player1 = this->GetWorld()->SpawnActor<ACPP_CharacterPaul>(
 			this->Player1Class , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
 		Control->Player1 = Player1;
+		playerA = Player1;
 	}
 	if (this->Player2Class)
 	{
@@ -59,30 +44,34 @@ void AGameMode_MH::BeginPlay()
 			this->Player1->aOpponentPlayer = Player2;
 			this->Player2->aOpponentPlayer = Player1;
 		}
+		playerB = Player2;
 	}
 
 	if (!this->Player1Class)
 	{
-		GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
+		ACharacter* aiplayer1 = GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , -300 , 0) ,
+		                                                             FRotator(0 , 90 , 0));
+		if (Player2)
+			Player2->aOpponentPlayer = aiplayer1;
+		playerA = aiplayer1;
 	}
 	if (!this->Player2Class)
 	{
-		GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , 300 , 0) , FRotator(0 , -90 , 0));
+		ACharacter* aiplayer2 = GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , 300 , 0) ,
+		                                                             FRotator(0 , -90 , 0));
+		if (Player1)
+			Player1->aOpponentPlayer = aiplayer2;
+		playerB = aiplayer2;
 	}
-	playerA = Player1;
-	playerB = Player2;
 
 	if (CameraPawn)
 	{
-		GetWorld()->SpawnActor<APawn>(CameraPawn);
-
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld() , ACharacter::StaticClass() , FoundActors);
-		ACameraActor* CameraActor = Cast<ACameraActor>(FoundActors[0]);
-		if (CameraActor)
-		{
-			GetWorld()->GetFirstPlayerController()->SetViewTarget(CameraActor);
-		}
+		SpawnedCameraPawn = Cast<APawn>(GetWorld()->SpawnActor<APawn>(CameraPawn));
+		
+		SetupCameraViewTarget();
+			//FTimerHandle CameraSetupTimerHandle;
+			//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
+		
 	}
 }
 
@@ -131,7 +120,7 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	case EGameState::RoundStart:
 		//타이머 초기화
 		gameTimer = roundTimer;
-	//HP 초기화
+		//HP 초기화
 		SetGameState(EGameState::InProgress);
 		break;
 
@@ -189,4 +178,20 @@ bool AGameMode_MH::IsGameOverConditionMet()
 {
 	//if 3선승?,타임오버?(체력 많이 남은 플레이어 승)  return true;
 	return false;
+}
+
+void AGameMode_MH::SetupCameraViewTarget()
+{
+	 UCameraComponent* CameraComponent = SpawnedCameraPawn->FindComponentByClass<UCameraComponent>();
+	if (CameraComponent)
+	{
+			GEngine->AddOnScreenDebugMessage(-2, 5.f, FColor::Red, TEXT("CameraActor!"));
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			if (PlayerController)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PlayerController!"));
+
+				PlayerController->SetViewTarget(SpawnedCameraPawn);
+			}
+	}
 }

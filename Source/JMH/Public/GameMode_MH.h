@@ -112,5 +112,12 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<class APawn>  CameraPawn;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	APawn* SpawnedCameraPawn;
+	
+	UFUNCTION()
+	void SetupCameraViewTarget();
+
 
 };
