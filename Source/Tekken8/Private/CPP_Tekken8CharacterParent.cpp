@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CPP_Tekken8CharacterParent.h"
@@ -18,17 +18,8 @@ void ACPP_Tekken8CharacterParent::BeginPlay()
 	
 }
 
-// Called every frame
-void ACPP_Tekken8CharacterParent::Tick(float DeltaTime)
+bool ACPP_Tekken8CharacterParent::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ACPP_Tekken8CharacterParent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	return false;
 }
 
