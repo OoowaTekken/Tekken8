@@ -100,6 +100,8 @@ struct FAttackInfo
 	}
 };
 
+
+
 UCLASS()
 class LSJ_API ATekken8CharacterParent : public ACharacter
 {

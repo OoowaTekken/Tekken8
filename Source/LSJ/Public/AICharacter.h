@@ -37,10 +37,21 @@ public:
 	// Sets default values for this character's properties
 	AAICharacter();
 
+	// 상태 공격 객체에 대한 접근 메서드 추가
 	class UAIStateAttackLF* GetAIStateAttackLF ( ) const { return stateAttackLF; }
 	void StateAttackLF ( class UAIStateAttackLF* val ) { stateAttackLF = val; }
 	class UAIStateAttackRH* GetAIStateAttackRH ( ) const { return stateAttackRH; }
 	void StateAttackRH ( class UAIStateAttackRH* val ) { stateAttackRH = val; }
+
+	//공격 콜리전
+	UPROPERTY ( )
+	class USphereComponent* collisionLH;
+	UPROPERTY ( )
+	class USphereComponent* collisionRH;
+	UPROPERTY ( )
+	class USphereComponent* collisionLF;
+	UPROPERTY ( )
+	class USphereComponent* collisionRF;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,7 +65,7 @@ public:
 	void UpdateState ( const float& deltatime );
 	void ExitCurrentState ();
 
-	// 상태 객체에 대한 접근 메서드 추가
+	// 상태 이동 객체에 대한 접근 메서드 추가
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
 	UAIStateWalkBack* GetAIStateWalkBack ( ) const { return stateWalkBack; }
 	UAIStateRun* GetAIStateRun ( ) const { return stateRun; }

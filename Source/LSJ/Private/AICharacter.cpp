@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "AIStateAttackLF.h"
 #include "AIStateAttackRH.h"
+#include "Components/SphereComponent.h"
 // Sets default values
 AAICharacter::AAICharacter()
 {
@@ -30,6 +31,14 @@ AAICharacter::AAICharacter()
 	GetMesh ( )->SetRelativeScale3D ( FVector ( 0.1f , 0.1f , 0.1f ) );
 	GetMesh( )->SetRelativeLocation(FVector(0,0,-80.f));
 	GetMesh ( )->SetRelativeRotation ( FRotator (  0, -90.f , 0 ) );
+
+	collisionLH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLH" ) );
+	collisionRH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRH" ) );
+	collisionLF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLF" ) );
+	collisionRF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRF" ) );
+	collisionLH->SetupAttachment(GetMesh(),FName(TEXT("middle_0_l" ) ) );
+	//collisionLH->SetAttachSocketName(GetMesh()->)
+
 	stateBackDash = CreateDefaultSubobject<UAIStateBackDash>(TEXT("stateBackDash"));
 	stateBackDash->SetStateOwner(this);
 	stateRun = CreateDefaultSubobject<UAIStateRun> ( TEXT ( "stateRun" ) );
