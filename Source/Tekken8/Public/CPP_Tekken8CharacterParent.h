@@ -141,5 +141,4 @@ public:
 	ECharacterStateInteraction eCharacterState;
 	FAttackInfoInteraction sAttackInfo;
 	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )  ;
-
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -13,5 +13,10 @@ UCLASS()
 class LSJ_API UAIStateIdle : public UAIStateComponent
 {
 	GENERATED_BODY()
-	
+protected:
+	virtual void BeginPlay ( ) override;
+public:
+	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
+	virtual void Execute ( const float& deltatime ) override;
+	virtual void Exit ( ) override;
 };

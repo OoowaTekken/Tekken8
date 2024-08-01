@@ -9,23 +9,48 @@
 #include "AIStateWalkBack.h"
 #include "AIStateWalkForward.h"
 #include "AIStateIdle.h"
+#include "Components/CapsuleComponent.h"
+#include "AIStateAttackLF.h"
+#include "AIStateAttackRH.h"
+#include "Components/SphereComponent.h"
 // Sets default values
 AAICharacter::AAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple'" ) );
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> meshFinder(TEXT("/Script/Engine.SkeletalMesh'/Game/Jaebin/Kazuya/T-Pose_Final/T-Pose2_UE.T-Pose2_UE'" ) );
 	if ( meshFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetSkeletalMesh (meshFinder.Object );
 	}
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/AB_AICharacter.AB_AICharacter_C'" ) );
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animFinder ( TEXT ( "/Script/Engine.AnimBlueprint'/Game/LSJ/Blueprint/ABP_AICharacter3.ABP_AICharacter3_C'" ) );
 	if ( animFinder.Succeeded ( ) )
 	{
 		GetMesh ( )->SetAnimInstanceClass ( animFinder.Class );
 	}
+	GetMesh ( )->SetRelativeScale3D ( FVector ( 0.1f , 0.1f , 0.1f ) );
 	GetMesh( )->SetRelativeLocation(FVector(0,0,-80.f));
 	GetMesh ( )->SetRelativeRotation ( FRotator (  0, -90.f , 0 ) );
+
+	collisionLH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLH" ) );
+	collisionRH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRH" ) );
+	collisionLF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLF" ) );
+	collisionRF = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionRF" ) );
+	collisionLH->SetupAttachment(GetMesh(),TEXT("middle_02_l" ));
+	collisionLH->SetSphereRadius(92.f);
+	collisionLH->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	collisionRH->SetupAttachment ( GetMesh ( ) ,TEXT ( "middle_02_r" ));
+	collisionRH->SetSphereRadius ( 92.f );
+	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	collisionLF->SetupAttachment ( GetMesh ( ) , TEXT ( "ball_l" ) );
+	collisionLF->SetSphereRadius ( 92.f );
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	collisionRF->SetupAttachment ( GetMesh ( ) , TEXT ( "ball_r" ) );
+	collisionRF->SetSphereRadius ( 92.f );
+	collisionRF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	//콜리전 설정
+	//플레이어랑만 충돌
+
 	stateBackDash = CreateDefaultSubobject<UAIStateBackDash>(TEXT("stateBackDash"));
 	stateBackDash->SetStateOwner(this);
 	stateRun = CreateDefaultSubobject<UAIStateRun> ( TEXT ( "stateRun" ) );
@@ -36,6 +61,11 @@ AAICharacter::AAICharacter()
 	stateWalkForward->SetStateOwner ( this );
 	stateIdle = CreateDefaultSubobject<UAIStateIdle> ( TEXT ( "stateIdle" ) );
 	stateIdle->SetStateOwner ( this );
+	stateAttackLF = CreateDefaultSubobject<UAIStateAttackLF> ( TEXT ( "stateAttackLF" ) );
+	stateAttackLF->SetStateOwner ( this );
+	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
+	stateAttackRH->SetStateOwner ( this );
+
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -49,21 +79,28 @@ void AAICharacter::BeginPlay()
 	animInstance = Cast<UAICharacterAnimInstance> (GetMesh()->GetAnimInstance());
 	if ( animInstance )
 	{
-		animInstance->OnMontageEnded.AddDynamic ( this , &AAICharacter::HandleOnMontageEnded );
+		
+		//animInstance->OnMontageEnded.AddDynamic ( this , &AAICharacter::HandleOnMontageEnded );
 	}
-	currentState = stateIdle;
-
+	
+	if ( IsPlayer1 )
+		GetCapsuleComponent ( )->SetCollisionProfileName ( FName ( TEXT ( "Player1Capsule" ) ) );
+	else
+		GetCapsuleComponent ( )->SetCollisionProfileName ( FName ( TEXT ( "Player2Capsule" ) ) );
+	//GetRootComponent()->SetCollisionName
 	//FTimerHandle handle;
 	//GetWorld ( )->GetTimerManager ( ).SetTimer ( handle ,FTimerDelegate::CreateLambda ([this]() {
 	//	ChangeState ( stateWalkBack );
 	//	}) , 10.0f ,false);
+	collisionLF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnSphereBeginOverlap );
 }
 
 // Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateState( );
+	UpdateState( DeltaTime );
+	
 }
 
 // Called to bind functionality to input
@@ -75,9 +112,10 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AAICharacter::ChangeState ( IAIStateInterface* NewState )
 {
-	if ( currentState ) {
-		currentState->Exit ( );
-	}
+	//hit 했을때 필요할거 같다.
+	//if ( currentState) {
+	//	currentState->Exit ( );
+	//}
 	currentState = NewState;
 
 	if ( currentState ) {
@@ -85,24 +123,65 @@ void AAICharacter::ChangeState ( IAIStateInterface* NewState )
 	}
 }
 
-void AAICharacter::UpdateState()
+void AAICharacter::UpdateState(const float& deltatime)
 {
 	if ( currentState )
-		currentState->Execute ( );
+		currentState->Execute ( deltatime );
 }
 
-void AAICharacter::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
+void AAICharacter::ExitCurrentState ( )
 {
-	currentState->Exit();
-	// Montage가 끝났을 때의 처리 로직
-	if ( bInterrupted )
-	{
-		// Animation Montage가 정상적으로 끝나지 않고 중간에 인터럽트되었습니다. 인터럽트는 다른 애니메이션이 재생되었거나, 명시적으로 중단되는 등의 이유로 발생할 수 있습니다.
-		UE_LOG ( LogTemp , Warning , TEXT ( "Montage was interrupted. %s" ) , *Montage->GetName ( ) );
+	if ( currentState ) {
+		currentState->Exit ( );
 	}
-	else
-	{
-		// Animation Montage가 정상적으로 끝났습니다.
-		UE_LOG ( LogTemp , Warning , TEXT ( "Montage ended successfully. %s" ) , *Montage->GetName ( ) );
-	}
+}
+
+void AAICharacter::OnAttackCollisionLF ( )
+{
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::QueryOnly);
+}
+
+void AAICharacter::OnAttackCollisionRF ( )
+{
+}
+
+void AAICharacter::OnAttackCollisionLH ( )
+{
+}
+
+void AAICharacter::OnAttackCollisionRH ( )
+{
+}
+
+void AAICharacter::OffAttackCollisionLF ( )
+{
+	collisionLF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionRF ( )
+{
+	collisionRF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionLH ( )
+{
+	collisionLH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OffAttackCollisionRH ( )
+{
+	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	IsAttacked = false;
+}
+
+void AAICharacter::OnSphereBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if( IsAttacked )
+		return;
+	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
+	DrawDebugSphere ( GetWorld () , collisionLF->GetComponentLocation() , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , -1 , 0 , 2 );
+	IsAttacked = true;
 }

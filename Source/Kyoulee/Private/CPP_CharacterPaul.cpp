@@ -559,6 +559,7 @@ void ACPP_CharacterPaul::CommandLeftRightCombo_1 ( )
 			}
 		}
 	}
+
  	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , radius , 26 , FColor ( 0 , 255 , 0 ) , true , 1.0f );
 }
 
@@ -586,8 +587,6 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 	this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
 	return 0;
 }
-
-
 
 bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
@@ -650,6 +649,5 @@ void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
 // 	// Class that the sphere should hit against and include in the outActors array (Can be null)
 // 	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
 // 	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
-// 	
-}
+// 	}
 

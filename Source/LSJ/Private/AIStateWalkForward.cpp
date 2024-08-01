@@ -8,27 +8,36 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+void UAIStateWalkForward::SetDistance ( float pDistance )
+{
+	distance = pDistance;
+}
+
 void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
-	animInstace->PlayerWalkForwardMontage();
-	//GetWorld( )->GetFirstPlayerController()
+	if ( owner->GetDistanceTo ( player ) < distance )
+		Exit ( );
+	animInstace->StateWalkForward(true);
 }
 
-void UAIStateWalkForward::Execute ( )
+void UAIStateWalkForward::Execute ( const float& deltatime )
 {
-	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector()*5.0f);
+	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector());
 }
 
 void UAIStateWalkForward::Exit ( )
 {
+	animInstace->StateWalkForward ( false );
 	Super::Exit ( );
 }
 void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
-	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime , 0.1f ) );
-	UE_LOG ( LogTemp , Warning , TEXT ( "UAIStateWalkForward" ) );
+	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime ,200.0f ) );
+	if( owner->GetDistanceTo(player)<distance)
+		Exit();
+
 	// ...
 }
