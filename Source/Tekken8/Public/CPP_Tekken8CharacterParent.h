@@ -77,7 +77,7 @@ struct FAttackInfoInteraction
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bGaurdBreaker;
 
-	FAttackInfo2 ()
+	FAttackInfoInteraction ()
 	{
 		DamagePoint = EDamagePointInteraction::Lower;
 		KnockBackDirection = FVector::ZeroVector;
@@ -87,7 +87,7 @@ struct FAttackInfoInteraction
 		NH = 0;
 		bGaurdBreaker = false;
 	}
-	FAttackInfo2 (EDamagePointInteraction pDamagePoint, FVector pKnockBackDirection, int16 pDamageAmount, int8 pHitFrame, int8 pGrd, int8 pNH, bool pbGaurdBreaker)
+	FAttackInfoInteraction (EDamagePointInteraction pDamagePoint, FVector pKnockBackDirection, int16 pDamageAmount, int8 pHitFrame, int8 pGrd, int8 pNH, bool pbGaurdBreaker)
 	{
 		DamagePoint = pDamagePoint;
 		KnockBackDirection = pKnockBackDirection;
