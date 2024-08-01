@@ -222,8 +222,6 @@ public:
 	void CommandMoveLateralUp ( );
 	void CommandDownCrouch ( );
 	void CommandMoveLateralDown( );
-	void CommandLeftRightCombo_1 ( );
-	void CommandLeftRightCombo_2 ( );
 	void CommandLeadJab ( );
 	void CommandCrossStaight ( );
 	void CommandJingun ( );

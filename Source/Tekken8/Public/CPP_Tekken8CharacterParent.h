@@ -74,6 +74,8 @@ public:
 	int32 OwnerHitFrame = 0; 
 	int32 OwnerGuardFrame = 0;
 	int32 OwnerCounterFrame = 0;
+	int32 OwnerMissFrame = 0;
+
 
 	/**
 	 * oppositeFrame 
@@ -96,6 +98,7 @@ public:
 	 */
 	float cameraShake = 0;
 	float cameraZoom = 0;
+	float cameraDelay = 0;
 	// skellEffectLocation; 상위 참조
 	
 
