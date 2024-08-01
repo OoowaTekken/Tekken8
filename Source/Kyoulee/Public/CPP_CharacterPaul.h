@@ -111,8 +111,8 @@ public:
 	UFUNCTION()
 	int32 InputKeyValue(int ArrowKey, bool LeftArm, bool RightArm, bool LeftKick, bool RightKick);
 
-	void SettingMove(int32 ArrowNum, bool Value );
-
+	int32 animationEnd = true;
+	
 	/**
 	 * @title Command Tree
 	 * @brief 커멘트 트리에 대한 정보 및 세팅입니다.
@@ -168,6 +168,7 @@ public:
 	class USkeletalMeshComponent* uCharacterMesh;
 
 	eHitDecision DefencePoint;
+
 
 	/**
 	 * @title Target Point
