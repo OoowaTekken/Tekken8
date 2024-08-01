@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Tekken8CharacterParent.h"
-#include "CPP_IFCharacterInteraction.h"
+#include "CPP_Tekken8CharacterParent.h"
 #include "CPP_CharacterPaul.generated.h"
 
 
@@ -82,15 +81,11 @@ public:
 	// 발동 함수
 	FActoin action;
  };
- 
-
-
 
 UCLASS()
-class KYOULEE_API ACPP_CharacterPaul : public ATekken8CharacterParent
+class KYOULEE_API ACPP_CharacterPaul : public ACPP_Tekken8CharacterParent
 {
 	GENERATED_BODY()
-
 public:
 	// Sets default values for this character's properties
 	ACPP_CharacterPaul();
@@ -241,7 +236,10 @@ public:
 // 
 // 
 
-
-	void HowtoUseSphereOverlapActors ( );
+/**
+ * @title : Interaction
+ *
+ */
+	virtual bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer ) override;
 };
 	            
