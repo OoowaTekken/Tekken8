@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "AnimNotifyState_CollisionLF.generated.h"
+#include "AnimNotifyState_CollisionRH.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAnimNotifyState_CollisionLF : public UAnimNotifyState
+class LSJ_API UAnimNotifyState_CollisionRH : public UAnimNotifyState
 {
 	GENERATED_BODY()
 	
