@@ -42,8 +42,6 @@ public:
 	bool bLeftKick : 1;
 	bool bRightKick : 1;
 };
-
-
 /**
  * @Title 키에대한 입력처리를 위한 스트럭트입니다.
  */
@@ -59,7 +57,6 @@ public:
 	// 막힌 프레임 정보입니다.
 	// 이프레임 동안은 동작을 할 수 없습니다.
 	int32 FrameBlockUsing = 0;
-
  };
 
 /**
@@ -90,7 +87,7 @@ public:
 
 
 UCLASS()
-class KYOULEE_API ACPP_CharacterPaul : public ATekken8CharacterParent, public ICPP_IFCharacterInteraction
+class KYOULEE_API ACPP_CharacterPaul : public ATekken8CharacterParent
 {
 	GENERATED_BODY()
 
@@ -147,6 +144,7 @@ protected:
 
 private:
 	bool DebugingMode = 0;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -174,12 +172,12 @@ public:
 	 */
 	class USkeletalMeshComponent* uCharacterMesh;
 
+	eHitDecision DefencePoint;
 
 	/**
 	 * @title Target Point
 	 * @brief 상대에 대한 정보
 	 */
-
 	 UPROPERTY(EditDefaultsOnly)
 	 ACharacter *aOpponentPlayer;
 
@@ -212,8 +210,7 @@ public:
 	 * @brief 히트의 충돌체를 만드는 작업 입니다.
 	 */
 	bool HitPointSphereCollision(FVector HitPoint, FVector &isHit );
-
-
+	
 	/**
 	* @title 메인트리
 	* @brief 시작 지점 트리를 가지고 있습니다.
@@ -236,9 +233,15 @@ public:
 	void CommandJingun ( );
 	void CommandHighKick ();
 
+	bool CommandAllStop ( );
+// 
+// 	virtual int32 GetCurrentHp ( ) const override {return 0;};
+// 	virtual bool HitDecision ( FSkellInfo hitPosition , ATekken8CharacterParent* hitActorInterface )  override;
+// 	
+// 
+// 
 
 
-	virtual int32 GetCurrentHp ( ) const override {return 0;};
-	virtual bool HitDecision ( eHitDecision hitPosition , float Damage ) const override { return false;};
+	void HowtoUseSphereOverlapActors ( );
 };
 	            
