@@ -2,7 +2,8 @@
 #define MYDEBUGMODE = 0;
 
 #include "CPP_CharacterPaul.h"
-#include  "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -66,6 +67,8 @@ void ACPP_CharacterPaul::FrameSystem ( )
 		this->CommandIdle ( );
 		return;
 	}
+	if ( currKeyValue  ==  InputKeyValue(0,true,0,0,0))
+		iCurrFrame = 0;
 	FCommandTree* temptree = this->mCurrCommandTree[currKeyValue];
 	if ( !(temptree->timingStart <= iCurrFrame) )
 	{
@@ -90,8 +93,8 @@ void ACPP_CharacterPaul::FrameSystem ( )
 		}
 		else
 		{
-			mCurrCommandTree = mCurrCommandTree[currKeyValue]->NextTrees;
 			sCurrCommand = mCurrCommandTree[currKeyValue];
+			mCurrCommandTree = mCurrCommandTree[currKeyValue]->NextTrees;
 		}
 	}
 }
@@ -265,7 +268,7 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	 */
 	 // Move Lateral Plus
 	int32 upkey = InputKeyValue ( 8 , 0 , 0 , 0 , 0 );
-	this->AddCommandBaseTree ( { 0 } , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	this->AddCommandBaseTree ( { 0 } , upkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
 	// 3frame wait
 	this->AddCommandBaseTree ( { 0, upkey } , 0 , 0 , 5 , 0 , &ACPP_CharacterPaul::CommandMoveLateralUp );
 	this->AddCommandBaseTree ( { 0, upkey, 0 } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
@@ -283,7 +286,7 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	 */
 	 // Move Lateral Minus
 	int32 downkey = InputKeyValue ( 2 , 0 , 0 , 0 , 0 );
-	this->AddCommandBaseTree ( { 0 } , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	this->AddCommandBaseTree ( { 0 } , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
 	// 3frame wait
 	this->AddCommandBaseTree ( { 0 ,downkey } , 0 , 0 , 5 , 0 , &ACPP_CharacterPaul::CommandMoveLateralDown );
 	this->AddCommandBaseTree ( { 0 ,downkey, 0 } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
@@ -302,11 +305,12 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	int32 LP = InputKeyValue ( 0 , true , 0 , 0 , 0 );
 	int32 RP = InputKeyValue ( 0 , 0 , true , 0 , 0 );
 	// LeftRight 1 
-	this->AddCommandBaseTree ( { 0 } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
-	this->AddCommandBaseTree ( { 0, LP } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
-	SetSelfReLinkTree ( { 0, LP, 0 } );
-	// LeftRight 2
-	this->AddCommandBaseTree ( { 0, LP, 0 } , RP , 2 , 4 , 0 , &ACPP_CharacterPaul::CommandStar );
+	this->AddCommandBaseTree ( { 0 } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_1 );
+	this->AddCommandBaseTree ( { 0, LP } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_2 );
+// 	this->AddCommandBaseTree ( { 0, LP } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
+// 	SetSelfReLinkTree ( { 0, LP, 0 } );
+// 	// LeftRight 2
+// 	this->AddCommandBaseTree ( { 0, LP, 0 } , RP , 2 , 4 , 0 , &ACPP_CharacterPaul::CommandStar );
 
 	this->mCurrCommandTree = mBaseCommandTree;
 	this->sCurrCommand = mBaseCommandTree[0];
@@ -417,13 +421,13 @@ void ACPP_CharacterPaul::CommandIdle ( )
 		return;
 	}
 	CountIdleFrame++;
+	CountStarFrame = 3;
 }
 
 void ACPP_CharacterPaul::CommandStar ( )
 {
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandStar Pressed" ) );
-
 
 	if ( this->CountStarFrame <= 0 )
 	{
@@ -532,7 +536,29 @@ void ACPP_CharacterPaul::CommandLeftRightCombo_1 ( )
 
 	this->SetToLocationPoint ( 30 , 0 , 0 );
 
-	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , 12 , 26 , FColor ( 0 , 255 , 0 ) , true , 2 );
+
+	float radius = 100.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = skellinfo.skellEffectLocation;
+// 	UClass* seekClass = ICPP_IFCharacterInteraction::StaticClass ( );
+// 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+// 	UE_LOG(LogTemp, Warning, TEXT("outActor : %d"), outActors.Num ( ));
+// 	if (outActors.Num())
+// 	{ 
+// 		for (AActor *hitActor : outActors )
+// 		{
+// 			if ( hitActor->IsA<ICPP_IFCharacterInteraction> ( ) )
+// 			{
+// 				ICPP_IFCharacterInteraction*hitCharacter = Cast<ICPP_IFCharacterInteraction>( hitActor );
+// 				hitCharacter->HitDecision( skellinfo, this);
+// 			}
+// 		}
+// 	}
+ 	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , radius , 26 , FColor ( 0 , 255 , 0 ) , true , 1.0f );
 }
 
 void ACPP_CharacterPaul::CommandLeftRightCombo_2 ( )
@@ -551,3 +577,78 @@ void ACPP_CharacterPaul::CommandLeftRightCombo_2 ( )
 
 	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , 12 , 26 , FColor ( 225 , 0 , 225 ) , true , 2 );
 }
+
+
+
+bool ACPP_CharacterPaul::CommandAllStop ( )
+{
+	this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
+	return 0;
+}
+
+// 
+// 
+// bool ACPP_CharacterPaul::HitDecision ( FSkellInfo hitPosition , ATekken8CharacterParent* hitActorInterface )
+// {
+// 	if ( hitPosition.skellHitDecision == eHitDecision::Top && this->characterstate == ECharacterState::GuardStand )
+// 	{
+// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
+// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
+// 		// defence animation 추가하기
+// 
+// 		return false;
+// 	}
+// 	if ( hitPosition.skellHitDecision == eHitDecision::Middle && this->characterstate == ECharacterState::GuardStand )
+// 	{
+// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
+// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
+// 		// defence animation 추가하기
+// 
+// 		return false;
+// 	}
+// 	if ( hitPosition.skellHitDecision == eHitDecision::Lower && this->characterstate == ECharacterState::GuardSit)
+// 	{
+// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
+// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
+// 		// defence animation 추가하기
+// 
+// 		return false;
+// 	}
+// 	this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeHitFrame;
+// 	this->SetToLocationPoint( hitPosition.skellNuckbuck );
+// 	// heart animation 추가하기
+// 
+// 	this->CommandAllStop();
+// 	return true;
+// }
+// 
+
+
+void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
+{
+	/**
+	 * @use SphereOverlapActors
+	 * @url https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Kismet/UKismetSystemLibrary/SphereOverlapActors?application_version=5.4
+	 */
+	 // Set what actors to seek out from it's collision channel
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+
+	// Ignore any specific actors
+	TArray<AActor*> ignoreActors;
+	// Ignore self or remove this line to not ignore any
+	ignoreActors.Init ( this , 1 );
+
+	// Array of actors that are inside the radius of the sphere
+	TArray<AActor*> outActors;
+
+	// Total radius of the sphere
+	float radius = 750.0f;
+	// Sphere's spawn loccation within the world
+	FVector sphereSpawnLocation = GetActorLocation ( );
+	// Class that the sphere should hit against and include in the outActors array (Can be null)
+	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
+	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
+	
+}
+
