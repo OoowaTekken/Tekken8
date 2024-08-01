@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Tekken8CharacterParent.h"
-#include "CPP_IFCharacterInteraction.h"
+#include "CPP_Tekken8CharacterParent.h"
 #include "CPP_CharacterPaul.generated.h"
 
 
@@ -82,15 +81,11 @@ public:
 	// 발동 함수
 	FActoin action;
  };
- 
-
-
 
 UCLASS()
-class KYOULEE_API ACPP_CharacterPaul : public ATekken8CharacterParent
+class KYOULEE_API ACPP_CharacterPaul : public ACPP_Tekken8CharacterParent
 {
 	GENERATED_BODY()
-
 public:
 	// Sets default values for this character's properties
 	ACPP_CharacterPaul();
@@ -116,8 +111,8 @@ public:
 	UFUNCTION()
 	int32 InputKeyValue(int ArrowKey, bool LeftArm, bool RightArm, bool LeftKick, bool RightKick);
 
-	void SettingMove(int32 ArrowNum, bool Value );
-
+	int32 animationEnd = true;
+	
 	/**
 	 * @title Command Tree
 	 * @brief 커멘트 트리에 대한 정보 및 세팅입니다.
@@ -173,6 +168,7 @@ public:
 	class USkeletalMeshComponent* uCharacterMesh;
 
 	eHitDecision DefencePoint;
+
 
 	/**
 	 * @title Target Point
@@ -241,7 +237,10 @@ public:
 // 
 // 
 
-
-	void HowtoUseSphereOverlapActors ( );
+/**
+ * @title : Interaction
+ *
+ */
+	virtual bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer ) override;
 };
 	            

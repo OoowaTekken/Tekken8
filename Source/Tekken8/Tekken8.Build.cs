@@ -7,7 +7,6 @@ public class Tekken8 : ModuleRules
 	public Tekken8(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Kyoulee", "JMH", "LSJ","Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
