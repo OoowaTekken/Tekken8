@@ -66,7 +66,7 @@ AAICharacter::AAICharacter()
 	stateAttackLF->SetStateOwner ( this );
 	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
 	stateAttackRH->SetStateOwner ( this );
-	stateHit = CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateAttackRH" ) );
+	stateHit = CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
 	stateHit->SetStateOwner ( this );
 
 	AIControllerClass = AAICharacterController::StaticClass();
