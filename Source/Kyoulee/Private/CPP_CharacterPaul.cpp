@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameMode_MH.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -35,10 +36,10 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	this->SettingCommandTree ( );
 	// 위치 세팅
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
-	if ( !this->aOpponentPlayer )
-			this->aOpponentPlayer = GetWorld ( )->SpawnActor<ACharacter> ( );
 	this->sFrameStatus.FrameBlockUsing = 0;
 	this->sFrameStatus.FrameUsing = 0;
+	GameModeMH = Cast<AGameMode_MH>( GetWorld ( )->GetAuthGameMode ( ) );
+	
 }
 
 
@@ -58,6 +59,7 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 		sFrameStatus.FrameUsing--;
 		iCurrFrame++;
 
+		AnimationFrame ( );
 		if ( this->sFrameStatus.FrameBlockUsing <= 0 )
 			this->FrameSystem ( );
  	}
@@ -68,7 +70,6 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
  */
 void ACPP_CharacterPaul::FrameSystem ( )
 {
-	AnimationFrame ( );
 	if ( !this->mCurrCommandTree.Find ( currKeyValue ) )
 	{
 		this->CommandIdle ( );
@@ -139,7 +140,7 @@ void ACPP_CharacterPaul::AnimationFrame ( )
 {
 	
 	FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
-	AddMovementInput(dir );
+	AddMovementInput(dir);
 	// this->SetActorLocation ( this->GetActorLocation ( ) + dir );
 
 	// 인풋이 있을 경우 상대를 바라본다 
@@ -251,7 +252,6 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	this->AddCommandBaseTree ( { 0, forwardkey, 0 } , forwardkey , 0 , 3 , 0 , &ACPP_CharacterPaul::CommandMoveForwarDash );
 	SetSelfReLinkTree ( { 0,forwardkey,0, forwardkey } );
 
-
 	/**
 	 *  BackKey
 	 */
@@ -264,7 +264,7 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	SetSelfReLinkTree ( { 0,backkey,0 } );
 	// DASH while
 	this->AddCommandBaseTree ( { 0, backkey, 0 } , backkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveBackDash );
-	SetSelfReLinkTree ( { 0,backkey, 0 , backkey } );
+	//SetSelfReLinkTree ( { 0,backkey, 0 , backkey } );
 
 	/**
 	 * UPKey
@@ -304,13 +304,40 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	this->AddCommandBaseTree ( { 0 ,downkey,downkey } , downkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey } );
 
+	/**
+	 * Punch
+	 */
 	// LeftRightCombo
 	int32 LP = InputKeyValue ( 0 , true , 0 , 0 , 0 );
 	int32 RP = InputKeyValue ( 0 , 0 , true , 0 , 0 );
 	// LeftRight 1 
-	this->AddCommandBaseTree ( { 0 } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_1 );
-	this->AddCommandBaseTree ( { 0, LP } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeftRightCombo_2 );
-// 	this->AddCommandBaseTree ( { 0, LP } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
+	this->AddCommandBaseTree ( { 0 } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandLeadJab );
+	this->AddCommandBaseTree ( { 0, LP} , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	SetSelfReLinkTree ( {0, LP, LP} );
+	this->AddCommandBaseTree ( { 0, LP } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandCrossStaight );
+	this->AddCommandBaseTree ( { 0, LP, RP } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	SetSelfReLinkTree ( { 0, LP, RP, RP } );
+
+	this->AddCommandBaseTree ( { 0 } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandCrossStaight );
+	this->AddCommandBaseTree ( { 0, RP } , RP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	SetSelfReLinkTree ( { 0, RP, RP } );
+	
+
+	/**
+	 * Kick
+	 */
+	INT32 LK = InputKeyValue ( 0 , 0 , 0 , true , 0 );
+	INT32 RK = InputKeyValue ( 0 , 0 , 0 , 0, true );
+
+	this->AddCommandBaseTree ( { 0 } , LK , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandJingun );
+	this->AddCommandBaseTree ( { 0, LK } , LK , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	SetSelfReLinkTree ( { 0, LK, LK } );
+
+	this->AddCommandBaseTree ( { 0 } , RK , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandHighKick );
+	this->AddCommandBaseTree ( { 0, RK } , RK , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandIdle );
+	SetSelfReLinkTree ( { 0, RK, RK } );
+
+//	this->AddCommandBaseTree ( { 0, LP } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
 // 	SetSelfReLinkTree ( { 0, LP, 0 } );
 // 	// LeftRight 2
 // 	this->AddCommandBaseTree ( { 0, LP, 0 } , RP , 2 , 4 , 0 , &ACPP_CharacterPaul::CommandStar );
@@ -484,8 +511,9 @@ void ACPP_CharacterPaul::CommandJump ( )
 {
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJump Pressed" ) );
-
-
+	
+	
+	//this->GetMesh ( )->AddImpulse ( FVector::UpVector * 100 );
 	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
 	this->SetToLocationPoint ( 0 , 0 , 130 );
 	
@@ -497,10 +525,19 @@ void ACPP_CharacterPaul::CommandMoveLateralUp ( )
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralPlus Pressed" ) );
 
+	FQuat quat = FRotator( 0,5,0).Quaternion();
+	float len = (aOpponentPlayer->GetActorLocation ( ) - this->GetActorLocation ( )).Size();
+	FVector test2= (aOpponentPlayer->GetActorLocation ( ) - this->GetActorLocation ( ));
 
+	UE_LOG ( LogTemp , Warning , TEXT ( " %f %f %f" ) , test2.X , test2.Y , test2.Z );
+	test2.Normalize();
+	FVector test =  quat * test2;
+
+	UE_LOG(LogTemp, Warning, TEXT(" %f %f %f" ), test.X, test.Y, test.Z);
 	CountStarFrame = 8;
 
-	this->SetToLocationPoint ( 30 , -150 , 0 );
+	this->SetToLocationPoint( test * len );
+	//this->SetToLocationPoint ( 30 , -150 , 0 );
 }
 
 void ACPP_CharacterPaul::CommandDownCrouch ( )
@@ -524,65 +561,253 @@ void ACPP_CharacterPaul::CommandMoveLateralDown ( )
 
 }
 
-void ACPP_CharacterPaul::CommandLeftRightCombo_1 ( )
+void ACPP_CharacterPaul::CommandLeadJab ( )
 {
 	if ( DebugingMode )
-		UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeftRightCombo_1 Pressed" ) );
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeadJab Pressed" ) );
 
-	FSkellInfo skellinfo;
+	FAttackInfoInteraction attackInfo;
 
-	skellinfo.skellHitDecision = eHitDecision::Top;
-	skellinfo.skellDamage = 5;
-	skellinfo.skellEffectLocation = this->RelativePointVector ( 50 , 5 , 80 );
-	skellinfo.skellNuckbuck = FVector ( -10 , 0 , 0 );
-	skellinfo.cameraShake = 0;
-	skellinfo.cameraZoom = 0;
+	attackInfo.DamagePoint = EDamagePointInteraction::Top;
+	attackInfo.DamageAmount = 5;
+	attackInfo.HitFrame = 10;
+	
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 50 , 5 , 80 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 140 , 0 , 0 );
+
+	attackInfo.OwnerHitFrame = 15;
+	attackInfo.OwnerGuardFrame = 15;
+	attackInfo.OwnerCounterFrame = 15;
+	attackInfo.OwnerMissFrame = 15;
+
+	attackInfo.OppositeHitFrame = 23;
+	attackInfo.OppositeGuardFrame = 16;
+	attackInfo.OppositeCounterFrame = 23;
+
+	attackInfo.cameraShake = 10;
+	attackInfo.cameraZoom = 30;
+	attackInfo.cameraDelay = 10;
 
 	this->SetToLocationPoint ( 30 , 0 , 0 );
 
 
-	float radius = 100.0f;
+	// 나중에 함수화 하기 급함..
+	float radius = 20.0f;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
 	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
 	TArray<AActor*> ignoreActors;
 	ignoreActors.Init ( this , 1 );
 	TArray<AActor*> outActors;
-	FVector sphereSpawnLocation = skellinfo.skellEffectLocation;
-	UClass* seekClass = ACPP_CharacterPaul::StaticClass ( );
+	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
-	UE_LOG(LogTemp, Warning, TEXT("outActor : %d"), outActors.Num ( ));
-	if (outActors.Num())
+	if ( hit )
 	{ 
 		for (AActor *hitActor : outActors )
 		{
-			if ( hitActor->IsA<ACPP_CharacterPaul> ( ) )
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
 			{
-				ACPP_CharacterPaul*hitCharacter = Cast<ACPP_CharacterPaul>( hitActor );
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent>( hitActor );
+				if (hitCharacter->HitDecision( attackInfo ,this))
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
 			}
 		}
 	}
+	else
+	{
+		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
+	}
 
- 	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , radius , 26 , FColor ( 0 , 255 , 0 ) , true , 1.0f );
+ 	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , FColor ( 255 , 128 , 128 ) , false , 1.0f );
 }
 
-void ACPP_CharacterPaul::CommandLeftRightCombo_2 ( )
+void ACPP_CharacterPaul::CommandCrossStaight ( )
 {
 	if ( DebugingMode )
-		UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeftRightCombo_2 Pressed" ) );
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandCrossStaight Pressed" ) );
 
-	FSkellInfo skellinfo;
+	FAttackInfoInteraction attackInfo;
 
-	skellinfo.skellHitDecision = eHitDecision::Top;
-	skellinfo.skellDamage = 12;
-	skellinfo.skellEffectLocation = this->RelativePointVector ( 70 , -5 , 60 );
-	skellinfo.skellNuckbuck = FVector ( -10 , 0 , 0 );
-	skellinfo.cameraShake = 0;
-	skellinfo.cameraZoom = 0;
+	attackInfo.DamagePoint = EDamagePointInteraction::Top;
+	attackInfo.DamageAmount = 5;
+	attackInfo.HitFrame = 10;
 
-	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , 12 , 26 , FColor ( 225 , 0 , 225 ) , true , 2 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 70 , -5 , 80 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 160 , 0 , 0 );
+
+	attackInfo.OwnerHitFrame = 15;
+	attackInfo.OwnerGuardFrame = 15;
+	attackInfo.OwnerCounterFrame = 15;
+	attackInfo.OwnerMissFrame = 15;
+
+	attackInfo.OppositeHitFrame = 23;
+	attackInfo.OppositeGuardFrame = 16;
+	attackInfo.OppositeCounterFrame = 23;
+
+	attackInfo.cameraShake = 0;
+	attackInfo.cameraZoom = 0;
+	attackInfo.cameraDelay = 0;
+
+	this->SetToLocationPoint ( 20 , 0 , 0 );
+
+	// 나중에 함수화 하기 급함..
+	float radius = 20.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	if ( hit )
+	{
+		for ( AActor* hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
+			{
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				if ( hitCharacter->HitDecision ( attackInfo , this ) )
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerHitFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+			}
+		}
+	}
+	else
+	{
+		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
+	}
+	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , FColor ( 225 , 0 , 225 ) , false , 1 );
 }
 
 
+
+void ACPP_CharacterPaul::CommandJingun ( )
+{
+	//if ( DebugingMode )
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
+
+	FAttackInfoInteraction attackInfo;
+
+	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
+	attackInfo.DamageAmount = 14;
+	attackInfo.HitFrame = 15;
+
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 70 , 5 , 50 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 150 , 0 , 0 );
+
+	attackInfo.OwnerHitFrame = 32;
+	attackInfo.OwnerGuardFrame = 32;
+	attackInfo.OwnerCounterFrame = 21;
+	attackInfo.OwnerMissFrame = 20;
+
+	attackInfo.OppositeHitFrame = 20;
+	attackInfo.OppositeGuardFrame = 20;
+	attackInfo.OppositeCounterFrame = 20;
+
+	attackInfo.cameraShake = 0;
+	attackInfo.cameraZoom = 0;
+	attackInfo.cameraDelay = 0;
+
+	this->SetToLocationPoint ( 10 , 0 , 0 );
+
+
+	// 나중에 함수화 하기 급함..
+	float radius = 22.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	if ( hit )
+	{
+		for ( AActor* hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
+			{
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				if ( hitCharacter->HitDecision ( attackInfo , this ) )
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+			}
+		}
+	}
+	else
+	{
+		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
+	}
+
+	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , FColor ( 126 , 126 , 0 ) , false , 1.0f );
+}
+
+void ACPP_CharacterPaul::CommandHighKick ( )
+{
+	if ( DebugingMode )
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
+
+	FAttackInfoInteraction attackInfo;
+
+	attackInfo.DamagePoint = EDamagePointInteraction::Top;
+	attackInfo.DamageAmount = 14;
+	attackInfo.HitFrame = 15;
+
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 80 , -5 , 80 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 120 , 0 , 0 );
+
+	attackInfo.OwnerHitFrame = 32;
+	attackInfo.OwnerGuardFrame = 32;
+	attackInfo.OwnerCounterFrame = 21;
+	attackInfo.OwnerMissFrame = 20;
+
+	attackInfo.OppositeHitFrame = 20;
+	attackInfo.OppositeGuardFrame = 20;
+	attackInfo.OppositeCounterFrame = 20;
+
+	attackInfo.cameraShake = 0;
+	attackInfo.cameraZoom = 0;
+	attackInfo.cameraDelay = 0;
+
+	this->SetToLocationPoint ( 10 , 0 , 0 );
+
+
+	// 나중에 함수화 하기 급함..
+	float radius = 22.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	if ( hit )
+	{
+		for ( AActor* hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
+			{
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				if ( hitCharacter->HitDecision ( attackInfo , this ) )
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+			}
+		}
+	}
+	else
+	{
+		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
+	}
+
+	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , FColor ( 255 , 0 , 0 ) , false , 1.0f );
+}
 
 bool ACPP_CharacterPaul::CommandAllStop ( )
 {
@@ -592,34 +817,40 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 
 bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
+	if ( aMainCamera )
+		aMainCamera->RequestZoomEffect ( attackInfo.skellEffectLocation , attackInfo.cameraZoom , attackInfo.cameraShake , attackInfo.cameraDelay );
+	else
+		UE_LOG(LogTemp, Warning, TEXT("is Emtyp ") );
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
-		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
-		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeGuardFrame;
+		this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection / 4 );
 		// defense animation 추가하기
 
 		return false;
 	}
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Middle && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
-		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
-		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeGuardFrame;
+		this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection / 4 );
 		// defense animation 추가하기
 
 		return false;
 	}
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Lower && this->eCharacterState == ECharacterStateInteraction::GuardSit )
 	{
-		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
-		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeGuardFrame;
+		this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection / 4 );
 		// defense animation 추가하기
 
 		return false;
 	}
-	this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeHitFrame;
-	this->SetToLocationPoint( attackInfo.KnockBackDirection );
+	this->SetActorRotation ( UKismetMathLibrary::FindLookAtRotation ( this->GetActorLocation ( ) , this->aOpponentPlayer->GetActorLocation ( ) ) );
+	this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeHitFrame;
+	this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection );
 	// heart animation 추가하기
-
+	// 좀 있다 이동 시키기
+	//camera 효과 추가하기s
 	this->CommandAllStop();
 	return true;
 }
@@ -651,5 +882,6 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_
 // 	// Class that the sphere should hit against and include in the outActors array (Can be null)
 // 	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
 // 	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
+// 
 //}
 
