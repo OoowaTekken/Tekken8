@@ -71,6 +71,8 @@ void AGameMode_MH::BeginPlay()
 		SetupCameraViewTarget();
 		//FTimerHandle CameraSetupTimerHandle;
 		//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
+
+		
 	}
 	//라운드 스코어 초기화
 	Player1Score = 0;

@@ -2,6 +2,8 @@
 #define MYDEBUGMODE = 1;
 
 #include "CPP_CharacterPaul.h"
+
+#include "GameMode_MH.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
