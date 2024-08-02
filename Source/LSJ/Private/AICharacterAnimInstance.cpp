@@ -99,6 +99,10 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
     if ( hitMiddleMontageFinder.Succeeded ( ) )
         hitMiddleMontage = hitMiddleMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>uppercutLHMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Uppercut-LB_S_3_Montage.KB_Uppercut-LB_S_3_Montage'" ) );
+    if ( uppercutLHMontageFinder.Succeeded ( ) )
+        uppercutLHMontage = uppercutLHMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -124,6 +128,11 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
         }
 	else
 		if ( Montage == hitMiddleMontage )
+		{
+			owner->ExitCurrentState ( );
+		}
+	else
+		if ( Montage == uppercutLHMontage )
 		{
 			owner->ExitCurrentState ( );
 		}
