@@ -113,8 +113,11 @@ public:
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
 	TSubclassOf<class APawn> CameraPawn;
 
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
 	APawn* SpawnedCameraPawn;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	class APlayerCameraPawn* maincamera;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
 	int32 Player1Score;

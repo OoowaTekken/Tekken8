@@ -68,15 +68,8 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 
 		if (ZoomElapsedTime >= ZoomDuration)
 		{
-			bIsZoomActive = false;
-			// 기본 상태로 복귀
-			SpringArmComp->TargetArmLength = baseArmLength;
 			// 흔들림 값 초기화 등 필요한 기본값 복귀
-			ZoomAmount = 0.5f;
-			ShakingValue = 0.0f;
-			bIsZoomActive = false;
-			ZoomDuration = 0.0f;
-			ZoomElapsedTime = 0.0f;
+			ResetZoomEffect();
 		}
 	}
 
@@ -194,5 +187,14 @@ void APlayerCameraPawn::RequestZoomEffect(FVector TargetLocation , float InZoomA
 	ZoomDuration = InDuration;
 	ZoomElapsedTime = 0.0f;
 	bIsZoomActive = true;
-	
+}
+
+void APlayerCameraPawn::ResetZoomEffect()
+{
+	ZoomAmount = 0.5f;
+	ShakingValue = 0.0f;
+	bIsZoomActive= false;
+	ZoomDuration = 0.0f;
+	ZoomElapsedTime = 0.0f;
+	SpringArmComp->TargetArmLength = baseArmLength;
 }

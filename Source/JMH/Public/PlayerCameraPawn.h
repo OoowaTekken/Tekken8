@@ -80,6 +80,15 @@ public:
 
 	UFUNCTION()
 	void RequestZoomEffect(FVector TargetLocation, float InZoomAmount, float InShakingValue, float InDuration);
+
+	UFUNCTION()
+	void ResetZoomEffect();
+	
+	// 타이머 핸들
+	FTimerHandle ZoomEffectTimerHandle;
+	// 줌 효과 지속 시간
+	float EffectDuration;
+	
 	
 public:
 	FVector ZoomTargetLocation;
