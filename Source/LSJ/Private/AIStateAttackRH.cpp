@@ -19,12 +19,15 @@ void UAIStateAttackRH::Execute ( const float& deltatime )
 	FVector start = aiCharacter->GetActorLocation ( );
 	FVector end = aiCharacter->collisionRH->GetComponentLocation ( );
 	FHitResult hitResult;
+	
 	DrawDebugLine ( GetWorld ( ) , start , end , FColor ( 255 , 0 , 0 ) , false , .1f , 0 , 12.3f );
 	if ( GetWorld ( )->LineTraceSingleByObjectType ( hitResult , start , end , FCollisionObjectQueryParams ( EObjectTypeQuery::ObjectTypeQuery1 ) ) )
 	{
+		
 		if ( hitResult.GetActor ( )->IsA ( ACPP_CharacterPaul::StaticClass ( ) ) )
 		{
 			auto* playerP= Cast<ACPP_CharacterPaul>((hitResult.GetActor()));
+				
 			//UE_LOG ( LogTemp , Error , TEXT ( "%s" ) , *hitResult.GetActor ( )->GetName ( ) );
 			//hitResult.GetActor ( )->SetActorLocation( hitResult.GetActor ( )->GetActorLocation() + 1000.0f*deltatime * aiCharacter->GetActorForwardVector ( ));
 		}
