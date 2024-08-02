@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Framework/Character.h"
 #include "CPP_Tekken8CharacterParent.h"
+#include "PlayerCameraPawn.h"
 #include "CPP_CharacterPaul.generated.h"
 
 
@@ -202,11 +203,12 @@ public:
 
 
 	/**
-	 * @title Collision sphere
-	 * @brief 히트의 충돌체를 만드는 작업 입니다.
+	 * @title Camera Effect
+	 * @brief 히트의 충돌체 카메라 효과를 위한 작업입니다.
 	 */
-	bool HitPointSphereCollision(FVector HitPoint, FVector &isHit );
-	
+
+	APawn* aMainCamera;
+
 	/**
 	* @title 메인트리
 	* @brief 시작 지점 트리를 가지고 있습니다.
@@ -226,14 +228,10 @@ public:
 	void CommandCrossStaight ( );
 	void CommandJingun ( );
 	void CommandHighKick ();
-
 	bool CommandAllStop ( );
 // 
 // 	virtual int32 GetCurrentHp ( ) const override {return 0;};
 // 	virtual bool HitDecision ( FSkellInfo hitPosition , ATekken8CharacterParent* hitActorInterface )  override;
-// 	
-// 
-// 
 
 /**
  * @title : Interaction

@@ -7,6 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameMode_MH.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -35,6 +36,7 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
 	this->sFrameStatus.FrameBlockUsing = 0;
 	this->sFrameStatus.FrameUsing = 0;
+	AGameMode_MH* GameModeMH = Cast<AGameMode_MH>( GetWorld ( )->GetAuthGameMode ( ) );
 }
 
 
@@ -85,7 +87,7 @@ void ACPP_CharacterPaul::FrameSystem ( )
 	}
 	this->CountIdleFrame = 0;
 	iCurrFrame = 0;
-	UE_LOG ( LogTemp , Warning , TEXT ( "input : %i " ) , currKeyValue );
+	//UE_LOG ( LogTemp , Warning , TEXT ( "input : %i " ) , currKeyValue );
 	if ( sFrameStatus.FrameUsing <= 0 )
 	{
 		temptree->action.Execute ( );
@@ -136,7 +138,6 @@ void ACPP_CharacterPaul::AnimationFrame ( )
 	
 	FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
 	AddMovementInput(dir);
-	this->GetMesh()->AddImpulse(FVector::UpVector * 100);
 	// this->SetActorLocation ( this->GetActorLocation ( ) + dir );
 
 	// 인풋이 있을 경우 상대를 바라본다 
@@ -260,7 +261,7 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	SetSelfReLinkTree ( { 0,backkey,0 } );
 	// DASH while
 	this->AddCommandBaseTree ( { 0, backkey, 0 } , backkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandMoveBackDash );
-	SetSelfReLinkTree ( { 0,backkey, 0 , backkey } );
+	//SetSelfReLinkTree ( { 0,backkey, 0 , backkey } );
 
 	/**
 	 * UPKey
@@ -507,8 +508,9 @@ void ACPP_CharacterPaul::CommandJump ( )
 {
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJump Pressed" ) );
-
-
+	
+	
+	//this->GetMesh ( )->AddImpulse ( FVector::UpVector * 100 );
 	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
 	this->SetToLocationPoint ( 0 , 0 , 130 );
 	
@@ -520,10 +522,19 @@ void ACPP_CharacterPaul::CommandMoveLateralUp ( )
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralPlus Pressed" ) );
 
+	FQuat quat = FRotator( 0,5,0).Quaternion();
+	float len = (aOpponentPlayer->GetActorLocation ( ) - this->GetActorLocation ( )).Size();
+	FVector test2= (aOpponentPlayer->GetActorLocation ( ) - this->GetActorLocation ( ));
 
+	UE_LOG ( LogTemp , Warning , TEXT ( " %f %f %f" ) , test2.X , test2.Y , test2.Z );
+	test2.Normalize();
+	FVector test =  quat * test2;
+
+	UE_LOG(LogTemp, Warning, TEXT(" %f %f %f" ), test.X, test.Y, test.Z);
 	CountStarFrame = 8;
 
-	this->SetToLocationPoint ( 30 , -150 , 0 );
+	this->SetToLocationPoint( test * len );
+	//this->SetToLocationPoint ( 30 , -150 , 0 );
 }
 
 void ACPP_CharacterPaul::CommandDownCrouch ( )
@@ -570,9 +581,9 @@ void ACPP_CharacterPaul::CommandLeadJab ( )
 	attackInfo.OppositeGuardFrame = 16;
 	attackInfo.OppositeCounterFrame = 23;
 
-	attackInfo.cameraShake = 0;
-	attackInfo.cameraZoom = 0;
-	attackInfo.cameraDelay = 0;
+	attackInfo.cameraShake = 10;
+	attackInfo.cameraZoom = 30;
+	attackInfo.cameraDelay = 10;
 
 	this->SetToLocationPoint ( 30 , 0 , 0 );
 
@@ -803,6 +814,7 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 
 bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
+	aMainCamera->RequestZoomEffect ( attackInfo.skellEffectLocation , attackInfo.cameraZoom , attackInfo.cameraShake , attackInfo.cameraDelay );
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeGuardFrame;
@@ -831,9 +843,11 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_
 	this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeHitFrame;
 	this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection );
 	// heart animation 추가하기
-
-	//camera 효과 추가하기
-
+	if ( aMainCamera )
+	{
+		aMainCamera->RequestZoomEffect(attackInfo.skellEffectLocation, attackInfo.cameraZoom,attackInfo.cameraShake,  attackInfo.cameraDelay);
+	}
+	//camera 효과 추가하기s
 	this->CommandAllStop();
 	return true;
 }

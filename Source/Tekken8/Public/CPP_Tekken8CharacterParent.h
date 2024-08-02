@@ -138,7 +138,8 @@ public:
 	// Sets default values for this character's properties
 	ACPP_Tekken8CharacterParent();
 
-	int32 HP = 300;
+	int32 Hp = 180;
+	int32 MaxHp = 180;
 	int32 RageGauge = 0;
 	int32 HitGauge = 100;
 
