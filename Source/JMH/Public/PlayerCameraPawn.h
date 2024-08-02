@@ -65,7 +65,7 @@ public:
 	UFUNCTION()
 	void CameraZoom(float DeltaTime, float playerDistance);
 
-private:
+public:
 	
 	FVector InitialDirection;
 	FVector PreviousDirection;
@@ -81,7 +81,7 @@ private:
 	UFUNCTION()
 	void RequestZoomEffect(FVector TargetLocation, float InZoomAmount, float InShakingValue, float InDuration);
 	
-private:
+public:
 	FVector ZoomTargetLocation;
 	float ZoomAmount = 0.5f;
 	float ShakingValue = 0.0f;

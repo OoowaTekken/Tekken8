@@ -128,14 +128,13 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	}
 	else
 	{
-		//playerALoc = playerA->GetActorLocation();
-		//playerBLoc = playerB->GetActorLocation();
-
 		FVector centralLocation = (playerALoc + playerBLoc) * 0.5f; // + playerBLoc; //그게 그거인듯
 		// 카메라의 위치 업데이트
 		SetActorLocation(centralLocation + FVector(0 , 0 , 20));
 
 		FVector currentDirection = (playerBLoc - playerALoc).GetSafeNormal();
+		currentDirection.Z = 0;
+		currentDirection.Normalize();
 		float angleDifference = FMath::RadiansToDegrees(
 			FMath::Acos(FVector::DotProduct(PreviousDirection , currentDirection)));
 
@@ -144,7 +143,6 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		FRotator targetRotation = currentDirection.Rotation() + FRotator(0 , 90 , 0);
 		// 현재 회전값 가져오기
 		FRotator currentRotation = GetActorRotation();
-		//
 
 		//카메라 회전각 제어(180도 무시)
 		if (angleDifference < 100.0f || angleDifference > 300.0f)
@@ -156,10 +154,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 				FRotator newRotation = FMath::RInterpTo(currentRotation , targetRotation , DeltaTime ,
 				                                        CameraLagRotSpeed);
 				SetActorRotation(newRotation);
-				//
 
-				//FRotator centralRotation = currentDirection.Rotation();
-				//SetActorRotation(centralRotation + FRotator(0 , 90 , 0));
 				PreviousDirection = currentDirection;
 			}
 		}
