@@ -8,7 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "CPP_Tekken8CharacterParent.h"
 // Sets default values
 APlayerCameraPawn::APlayerCameraPawn()
 {
@@ -194,4 +194,5 @@ void APlayerCameraPawn::RequestZoomEffect(FVector TargetLocation , float InZoomA
 	ZoomDuration = InDuration;
 	ZoomElapsedTime = 0.0f;
 	bIsZoomActive = true;
+	
 }

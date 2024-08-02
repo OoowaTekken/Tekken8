@@ -147,6 +147,13 @@ public:
 	// SetCamera 
 	APlayerCameraPawn* aMainCamera;
 	
+	/**
+	 * @title Target Point
+	 * @brief 상대에 대한 정보
+	 */
+	UPROPERTY(EditDefaultsOnly)
+	ACharacter *aOpponentPlayer;
+	
 	bool SetMainCamera ( APlayerCameraPawn* mainCamera )
 	{
 		if (!mainCamera)

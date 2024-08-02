@@ -81,10 +81,10 @@ public:
 	class UinGameUI* inGameUI;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	class ACharacter* playerA;
+	class ACPP_Tekken8CharacterParent* playerA;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	class ACharacter* playerB;
+	class ACPP_Tekken8CharacterParent* playerB;
 
 
 	// ** for make Character **//
@@ -95,20 +95,20 @@ public:
 	TSubclassOf<class ACPP_CharacterPaul> Player2Class;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_CharacterPaul* Player1;
+	class ACPP_Tekken8CharacterParent* Player1;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_CharacterPaul* Player2;
+	class ACPP_Tekken8CharacterParent* Player2;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
 	TSubclassOf<class AAICharacter> PlayerAIClass;
 
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class AAICharacter* PlayerAI1;
+	class ACPP_Tekken8CharacterParent* PlayerAI1;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class AAICharacter* PlayerAI2;
+	class ACPP_Tekken8CharacterParent* PlayerAI2;
 
 	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
 	TSubclassOf<class APawn> CameraPawn;

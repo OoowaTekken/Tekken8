@@ -36,10 +36,10 @@ public:
 	class UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	class ACharacter* playerA;
+	class ACPP_Tekken8CharacterParent* playerA;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	class ACharacter* playerB;
+	class ACPP_Tekken8CharacterParent* playerB;
 
 	FVector playerALoc;
 	FVector playerBLoc;

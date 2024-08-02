@@ -29,16 +29,16 @@ void AGameMode_MH::BeginPlay()
 
 	if (this->Player1Class)
 	{
-		this->Player1 = this->GetWorld()->SpawnActor<ACPP_CharacterPaul>(
+		this->Player1 = this->GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(
 			this->Player1Class , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
-		Control->Player1 = Player1;
+		Control->Player1 = Cast<ACPP_CharacterPaul>(Player1);
 		playerA = Player1;
 	}
 	if (this->Player2Class)
 	{
-		this->Player2 = this->GetWorld()->SpawnActor<ACPP_CharacterPaul>(
+		this->Player2 = this->GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(
 			this->Player2Class , FVector(0 , 300 , 0) , FRotator(0 , -90 , 0));
-		Control->Player2 = Player2;
+		Control->Player2 = Cast<ACPP_CharacterPaul>(Player2);
 		if (this->Player1)
 		{
 			this->Player1->aOpponentPlayer = Player2;
@@ -49,7 +49,7 @@ void AGameMode_MH::BeginPlay()
 
 	if (!this->Player1Class)
 	{
-		ACharacter* aiplayer1 = GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , -300 , 0) ,
+		ACPP_Tekken8CharacterParent* aiplayer1 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(PlayerAIClass , FVector(0 , -300 , 0) ,
 		                                                             FRotator(0 , 90 , 0));
 		if (Player2)
 			Player2->aOpponentPlayer = aiplayer1;
@@ -57,7 +57,7 @@ void AGameMode_MH::BeginPlay()
 	}
 	if (!this->Player2Class)
 	{
-		ACharacter* aiplayer2 = GetWorld()->SpawnActor<AAICharacter>(PlayerAIClass , FVector(0 , 300 , 0) ,
+		ACPP_Tekken8CharacterParent* aiplayer2 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(PlayerAIClass , FVector(0 , 300 , 0) ,
 		                                                             FRotator(0 , -90 , 0));
 		if (Player1)
 			Player1->aOpponentPlayer = aiplayer2;
@@ -71,8 +71,10 @@ void AGameMode_MH::BeginPlay()
 		SetupCameraViewTarget();
 		//FTimerHandle CameraSetupTimerHandle;
 		//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
+		APlayerCameraPawn* maincamera = Cast<APlayerCameraPawn>(SpawnedCameraPawn);
+		playerA->SetMainCamera(maincamera);
+		Player2->SetMainCamera(maincamera);
 
-		
 	}
 	//라운드 스코어 초기화
 	Player1Score = 0;

@@ -170,12 +170,6 @@ public:
 	eHitDecision DefencePoint;
 
 
-	/**
-	 * @title Target Point
-	 * @brief 상대에 대한 정보
-	 */
-	 UPROPERTY(EditDefaultsOnly)
-	 ACharacter *aOpponentPlayer;
 
 	/**
 	 * @title Next Location Data 처리
