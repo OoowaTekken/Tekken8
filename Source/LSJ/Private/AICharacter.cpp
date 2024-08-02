@@ -189,6 +189,7 @@ void AAICharacter::OnCollisionLHBeginOverlap ( UPrimitiveComponent* OverlappedCo
 {
 	if ( IsAttacked )
 		return;
+	
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
 	DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 ,  0.5f);
 	IsAttacked = true;
@@ -198,6 +199,11 @@ void AAICharacter::OnCollisionRHBeginOverlap ( UPrimitiveComponent* OverlappedCo
 {
 	if ( IsAttacked )
 		return;
+	//카메라가 제자리로 안돌아간다
+	//float InZoomAmount 어떤 값을 줘도 줌확대가 된다.
+	// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
+		//aiCharacter->aMainCamera->RequestZoomEffect(aiCharacter->GetActorLocation(),0.5f,1.0f,3.0f);
+	aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 0.5f , 100.0f , 0.5f );
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
 	DrawDebugSphere ( GetWorld ( ) , collisionRH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 	IsAttacked = true;

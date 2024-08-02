@@ -25,6 +25,9 @@ void UAIStateAttackLF::Execute ( const float& deltatime )
 	{
 		if ( hitResult.GetActor ( )->IsA ( ACPP_CharacterPaul::StaticClass ( ) ) )
 		{
+	
+			//확대할 위치, 줌 정도 0.5 기본, 흔들림정도, 흔들림 시간
+			//aiCharacter->aMainCamera->RequestZoomEffect(aiCharacter->GetActorLocation(),0.5f,1.0f,3.0f);
 			//UE_LOG ( LogTemp , Error , TEXT ( "%s" ) , *hitResult.GetActor ( )->GetName ( ) );
 			//hitResult.GetActor ( )->SetActorLocation( hitResult.GetActor ( )->GetActorLocation() + 1000.0f*deltatime * aiCharacter->GetActorForwardVector ( ));
 		}
