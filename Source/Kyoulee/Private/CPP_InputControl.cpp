@@ -209,7 +209,7 @@ void ACPP_InputControl::InputP1RK ( const FInputActionValue& Value )
 	// UE_LOG ( LogTemp , Warning , TEXT ( "InputP1RK %d" ) , BoolValue );
 
 	FInputKey key = this->Player1->GetCurrInputKey ( );
-	key.bLeftKick = BoolValue;
+	key.bRightKick = BoolValue;
 	this->Player1->SetCurrInputKey ( key );
 }
 

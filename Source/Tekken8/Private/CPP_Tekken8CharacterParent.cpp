@@ -8,14 +8,12 @@ ACPP_Tekken8CharacterParent::ACPP_Tekken8CharacterParent()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void ACPP_Tekken8CharacterParent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 bool ACPP_Tekken8CharacterParent::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
