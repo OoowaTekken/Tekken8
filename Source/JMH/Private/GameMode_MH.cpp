@@ -71,9 +71,9 @@ void AGameMode_MH::BeginPlay()
 		SetupCameraViewTarget();
 		//FTimerHandle CameraSetupTimerHandle;
 		//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
-		APlayerCameraPawn* maincamera = Cast<APlayerCameraPawn>(SpawnedCameraPawn);
+		maincamera = Cast<APlayerCameraPawn>(SpawnedCameraPawn);
 		playerA->SetMainCamera(maincamera);
-		Player2->SetMainCamera(maincamera);
+		playerB->SetMainCamera(maincamera);
 
 	}
 	//라운드 스코어 초기화

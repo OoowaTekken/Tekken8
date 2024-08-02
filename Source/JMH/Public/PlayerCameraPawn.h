@@ -97,8 +97,6 @@ public:
 	bool bIsZoomActive= false;
 	float ZoomDuration = 0.0f;
 	float ZoomElapsedTime = 0.0f;
-
-	bool bIsZoom= false;
 	
 
 	
