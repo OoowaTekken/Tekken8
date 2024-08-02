@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CPP_IFCharacterInteraction.h"
+#include "PlayerCameraPawn.h"
 #include "CPP_Tekken8CharacterParent.generated.h"
 
 //캐릭터 상태
@@ -74,6 +75,8 @@ public:
 	int32 OwnerHitFrame = 0; 
 	int32 OwnerGuardFrame = 0;
 	int32 OwnerCounterFrame = 0;
+	int32 OwnerMissFrame = 0;
+
 
 	/**
 	 * oppositeFrame 
@@ -96,6 +99,7 @@ public:
 	 */
 	float cameraShake = 0;
 	float cameraZoom = 0;
+	float cameraDelay = 0;
 	// skellEffectLocation; 상위 참조
 	
 
@@ -135,9 +139,28 @@ public:
 	// Sets default values for this character's properties
 	ACPP_Tekken8CharacterParent();
 
-	int32 HP = 300;
+	int32 Hp = 180;
+	int32 MaxHp = 180;
 	int32 RageGauge = 0;
 	int32 HitGauge = 100;
+
+	// SetCamera 
+	APlayerCameraPawn* aMainCamera;
+	
+	/**
+	 * @title Target Point
+	 * @brief 상대에 대한 정보
+	 */
+	UPROPERTY(EditDefaultsOnly)
+	ACharacter *aOpponentPlayer;
+	
+	bool SetMainCamera ( APlayerCameraPawn* mainCamera )
+	{
+		if (!mainCamera)
+			return true;
+		this->aMainCamera = mainCamera;
+		return true;
+	}
 
 protected:
 	// Called when the game starts or when spawned
