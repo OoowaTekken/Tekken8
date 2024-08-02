@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "AnimNotifyState_CollisionLF.generated.h"
+#include "AnimNotifyState_CollisionLH.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAnimNotifyState_CollisionLF : public UAnimNotifyState
+class LSJ_API UAnimNotifyState_CollisionLH : public UAnimNotifyState
 {
 	GENERATED_BODY()
 	
@@ -19,3 +19,4 @@ public:
 	//virtual void NotifyTick ( USkeletalMeshComponent* MeshComp , UAnimSequenceBase* Animation , float FrameDeltaTime , const FAnimNotifyEventReference& EventReference ) override;
 	virtual void NotifyEnd ( USkeletalMeshComponent* MeshComp , UAnimSequenceBase* Animation , const FAnimNotifyEventReference& EventReference ) override;
 };
+

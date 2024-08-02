@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "CPP_IFCharacterInteraction.h"
 #include "CPP_Tekken8CharacterParent.generated.h"
 
 //캐릭터 상태
@@ -34,69 +35,95 @@ enum class ECharacterStateInteraction
 //공격 범위
 UENUM()
 enum class EDamagePointInteraction
-{	
-	Lower, //하단
-	Middle, //중단
-	Top //상단
+{
+	Top ,
+	Middle ,
+	Lower ,
+	Special ,
+	Grap ,
+	GuardBreak ,
+	Other
 };
+
 
 //TArray<FDirectionConnections> AttackPackage
 // AttackPackage ridjap(damagePoint,,.....);
 //AttackPackage.Add( )
 //공격 정보
-USTRUCT(BlueprintType)
+USTRUCT( Atomic, BlueprintType)
 struct FAttackInfoInteraction
 {
-	GENERATED_USTRUCT_BODY()
-
-	//상단 중단 하단
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	GENERATED_BODY ( );
+	//상단 중단 하단 그랩 특수 가드불가
+public:
 	EDamagePointInteraction DamagePoint;
 
-	//넉백 수치 ( -1 , 1, z) : z = 높이 띄우는 값
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector KnockBackDirection;
+	int32 DamageAmount;			// 공격 데미지랑
+	int32 HitFrame;				// 공격이 발생하는 시간
 
-	//데미지량
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 DamageAmount;
+	FVector skellEffectLocation = FVector ( 0 );	// Effect Location 스킬 이펙트 및 콜리션 위치
+	FVector KnockBackDirection = FVector ( 0 );						// 넉백 수치 ( -1 , 1, z) : z = 높이 띄우는 값
 
-	//공격하는데 걸리는 프레임
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 HitFrame;
+	/**
+	 * OwerFrame 스킬을 쓴 주체가 된다
+	 * @note 현재 공격이 가드  되었을 때 공격하는 캐릭터가 얻거나 잃는 프레임 : -값이 잃는 프레임
+	 * @param 
+	 * hit 맞히면 프레임 이득을 얻는다 
+	 * Guard 상대가 막았다는 신호로 프레임 손해를 본다
+	 */
+	int32 OwnerHitFrame = 0; 
+	int32 OwnerGuardFrame = 0;
+	int32 OwnerCounterFrame = 0;
 
-	//현재 공격이 가드 되었을 때 공격하는 캐릭터가 얻거나 잃는 프레임 : -값이 잃는 프레임
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Grd;
+	/**
+	 * oppositeFrame 
+	 * @note 현재 공격이 가드  되었을 때 공격하는 캐릭터가 얻거나 잃는 프레임 : -값이 잃는 프레임
+	 * @param 
+	 * hit 맞으면 프레임 손해를 얻는다 
+	 * Guard 공격을 막았다는 신호로 프레임 이득을 본다
+	 */
+	int32 OppositeHitFrame = 0;
+	int32 OppositeGuardFrame = 0;
+	int32 OppositeCounterFrame = 0;
 
-	//현재 공격이 적중 되었을 때 공격하는 캐릭터가 얻는 프레임 : -값이 잃는 프레임
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 NH;
 
 	//가드 가능한가? true : 가드 불가능
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bGaurdBreaker;
 
-	FAttackInfoInteraction ()
-	{
-		DamagePoint = EDamagePointInteraction::Lower;
-		KnockBackDirection = FVector::ZeroVector;
-		DamageAmount = 0;
-		HitFrame = 0;
-		Grd = 0;
-		NH = 0;
-		bGaurdBreaker = false;
-	}
-	FAttackInfoInteraction (EDamagePointInteraction pDamagePoint, FVector pKnockBackDirection, int16 pDamageAmount, int8 pHitFrame, int8 pGrd, int8 pNH, bool pbGaurdBreaker)
-	{
-		DamagePoint = pDamagePoint;
-		KnockBackDirection = pKnockBackDirection;
-		DamageAmount = pDamageAmount;
-		HitFrame = pHitFrame;
-		Grd = pGrd;
-		NH = pNH;
-		bGaurdBreaker = pbGaurdBreaker;
-	}
+	/**
+	 * Camera Send Info
+	 * 카메라에 전달할 인자들 입니다.
+	 */
+	float cameraShake = 0;
+	float cameraZoom = 0;
+	// skellEffectLocation; 상위 참조
+	
+
+// 
+// 	FAttackInfoInteraction ()
+// 	{
+// 		DamagePoint = EDamagePointInteraction::Lower;
+// 		KnockBackDirection = FVector::ZeroVector;
+// 		DamageAmount = 0;
+// 		HitFrame = 0;
+// 		OwnerHitFrame = 0;
+// 		OppositeHitFrame = 0;
+// 		OppositeGuardFrame = 0;
+// 		OwnerGuardFrame = 0;
+// 		OwnerCounterFrame = 0;
+// 		OppositeCounterFrame = 0;
+// 		bGaurdBreaker = false;
+// 	}
+// 	FAttackInfoInteraction (EDamagePointInteraction pDamagePoint, FVector pKnockBackDirection, int16 pDamageAmount, int8 pHitFrame, int8 pGrd, int8 pNH, bool pbGaurdBreaker)
+// 	{
+// 		DamagePoint = pDamagePoint;
+// 		KnockBackDirection = pKnockBackDirection;
+// 		DamageAmount = pDamageAmount;
+// 		HitFrame = pHitFrame;
+// 		OwnerGuardFrame = 0;
+// 		OppositeGuardFrame = 0;
+// 		bGaurdBreaker = pbGaurdBreaker;
+// 	}
 };
 
 UCLASS()
@@ -108,15 +135,16 @@ public:
 	// Sets default values for this character's properties
 	ACPP_Tekken8CharacterParent();
 
+	int32 HP = 300;
+	int32 RageGauge = 0;
+	int32 HitGauge = 100;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	ECharacterStateInteraction eCharacterState;
+	FAttackInfoInteraction sAttackInfo;
+	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )  ;
 };

@@ -1,9 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-#define MYDEBUGMODE = 0;
+#define MYDEBUGMODE = 1;
 
 #include "CPP_CharacterPaul.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -18,6 +21,8 @@ ACPP_CharacterPaul::ACPP_CharacterPaul ( )
 		uCharacterMesh->SetSkeletalMeshAsset ( tempSkeletalMesh.Object );
 	uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -90 ) );
 	uCharacterMesh->SetRelativeRotation ( FRotator ( 0 , 0 , -90 ) );
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 // Called when the game starts or when spawned
 void ACPP_CharacterPaul::BeginPlay ( )
@@ -29,7 +34,7 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	// 위치 세팅
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
 	if ( !this->aOpponentPlayer )
-		this->aOpponentPlayer = GetWorld ( )->SpawnActor<ACharacter> ( );
+			this->aOpponentPlayer = GetWorld ( )->SpawnActor<ACharacter> ( );
 	this->sFrameStatus.FrameBlockUsing = 0;
 	this->sFrameStatus.FrameUsing = 0;
 }
@@ -53,7 +58,7 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 
 		if ( this->sFrameStatus.FrameBlockUsing <= 0 )
 			this->FrameSystem ( );
-	}
+ 	}
 }
 
 /**
@@ -130,8 +135,10 @@ void ACPP_CharacterPaul::SetToWorldLocationPoint ( FVector vector )
 
 void ACPP_CharacterPaul::AnimationFrame ( )
 {
+	
 	FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
-	this->SetActorLocation ( this->GetActorLocation ( ) + dir );
+	AddMovementInput(dir );
+	// this->SetActorLocation ( this->GetActorLocation ( ) + dir );
 
 	// 인풋이 있을 경우 상대를 바라본다 
 	if ( currKeyValue )
@@ -215,12 +222,6 @@ int32 ACPP_CharacterPaul::InputKeyValue ( int ArrowKey , bool LeftArm , bool Rig
 		LeftKick * 0b0000100000000000 +
 		RightKick * 0b0001000000000000;
 	return inputValue;
-}
-
-
-void ACPP_CharacterPaul::SettingMove ( int32 ArrowNum , bool Value )
-{
-
 }
 
 // Command Setting Function
@@ -484,7 +485,8 @@ void ACPP_CharacterPaul::CommandJump ( )
 
 
 	this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
-	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , 130 ) );
+	this->SetToLocationPoint ( 0 , 0 , 130 );
+	
 	this->sFrameStatus.FrameUsing = 25;
 }
 
@@ -544,20 +546,20 @@ void ACPP_CharacterPaul::CommandLeftRightCombo_1 ( )
 	ignoreActors.Init ( this , 1 );
 	TArray<AActor*> outActors;
 	FVector sphereSpawnLocation = skellinfo.skellEffectLocation;
-// 	UClass* seekClass = ICPP_IFCharacterInteraction::StaticClass ( );
-// 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
-// 	UE_LOG(LogTemp, Warning, TEXT("outActor : %d"), outActors.Num ( ));
-// 	if (outActors.Num())
-// 	{ 
-// 		for (AActor *hitActor : outActors )
-// 		{
-// 			if ( hitActor->IsA<ICPP_IFCharacterInteraction> ( ) )
-// 			{
-// 				ICPP_IFCharacterInteraction*hitCharacter = Cast<ICPP_IFCharacterInteraction>( hitActor );
-// 				hitCharacter->HitDecision( skellinfo, this);
-// 			}
-// 		}
-// 	}
+	UClass* seekClass = ACPP_CharacterPaul::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	UE_LOG(LogTemp, Warning, TEXT("outActor : %d"), outActors.Num ( ));
+	if (outActors.Num())
+	{ 
+		for (AActor *hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_CharacterPaul> ( ) )
+			{
+				ACPP_CharacterPaul*hitCharacter = Cast<ACPP_CharacterPaul>( hitActor );
+			}
+		}
+	}
+
  	DrawDebugSphere ( GetWorld ( ) , skellinfo.skellEffectLocation , radius , 26 , FColor ( 0 , 255 , 0 ) , true , 1.0f );
 }
 
@@ -586,69 +588,66 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 	return 0;
 }
 
-// 
-// 
-// bool ACPP_CharacterPaul::HitDecision ( FSkellInfo hitPosition , ATekken8CharacterParent* hitActorInterface )
-// {
-// 	if ( hitPosition.skellHitDecision == eHitDecision::Top && this->characterstate == ECharacterState::GuardStand )
-// 	{
-// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
-// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
-// 		// defence animation 추가하기
-// 
-// 		return false;
-// 	}
-// 	if ( hitPosition.skellHitDecision == eHitDecision::Middle && this->characterstate == ECharacterState::GuardStand )
-// 	{
-// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
-// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
-// 		// defence animation 추가하기
-// 
-// 		return false;
-// 	}
-// 	if ( hitPosition.skellHitDecision == eHitDecision::Lower && this->characterstate == ECharacterState::GuardSit)
-// 	{
-// 		this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeDefenceFrame;
-// 		this->SetToLocationPoint ( hitPosition.skellNuckbuck / 4 );
-// 		// defence animation 추가하기
-// 
-// 		return false;
-// 	}
-// 	this->sFrameStatus.FrameBlockUsing += hitPosition.oppositeHitFrame;
-// 	this->SetToLocationPoint( hitPosition.skellNuckbuck );
-// 	// heart animation 추가하기
-// 
-// 	this->CommandAllStop();
-// 	return true;
-// }
-// 
-
-
-void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
+bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
-	/**
-	 * @use SphereOverlapActors
-	 * @url https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Kismet/UKismetSystemLibrary/SphereOverlapActors?application_version=5.4
-	 */
-	 // Set what actors to seek out from it's collision channel
-	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
-	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	if ( attackInfo.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
+	{
+		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
+		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		// defense animation 추가하기
 
-	// Ignore any specific actors
-	TArray<AActor*> ignoreActors;
-	// Ignore self or remove this line to not ignore any
-	ignoreActors.Init ( this , 1 );
+		return false;
+	}
+	if ( attackInfo.DamagePoint == EDamagePointInteraction::Middle && this->eCharacterState == ECharacterStateInteraction::GuardStand )
+	{
+		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
+		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		// defense animation 추가하기
 
-	// Array of actors that are inside the radius of the sphere
-	TArray<AActor*> outActors;
+		return false;
+	}
+	if ( attackInfo.DamagePoint == EDamagePointInteraction::Lower && this->eCharacterState == ECharacterStateInteraction::GuardSit )
+	{
+		this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeGuardFrame;
+		this->SetToLocationPoint ( attackInfo.KnockBackDirection / 4 );
+		// defense animation 추가하기
 
-	// Total radius of the sphere
-	float radius = 750.0f;
-	// Sphere's spawn loccation within the world
-	FVector sphereSpawnLocation = GetActorLocation ( );
-	// Class that the sphere should hit against and include in the outActors array (Can be null)
-	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
-	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
-	
+		return false;
+	}
+	this->sFrameStatus.FrameBlockUsing += attackInfo.OppositeHitFrame;
+	this->SetToLocationPoint( attackInfo.KnockBackDirection );
+	// heart animation 추가하기
+
+	this->CommandAllStop();
+	return true;
 }
+
+
+
+//void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
+//{
+// 	/**
+// 	 * @use SphereOverlapActors
+// 	 * @url https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Kismet/UKismetSystemLibrary/SphereOverlapActors?application_version=5.4
+// 	 */
+// 	 // Set what actors to seek out from it's collision channel
+// 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+// 	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+// 
+// 	// Ignore any specific actors
+// 	TArray<AActor*> ignoreActors;
+// 	// Ignore self or remove this line to not ignore any
+// 	ignoreActors.Init ( this , 1 );
+// 
+// 	// Array of actors that are inside the radius of the sphere
+// 	TArray<AActor*> outActors;
+// 
+// 	// Total radius of the sphere
+// 	float radius = 750.0f;
+// 	// Sphere's spawn loccation within the world
+// 	FVector sphereSpawnLocation = GetActorLocation ( );
+// 	// Class that the sphere should hit against and include in the outActors array (Can be null)
+// 	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
+// 	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
+//}
 

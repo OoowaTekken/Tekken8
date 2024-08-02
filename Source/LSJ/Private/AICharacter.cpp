@@ -13,6 +13,7 @@
 #include "AIStateAttackLF.h"
 #include "AIStateAttackRH.h"
 #include "Components/SphereComponent.h"
+#include "AIStateHit.h"
 // Sets default values
 AAICharacter::AAICharacter()
 {
@@ -65,6 +66,8 @@ AAICharacter::AAICharacter()
 	stateAttackLF->SetStateOwner ( this );
 	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
 	stateAttackRH->SetStateOwner ( this );
+	stateHit = CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
+	stateHit->SetStateOwner ( this );
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -92,10 +95,12 @@ void AAICharacter::BeginPlay()
 	//GetWorld ( )->GetTimerManager ( ).SetTimer ( handle ,FTimerDelegate::CreateLambda ([this]() {
 	//	ChangeState ( stateWalkBack );
 	//	}) , 10.0f ,false);
-	collisionLF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnSphereBeginOverlap );
-}
+	collisionLF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionLFBeginOverlap );
+	collisionRF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionRFBeginOverlap );
+	collisionLH->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionLHBeginOverlap );
+	collisionRH->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionRHBeginOverlap );
+	}
 
-// Called every frame
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -143,14 +148,17 @@ void AAICharacter::OnAttackCollisionLF ( )
 
 void AAICharacter::OnAttackCollisionRF ( )
 {
+	collisionRF->SetCollisionEnabled ( ECollisionEnabled::QueryOnly );
 }
 
 void AAICharacter::OnAttackCollisionLH ( )
 {
+	collisionLH->SetCollisionEnabled ( ECollisionEnabled::QueryOnly );
 }
 
 void AAICharacter::OnAttackCollisionRH ( )
 {
+	collisionRH->SetCollisionEnabled ( ECollisionEnabled::QueryOnly );
 }
 
 void AAICharacter::OffAttackCollisionLF ( )
@@ -177,11 +185,49 @@ void AAICharacter::OffAttackCollisionRH ( )
 	IsAttacked = false;
 }
 
-void AAICharacter::OnSphereBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+void AAICharacter::OnCollisionLHBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
 {
-	if( IsAttacked )
+	if ( IsAttacked )
 		return;
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
-	DrawDebugSphere ( GetWorld () , collisionLF->GetComponentLocation() , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , -1 , 0 , 2 );
+	DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 ,  0.5f);
 	IsAttacked = true;
+}
+
+void AAICharacter::OnCollisionRHBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if ( IsAttacked )
+		return;
+	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
+	DrawDebugSphere ( GetWorld ( ) , collisionRH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+	IsAttacked = true;
+}
+
+void AAICharacter::OnCollisionRFBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if ( IsAttacked )
+		return;
+	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
+	DrawDebugSphere ( GetWorld ( ) , collisionRF->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+	IsAttacked = true;
+}
+
+void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if ( IsAttacked )
+		return;
+	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
+	DrawDebugSphere ( GetWorld ( ) , collisionLF->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+	IsAttacked = true;
+}
+//공격 받았을 때
+bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
+{
+	//현재 상태와 공격정보를 확인해서 데미지 처리
+	//공격 받았다면 Hit State 상태 처리 attackInfo를 전달 return true;
+	//가드라면 ... return false;
+	//attackInfo
+	ExitCurrentState ();
+	ChangeState( stateHit );
+	return true;
 }

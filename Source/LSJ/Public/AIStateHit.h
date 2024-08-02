@@ -4,20 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "AIStateComponent.h"
-#include "AIStateAttackRH.generated.h"
+#include "AIStateHit.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAIStateAttackRH : public UAIStateComponent
+class LSJ_API UAIStateHit : public UAIStateComponent
 {
 	GENERATED_BODY()
-	class AAICharacter* aiCharacter;
+	FAttackInfoInteraction attackInfo;
 public:
+	void SetAttackInfo( FAttackInfoInteraction pAttackInfo );
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
-
 };
 

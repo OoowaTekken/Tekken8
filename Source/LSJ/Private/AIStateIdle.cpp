@@ -22,4 +22,5 @@ void UAIStateIdle::Execute ( const float& deltatime )
 
 void UAIStateIdle::Exit ( )
 {
+	//Super::Exit();
 }
