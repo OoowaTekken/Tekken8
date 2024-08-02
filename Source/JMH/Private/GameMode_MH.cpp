@@ -67,13 +67,12 @@ void AGameMode_MH::BeginPlay()
 	if (CameraPawn)
 	{
 		SpawnedCameraPawn = Cast<APawn>(GetWorld()->SpawnActor<APawn>(CameraPawn));
-		
+
 		SetupCameraViewTarget();
-			//FTimerHandle CameraSetupTimerHandle;
-			//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
-		
+		//FTimerHandle CameraSetupTimerHandle;
+		//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
 	}
-//라운드 스코어 초기화
+	//라운드 스코어 초기화
 	Player1Score = 0;
 	Player2Score = 0;
 	Winner = nullptr;
@@ -83,11 +82,14 @@ void AGameMode_MH::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//게임 진행중
 	if (CurrentState == EGameState::InProgress)
 	{
+		//HP 체크
+		//CheckPlayerHP(DeltaTime);
+		//타임 체크
 		CountDown(DeltaTime);
 	}
-	
 }
 
 void AGameMode_MH::CountDown(float DeltaTime)
@@ -126,6 +128,7 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 		//타이머 초기화
 		gameTimer = roundTimer;
 		//HP 초기화
+		
 		SetGameState(EGameState::InProgress);
 		break;
 
@@ -138,7 +141,7 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 		// 라운드 종료 처리
 		//HP가 0이 되었을 때 호출,
 		//타이머가 0 이 되었을 떄 호출 
-		CheckForGameOver();
+		//CheckForGameOver();
 		break;
 
 	case EGameState::GameOver:
@@ -163,7 +166,7 @@ void AGameMode_MH::StartRound()
 	Player1Score = 0;
 	Player2Score = 0;
 	Winner = nullptr;
-	
+
 	//게임 UI생성 (타이머, HP,라운드카운트,캐릭터 이미지)
 	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
 	if (inGameUI)
@@ -192,17 +195,17 @@ bool AGameMode_MH::IsGameOverConditionMet()
 
 void AGameMode_MH::SetupCameraViewTarget()
 {
-	 UCameraComponent* CameraComponent = SpawnedCameraPawn->FindComponentByClass<UCameraComponent>();
+	UCameraComponent* CameraComponent = SpawnedCameraPawn->FindComponentByClass<UCameraComponent>();
 	if (CameraComponent)
 	{
-			GEngine->AddOnScreenDebugMessage(-2, 5.f, FColor::Red, TEXT("CameraActor!"));
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-			if (PlayerController)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PlayerController!"));
+		GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("CameraActor!"));
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("PlayerController!"));
 
-				PlayerController->SetViewTarget(SpawnedCameraPawn);
-			}
+			PlayerController->SetViewTarget(SpawnedCameraPawn);
+		}
 	}
 }
 
@@ -211,18 +214,18 @@ void AGameMode_MH::CheckRoundWinner()
 	if (Player1HP > Player2HP)
 	{
 		// Example: Player 1
-		Player1Score +=1;
+		Player1Score += 1;
 	}
 	else if (Player1HP > Player2HP)
 	{
 		// Example: Player 2
-		Player2Score +=1;
+		Player2Score += 1;
 	}
 	else
 	{
 		//무승부
-		Player1Score +=1;
-		Player2Score +=1;
+		Player1Score += 1;
+		Player2Score += 1;
 	}
 }
 
@@ -230,11 +233,11 @@ void AGameMode_MH::CheckFinalWinner()
 {
 	if (Player1Score > Player2Score)
 	{
-		Winner = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // Example: Player 1
+		Winner = UGameplayStatics::GetPlayerCharacter(GetWorld() , 0); // Example: Player 1
 	}
 	else if (Player2Score > Player1Score)
 	{
-		Winner = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1); // Example: Player 2
+		Winner = UGameplayStatics::GetPlayerCharacter(GetWorld() , 1); // Example: Player 2
 	}
 	else
 	{
@@ -247,13 +250,12 @@ void AGameMode_MH::HandleRoundEnd(AActor* RoundWinner)
 {
 	if (RoundWinner)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Round Winner: %s"), *RoundWinner->GetName());
+		UE_LOG(LogTemp , Log , TEXT("Round Winner: %s") , *RoundWinner->GetName());
 		//애니메이션 송출
-		
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("Round ended in a tie."));
+		UE_LOG(LogTemp , Log , TEXT("Round ended in a tie."));
 	}
 }
 
@@ -262,11 +264,11 @@ void AGameMode_MH::CheckPlayerHP(float DeltaTime)
 	if (playerA && playerB)
 	{
 		// 각 플레이어의 HP를 체크합니다.
-		int32 HP_A = GetPlayerHP(playerA);
-		int32 HP_B = GetPlayerHP(playerB);
+		Player1HP = GetPlayerHP(playerA);
+		Player2HP = GetPlayerHP(playerB);
 
 		// HP가 0이거나 낮은 경우 라운드 종료 상태로 변경합니다.
-		if (HP_A <= 0 || HP_B <= 0)
+		if (Player1HP <= 0 || Player2HP <= 0)
 		{
 			HandleNewState(EGameState::RoundEnd);
 		}
@@ -275,15 +277,13 @@ void AGameMode_MH::CheckPlayerHP(float DeltaTime)
 
 int32 AGameMode_MH::GetPlayerHP(ACharacter* Player)
 {
-	if (Player)
+	ACPP_Tekken8CharacterParent* players = Cast<ACPP_Tekken8CharacterParent>(Player);
+	if (players)
 	{
-		// 플레이어의 HP를 가져오는 방법에 따라 다를 수 있습니다.
-		// 예를 들어, 플레이어가 가진 HealthComponent를 통해 HP를 가져올 수 있습니다.
-		//UHealthComponent* HealthComponent = Player->FindComponentByClass<UHealthComponent>();
-		//if (HealthComponent)
-		//{
-		//	return HealthComponent->GetCurrentHealth();
-		//}
+		return players->HP;
 	}
-	return 0;
+	else
+	{
+		return 0;
+	}
 }
