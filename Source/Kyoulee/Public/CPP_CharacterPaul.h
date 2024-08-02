@@ -156,10 +156,12 @@ public:
 	float fFrameTime = (1 / 60)  * 1000 ;
 	float fCurrTimeForFrame = 60;
 	int32 iCurrFrame = 0;
-	
-	void skillfinctiontest() {};
+
 	
 	float fUpVector;
+
+	FAttackInfoInteraction attackInfo;
+	void SetAttackInfoOwnerOpposite ( );
 
 	/**
 	 * @title Owner State
@@ -169,21 +171,33 @@ public:
 
 	eHitDecision DefencePoint;
 
+	bool bCrouched;
 
 
 	/**
 	 * @title Next Location Data 처리
 	 * @brief 애니메이션을 위한 작업입니다.
 	 */
-	UPROPERTY(EditDefaultsOnly)
-	class UAnimMontage* uWalkMontage;
-	UPROPERTY(EditDefaultsOnly)
-	class UAnimMontage* uRunMontage;
-	UPROPERTY(EditDefaultsOnly)
-	class UAnimMontage* uJumpMontage;
+	UAnimInstance* uAnim ;
 
-	
-	class UAnimMontage* uCurrMotage;
+	UFUNCTION ( )
+	bool PlayMontageFrameSystem (UAnimMontage* montage);
+
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgMoveLateral;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgLeadJab;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgCrossStaight;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgJingun;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgHighKick;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgBungGuan;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgJinJee;
+
 	FVector ToLocation;
 	
 	void SetToLocationPoint(float x, float y, float z);
@@ -199,7 +213,9 @@ public:
 	 * @title Camera Effect
 	 * @brief 히트의 충돌체 카메라 효과를 위한 작업입니다.
 	 */
-	AGameMode_MH* GameModeMH;
+	class AGameMode_MH* GameModeMH;
+
+
 	// APlayerCameraPawn* aMainCamera;
 
 	/**
@@ -216,12 +232,23 @@ public:
 	void CommandJump ( );
 	void CommandMoveLateralUp ( );
 	void CommandDownCrouch ( );
+	void CommandUpCrouch ( );
 	void CommandMoveLateralDown( );
 	void CommandLeadJab ( );
 	void CommandCrossStaight ( );
 	void CommandJingun ( );
 	void CommandHighKick ();
+
+	// 꽃
+	void CommandBungGuan ( );
+	
+	//일어나며 커멘드
+	void CommandJinJee ( );
+
+
 	bool CommandAllStop ( );
+
+	void CommentHitFrameExecute( );
 // 
 // 	virtual int32 GetCurrentHp ( ) const override {return 0;};
 // 	virtual bool HitDecision ( FSkellInfo hitPosition , ATekken8CharacterParent* hitActorInterface )  override;
