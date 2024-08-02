@@ -12,10 +12,8 @@
 // Sets default values
 APlayerCameraPawn::APlayerCameraPawn()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-
+	
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	SetRootComponent(RootComp);
 
@@ -26,25 +24,15 @@ APlayerCameraPawn::APlayerCameraPawn()
 	CameraComp->SetupAttachment(SpringArmComp);
 }
 
-// Called when the game starts or when spawned
 void APlayerCameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
 	gm = Cast<AGameMode_MH>(GetWorld()->GetAuthGameMode());
-
-	//월드에 있는 플레이어 변수에 적용
-
-
-	// 플레이어 A,B
-	if (gm)
-	{
+	//월드에 있는 플레이어 변수에 적용 // 플레이어 A,B
+	if (gm){
 		playerA = gm->playerA;
 		playerB = gm->playerB;
 	}
-		
-	
-
 	// 초기화
 	DistanceThreshold = 350.0f; // 이상의 변화가 있을 때만 arm 길이 조정
 
@@ -55,17 +43,14 @@ void APlayerCameraPawn::BeginPlay()
 	}
 }
 
-// Called every frame
 void APlayerCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	//플레이어가 호출하는 상황 일 때
 	if (bIsZoomActive)
 	{
 		UpdateCameraDynamic(DeltaTime);
 		ZoomElapsedTime += DeltaTime;
-
 		if (ZoomElapsedTime >= ZoomDuration)
 		{
 			// 흔들림 값 초기화 등 필요한 기본값 복귀
@@ -79,7 +64,6 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
 void APlayerCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -100,7 +84,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	if (bIsZoomActive)
 	{
 		// 줌 효과 적용
-		float targetArmLength = FMath::Clamp(baseArmLength + ZoomAmount , MinDistance , MaxDistance);
+		float targetArmLength = FMath::Clamp(baseArmLength * ZoomAmount , MinDistance , MaxDistance);
 		SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength , targetArmLength , DeltaTime ,
 		                                                  CameraLagSpeed);
 
@@ -110,11 +94,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		{
 			shakeOffset = FMath::VRand() * ShakingValue;
 		}
-
-		//test용
-		//FVector centralLocation = (playerALoc + playerBLoc) * 0.5f;
-		//FVector cameraLocation = FMath::VInterpTo(GetActorLocation(), centralLocation + shakeOffset, DeltaTime, CameraLagSpeed);
-
+		
 		FVector cameraLocation = FMath::VInterpTo(GetActorLocation() , ZoomTargetLocation + shakeOffset , DeltaTime ,
 		                                          CameraLagSpeed);
 		SetActorLocation(cameraLocation);
@@ -131,7 +111,6 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		float angleDifference = FMath::RadiansToDegrees(
 			FMath::Acos(FVector::DotProduct(PreviousDirection , currentDirection)));
 
-		//
 		// 목표 회전 계산
 		FRotator targetRotation = currentDirection.Rotation() + FRotator(0 , 90 , 0);
 		// 현재 회전값 가져오기
@@ -142,7 +121,6 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		{
 			if (!bIsRotationFixed)
 			{
-				//
 				// 목표 회전을 부드럽게 보간
 				FRotator newRotation = FMath::RInterpTo(currentRotation , targetRotation , DeltaTime ,
 				                                        CameraLagRotSpeed);
@@ -186,6 +164,7 @@ void APlayerCameraPawn::RequestZoomEffect(FVector TargetLocation , float InZoomA
 	ShakingValue = InShakingValue;
 	ZoomDuration = InDuration;
 	ZoomElapsedTime = 0.0f;
+	currentArmLength = SpringArmComp->TargetArmLength;
 	bIsZoomActive = true;
 }
 
@@ -193,8 +172,8 @@ void APlayerCameraPawn::ResetZoomEffect()
 {
 	ZoomAmount = 0.5f;
 	ShakingValue = 0.0f;
-	bIsZoomActive= false;
 	ZoomDuration = 0.0f;
 	ZoomElapsedTime = 0.0f;
-	SpringArmComp->TargetArmLength = baseArmLength;
+	SpringArmComp->TargetArmLength = currentArmLength;
+	bIsZoomActive= false;
 }

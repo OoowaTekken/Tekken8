@@ -46,6 +46,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float baseArmLength = 50.f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float currentArmLength;
 	
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float MinDistance = 50.f;
