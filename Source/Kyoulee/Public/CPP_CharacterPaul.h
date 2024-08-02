@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Framework/Character.h"
 #include "CPP_Tekken8CharacterParent.h"
 #include "PlayerCameraPawn.h"
 #include "CPP_CharacterPaul.generated.h"
@@ -206,8 +205,8 @@ public:
 	 * @title Camera Effect
 	 * @brief 히트의 충돌체 카메라 효과를 위한 작업입니다.
 	 */
-
-	APawn* aMainCamera;
+	AGameMode_MH* GameModeMH;
+	// APlayerCameraPawn* aMainCamera;
 
 	/**
 	* @title 메인트리

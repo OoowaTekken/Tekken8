@@ -36,7 +36,8 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	this->ToLocation = this->GetActorLocation ( ) + this->GetActorForwardVector ( ) * 100;
 	this->sFrameStatus.FrameBlockUsing = 0;
 	this->sFrameStatus.FrameUsing = 0;
-	AGameMode_MH* GameModeMH = Cast<AGameMode_MH>( GetWorld ( )->GetAuthGameMode ( ) );
+	GameModeMH = Cast<AGameMode_MH>( GetWorld ( )->GetAuthGameMode ( ) );
+	
 }
 
 
@@ -814,7 +815,10 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 
 bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
-	aMainCamera->RequestZoomEffect ( attackInfo.skellEffectLocation , attackInfo.cameraZoom , attackInfo.cameraShake , attackInfo.cameraDelay );
+	if ( aMainCamera )
+		aMainCamera->RequestZoomEffect ( attackInfo.skellEffectLocation , attackInfo.cameraZoom , attackInfo.cameraShake , attackInfo.cameraDelay );
+	else
+		UE_LOG(LogTemp, Warning, TEXT("is Emtyp ") );
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeGuardFrame;
@@ -843,10 +847,7 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_
 	this->sFrameStatus.FrameBlockUsing = attackInfo.OppositeHitFrame;
 	this->SetToWorldLocationPoint ( attackInfo.KnockBackDirection );
 	// heart animation 추가하기
-	if ( aMainCamera )
-	{
-		aMainCamera->RequestZoomEffect(attackInfo.skellEffectLocation, attackInfo.cameraZoom,attackInfo.cameraShake,  attackInfo.cameraDelay);
-	}
+	// 좀 있다 이동 시키기
 	//camera 효과 추가하기s
 	this->CommandAllStop();
 	return true;

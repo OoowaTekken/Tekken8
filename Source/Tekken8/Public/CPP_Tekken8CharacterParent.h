@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CPP_IFCharacterInteraction.h"
+#include "PlayerCameraPawn.h"
 #include "CPP_Tekken8CharacterParent.generated.h"
 
 //캐릭터 상태
@@ -142,6 +143,17 @@ public:
 	int32 MaxHp = 180;
 	int32 RageGauge = 0;
 	int32 HitGauge = 100;
+
+	// SetCamera 
+	APlayerCameraPawn* aMainCamera;
+	
+	bool SetMainCamera ( APlayerCameraPawn* mainCamera )
+	{
+		if (!mainCamera)
+			return true;
+		this->aMainCamera = mainCamera;
+		return true;
+	}
 
 protected:
 	// Called when the game starts or when spawned
