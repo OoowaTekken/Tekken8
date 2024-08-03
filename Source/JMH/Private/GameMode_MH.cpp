@@ -109,7 +109,7 @@ void AGameMode_MH::Tick(float DeltaTime)
 	if (CurrentState == EGameState::InProgress)
 	{
 		//HP 체크
-		//CheckPlayerHP(DeltaTime);
+		CheckPlayerHP();
 		//타임 체크
 		CountDown(DeltaTime);
 	}
@@ -120,13 +120,16 @@ void AGameMode_MH::CountDown(float DeltaTime)
 	gameTimer -= DeltaTime;
 	if (inGameUI)
 	{
-		inGameUI->UpdateTimerDisplay(gameTimer);
-	}
-	if (gameTimer <= 0.0f)
-	{
-		//타임 종료
-		gameTimer = 0.f;
-		SetGameState(EGameState::RoundEnd);
+		if (gameTimer <= 0)
+		{
+			//타임 종료
+			gameTimer = 0;
+			SetGameState(EGameState::RoundEnd);
+		}
+		else
+		{
+			inGameUI->UpdateTimerDisplay(gameTimer);
+		}
 	}
 }
 
@@ -162,8 +165,11 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	case EGameState::RoundEnd:
 		// 라운드 종료 처리
 		//HP가 0이 되었을 때 호출,
-		//타이머가 0 이 되었을 떄 호출 
-		//CheckForGameOver();
+		//타이머가 0 이 되었을 떄 호출
+		PlayerInfoUI->UpdateEndHP(player1HP,player2HP);	
+		//라운드 스코어 ++
+		CheckRoundWinner();
+		CheckForGameOver();
 		break;
 
 	case EGameState::GameOver:
@@ -192,11 +198,12 @@ void AGameMode_MH::StartRound()
 	if (inGameUI)
 	{
 		inGameUI->AddToViewport();
-		
+
 		if (playerA && playerB)
 		{
-			PlayerInfoUI  = inGameUI->WBP_PlayerInfo;
-			PlayerInfoUI->SetPlayerinfo(playerA, playerB, playerANum, playerBNum);
+			PlayerInfoUI = inGameUI->WBP_PlayerInfo;
+			PlayerInfoUI->SetPlayerinfo(playerA , playerB , playerANum , playerBNum);
+			PlayerInfoUI->InitRoundImages();
 		}
 	}
 
@@ -205,16 +212,24 @@ void AGameMode_MH::StartRound()
 
 void AGameMode_MH::CheckForGameOver()
 {
-	GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("GameOver"));
 	if (IsGameOverConditionMet())
 	{
+	    GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("GameOver"));
 		SetGameState(EGameState::GameOver);
+	}
+	else
+	{
+		SetGameState(EGameState::RoundStart);
 	}
 }
 
 bool AGameMode_MH::IsGameOverConditionMet()
 {
-	//if 3선승?,타임오버?(체력 많이 남은 플레이어 승)  return true;
+	//if 3선승 return true;
+	if (Player1Score == 3 || Player2Score == 3)
+	{
+		return true;
+	}
 	return false;
 }
 
@@ -242,7 +257,7 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 		player2HP = NewHP;
 	}
 
-	// UI를 업데이트합니다.
+	// UI를 업데이트
 	if (PlayerInfoUI)
 	{
 		PlayerInfoUI->UpdateHealthBars(player1HP , player1MaxHP , player2HP , player2MaxHP);
@@ -251,22 +266,24 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 
 void AGameMode_MH::CheckRoundWinner()
 {
-	if (player1HP > player2HP)
-	{
-		// Example: Player 1
-		Player1Score += 1;
-	}
-	else if (player1HP > player2HP)
-	{
-		// Example: Player 2
-		Player2Score += 1;
-	}
-	else
+	if (player1HP == player2HP)
 	{
 		//무승부
 		Player1Score += 1;
 		Player2Score += 1;
 	}
+	else if (player1HP > player2HP)
+	{
+		//Player 1
+		Player1Score += 1;
+	}
+	else if (player1HP < player2HP)
+	{
+		//Player 2
+		Player2Score += 1;
+	}
+	//라운드 스코어 이미지 업데이트
+	PlayerInfoUI->UpdateRoundImages(Player1Score , Player2Score);
 }
 
 void AGameMode_MH::CheckFinalWinner()
@@ -299,15 +316,15 @@ void AGameMode_MH::HandleRoundEnd(AActor* RoundWinner)
 	}
 }
 
-void AGameMode_MH::CheckPlayerHP(float DeltaTime)
+void AGameMode_MH::CheckPlayerHP()
 {
 	if (playerA && playerB)
 	{
-		// 각 플레이어의 HP를 체크합니다.
+		// 각 플레이어의 HP를 체크
 		player1HP = GetPlayerHP(playerA);
 		player2HP = GetPlayerHP(playerB);
 
-		// HP가 0이거나 낮은 경우 라운드 종료 상태로 변경합니다.
+		// HP가 0이거나 낮은 경우 라운드 종료 상태로 변경
 		if (player1HP <= 0 || player2HP <= 0)
 		{
 			HandleNewState(EGameState::RoundEnd);

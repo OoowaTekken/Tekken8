@@ -19,8 +19,15 @@ void UinGameUI::UpdateTimerDisplay(float TimerValue)
 		// 타이머 값을 문자열로 변환
 		FString TimerString = FString::Printf(TEXT("%.0f"), TimerValue);
 
-		// 텍스트 블록에 설정
-		text_Timer->SetText(FText::FromString(TimerString));
+		if(TimerString == TEXT("0"))
+		{
+			text_Timer->SetText(FText::FromString(TEXT("0")));
+		}
+		else
+		{
+			// 텍스트 블록에 설정
+			text_Timer->SetText(FText::FromString(TimerString));
+		}
 	}
 	
 }

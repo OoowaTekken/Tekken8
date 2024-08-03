@@ -95,36 +95,23 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FString JIN = "JIN";
 
-	//UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
-	//TSubclassOf<UTexture> jin;
-	
-	//UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
-	//int32 playerAnum;
-
-	//UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
-	//int32 playerBnum;
-
-	//UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	//class ACPP_Tekken8CharacterParent* playerA;
-
-	//UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	//class ACPP_Tekken8CharacterParent* playerB;
-	
-	// 플레이어 HitBar를 업데이트하는 함수
-	//UFUNCTION(BlueprintCallable, Category = "UI")
-	//void UpdateHitBar(float CurrentHit, float MaxHit);
-
 	// 플레이어 HP를 업데이트하는 함수
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdateHealthBars(float Player1CurrentHP, float Player1MaxHP, float Player2CurrentHP, float Player2MaxHP);
 
 	float CalculateHealthPercentage(float CurrentHP, float MaxHP) const;
+
+	//라운드 이미지 업데이트
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void UpdateRoundImages(int32 RoundScoreA,int32 RoundScoreB);
+
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void InitRoundImages();
+
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void UpdateEndHP(float playerAHP, float playerBHP);
+
 	
-	//메쉬를 선택한다 (start UI)에서
-	//- 1P와 2P의 선택값
-	//- 캐릭터 이름(이미지,메쉬,이름),
-	// 셋팅 함수(캐릭이름) 
-	//- 카즈야, 폴 -> 그냥 BP를 가지고와 메쉬,이미지,이름. 셋팅 되어있는 ㅇㅇ 캐릭터 c++ 상속받은 BP //근데 이러면 특수모드도 구현하기 쉬..울??
 
 	
 };

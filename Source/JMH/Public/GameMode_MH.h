@@ -36,7 +36,7 @@ public:
 	void CountDown(float DeltaTime);
 	
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	float initroundTimer  = 60.f;
+	float initroundTimer  = 5.f;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
 	float gameTimer = initroundTimer;
@@ -114,10 +114,10 @@ public:
 	//Round
 	//player Round Score
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player1Score;
+	int32 Player1Score = 0;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player2Score;
+	int32 Player2Score = 0;
 
 	//final Winner
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
@@ -171,7 +171,7 @@ public:
 public:	
 	//Player 
 	UFUNCTION()
-	void CheckPlayerHP(float DeltaTime);
+	void CheckPlayerHP();
 	
 	UFUNCTION()
 	int32 GetPlayerHP(ACharacter* Player);
