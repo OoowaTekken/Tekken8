@@ -59,6 +59,11 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 		this->fCurrTimeForFrame = 0;
 		sFrameStatus.FrameBlockUsing--;
 		sFrameStatus.FrameUsing--;
+		attackInfo.ActionFrame--;
+		if ( attackInfo.ActionFrame == 0 )
+		{
+			this->CommentHitFrameExecute ();
+		}
 		iCurrFrame++;
 
 		AnimationFrame ( );
@@ -646,7 +651,7 @@ void ACPP_CharacterPaul::CommandLeadJab ( )
 	attackInfo.GrardFrame = 8;
 	attackInfo.CounterFrame = 8;
 	
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 50 , 5 , 80 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 90 , 5 , 50 );
 	attackInfo.KnockBackDirection = this->RelativePointVector ( 140 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
@@ -682,7 +687,8 @@ void ACPP_CharacterPaul::CommandCrossStaight ( )
 	attackInfo.GrardFrame = 6;
 	attackInfo.CounterFrame = 6;
 
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 70 , -5 , 80 );
+
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , 60 );
 	attackInfo.KnockBackDirection = this->RelativePointVector ( 160 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
@@ -717,8 +723,8 @@ void ACPP_CharacterPaul::CommandJingun ( )
 	attackInfo.HitFrame = -1;
 	attackInfo.GrardFrame = -12;
 	attackInfo.CounterFrame = -1;
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 70 , 5 , 50 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 150 , 0 , 0 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 170 , 5 , 00 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 180 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -749,8 +755,8 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 	attackInfo.HitFrame = 4;
 	attackInfo.GrardFrame = 14;
 	attackInfo.CounterFrame = 57;
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 80 , -5 , 80 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 120 , 0 , 0 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 160 , -5 , 60 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 180 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -784,7 +790,7 @@ void ACPP_CharacterPaul::CommandBungGuan ( )
 	attackInfo.GrardFrame = 0;
 	attackInfo.CounterFrame = 0;
 
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , 60 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 200 , -5 , 60 );
 	attackInfo.KnockBackDirection = this->RelativePointVector ( 500 , 0 , 20 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
@@ -891,8 +897,6 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 
 void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 {
-
-	// 나중에 함수화 하기 급함..
 	float radius = 20.0f;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
 	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
@@ -901,6 +905,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	TArray<AActor*> outActors;
 	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
 	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+
 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
 	if ( hit )
 	{
@@ -920,6 +925,15 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	{
 		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
 	}
+
+	if ( attackInfo.DamagePoint == EDamagePointInteraction::Top )
+		attackInfo.debugColor = FColor ( 255 , 0 , 0 );
+	else if ( attackInfo.DamagePoint == EDamagePointInteraction::Middle )
+		attackInfo.debugColor = FColor ( 155 , 125 , 0 );
+	else if ( attackInfo.DamagePoint == EDamagePointInteraction::Lower )
+		attackInfo.debugColor = FColor ( 0 , 0 , 255 );
+
+
 	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , attackInfo.debugColor , false , 1.0f );
 }
 
