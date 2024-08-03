@@ -42,6 +42,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
 	class UProgressBar* Pro_HitBarA;
+	
+	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
+	class UCanvasPanel* HP_A;
+
+	UPROPERTY(VisibleAnywhere,meta=(BindWidget),Category="MySettings")
+	class UCanvasPanel* HP_B;
+
 
 
 	UFUNCTION()

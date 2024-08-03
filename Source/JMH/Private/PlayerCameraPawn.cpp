@@ -105,7 +105,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		// 카메라의 위치 업데이트
 		SetActorLocation(centralLocation + FVector(0 , 0 , 20));
 
-		FVector currentDirection = (playerBLoc - playerALoc).GetSafeNormal();
+		FVector currentDirection = (playerALoc-playerBLoc).GetSafeNormal();
 		currentDirection.Z = 0;
 		currentDirection.Normalize();
 		float angleDifference = FMath::RadiansToDegrees(
