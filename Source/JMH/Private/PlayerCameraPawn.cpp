@@ -38,7 +38,7 @@ void APlayerCameraPawn::BeginPlay()
 
 	if (playerA && playerB)
 	{
-		InitialDirection = (playerB->GetActorLocation() - playerA->GetActorLocation()).GetSafeNormal();
+		InitialDirection = (playerA->GetActorLocation()-playerB->GetActorLocation()).GetSafeNormal();
 		PreviousDirection = InitialDirection; // 이전 방향 초기화
 	}
 }
@@ -117,7 +117,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 		FRotator currentRotation = GetActorRotation();
 
 		//카메라 회전각 제어(180도 무시)
-		if (angleDifference < 100.0f || angleDifference > 300.0f)
+		if (angleDifference < 170.0f || angleDifference > 190.0f)
 		{
 			if (!bIsRotationFixed)
 			{
