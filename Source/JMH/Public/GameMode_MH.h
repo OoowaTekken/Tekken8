@@ -29,21 +29,116 @@ class JMH_API AGameMode_MH : public AGameModeBase
 public:
 	AGameMode_MH();
 
-	//카운트다운함수
+	virtual void Tick(float DeltaTime) override;
+
+	//CountDown
 	UFUNCTION()
 	void CountDown(float DeltaTime);
+	
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	float initroundTimer  = 60.f;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	float roundTimer = 60.f;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	float gameTimer;
-
-	virtual void Tick(float DeltaTime) override;
+	float gameTimer = initroundTimer;
 
 protected:
 	virtual void BeginPlay() override;
 
+
+public:
+	
+	//widget
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	TSubclassOf<class UinGameUI> inGameWidget;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	class UPlayerInfoUI* PlayerInfoUI ;
+	
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	class UinGameUI* inGameUI;
+
+
+	//GM Player
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	class ACPP_Tekken8CharacterParent* playerA;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite)
+	class ACPP_Tekken8CharacterParent* playerB;
+
+	//Player HP
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 player1HP;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 player2HP;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 player1MaxHP;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 player2MaxHP;
+
+	// ** for make Character **//
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
+	TSubclassOf<class ACPP_CharacterPaul> Player1Class;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
+	TSubclassOf<class ACPP_CharacterPaul> Player2Class;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	class ACPP_Tekken8CharacterParent* Player1;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	class ACPP_Tekken8CharacterParent* Player2;
+
+//AI
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
+	TSubclassOf<class AAICharacter> PlayerAIClass;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	class ACPP_Tekken8CharacterParent* PlayerAI1;
+
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	class ACPP_Tekken8CharacterParent* PlayerAI2;
+
+	//Camera
+	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
+	TSubclassOf<class APawn> CameraPawn;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	APawn* SpawnedCameraPawn;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	class APlayerCameraPawn* maincamera;
+
+	//Round
+	//player Round Score
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	int32 Player1Score;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	int32 Player2Score;
+
+	//final Winner
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	AActor* Winner;
+
+	//Round Num
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	int32 initRoundNum = 1;
+
+	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
+	int32 CurrentRoundNum = initRoundNum;
+
+	//playernum pual=1,kazuya=2,Jin=3
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 playerANum = 0; // pual=1,kazuya=2,Jin=3
+	
+	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite , Category = "Round")
+	int32 playerBNum = 0; // pual=1,kazuya=2,Jin=3
+	
+public:
+	//State//____s____
 	// 현재 게임 상태
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category="GameState")
 	EGameState CurrentState = EGameState::DefaultState;
@@ -71,71 +166,23 @@ protected:
 	// 게임 오버 조건을 만족하는지 체크하는 함수
 	UFUNCTION()
 	bool IsGameOverConditionMet();
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	TSubclassOf<class UinGameUI> inGameWidget;
+	
+	//State//____e____
+public:	
+	//Player 
+	UFUNCTION()
+	void CheckPlayerHP(float DeltaTime);
+	
+	UFUNCTION()
+	int32 GetPlayerHP(ACharacter* Player);
+	
+	//Round
 	//상태 초기화(플레이어 HP, 타이머 시간, 라운드 표시 반영)
-
-public:
-	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	class UinGameUI* inGameUI;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	class ACPP_Tekken8CharacterParent* playerA;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	class ACPP_Tekken8CharacterParent* playerB;
-
-
-	// ** for make Character **//
-	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
-	TSubclassOf<class ACPP_CharacterPaul> Player1Class;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
-	TSubclassOf<class ACPP_CharacterPaul> Player2Class;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_Tekken8CharacterParent* Player1;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_Tekken8CharacterParent* Player2;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadWrite)
-	TSubclassOf<class AAICharacter> PlayerAIClass;
-
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_Tekken8CharacterParent* PlayerAI1;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	class ACPP_Tekken8CharacterParent* PlayerAI2;
-
-	UPROPERTY(EditDefaultsOnly , BlueprintReadOnly)
-	TSubclassOf<class APawn> CameraPawn;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	APawn* SpawnedCameraPawn;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	class APlayerCameraPawn* maincamera;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player1Score;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player2Score;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player1HP;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 Player2HP;
-
-	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	AActor* Winner;
+	UFUNCTION()
+	void ResetRoundState();
 
 	UFUNCTION()
-	void SetupCameraViewTarget();
+	void InitRoundState();
 	
 	UFUNCTION()
 	void CheckRoundWinner();
@@ -146,9 +193,11 @@ public:
 	UFUNCTION()
 	void HandleRoundEnd(AActor* RoundWinner);
 
+	//Camera
 	UFUNCTION()
-	void CheckPlayerHP(float DeltaTime);
+	void SetupCameraViewTarget();
 	
-	UFUNCTION()
-	int32 GetPlayerHP(ACharacter* Player);
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	void UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player,float NewHP);
+	
 };

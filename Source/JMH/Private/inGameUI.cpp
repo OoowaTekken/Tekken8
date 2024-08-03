@@ -4,6 +4,7 @@
 #include "inGameUI.h"
 
 #include "GameMode_MH.h"
+#include "PlayerInfoUI.h"
 #include "Components/TextBlock.h"
 
 void UinGameUI::NativeConstruct()

@@ -7,6 +7,7 @@
 #include "CPP_CharacterPaul.h"
 #include "CPP_InputControl.h"
 #include "inGameUI.h"
+#include "PlayerInfoUI.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
@@ -23,8 +24,6 @@ void AGameMode_MH::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartGame();
-
 	ACPP_InputControl* Control = Cast<ACPP_InputControl>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
 	if (this->Player1Class)
@@ -33,6 +32,11 @@ void AGameMode_MH::BeginPlay()
 			this->Player1Class , FVector(0 , -300 , 0) , FRotator(0 , 90 , 0));
 		Control->Player1 = Cast<ACPP_CharacterPaul>(Player1);
 		playerA = Player1;
+
+		//mh
+		player1MaxHP = playerA->MaxHp;
+		//paul
+		playerANum = 1;
 	}
 	if (this->Player2Class)
 	{
@@ -45,23 +49,40 @@ void AGameMode_MH::BeginPlay()
 			this->Player2->aOpponentPlayer = Player1;
 		}
 		playerB = Player2;
+
+		//mh
+		player2MaxHP = playerB->MaxHp;
+		//paul
+		playerBNum = 1;
 	}
 
 	if (!this->Player1Class)
 	{
-		ACPP_Tekken8CharacterParent* aiplayer1 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(PlayerAIClass , FVector(0 , -300 , 0) ,
-		                                                             FRotator(0 , 90 , 0));
+		ACPP_Tekken8CharacterParent* aiplayer1 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(
+			PlayerAIClass , FVector(0 , -300 , 0) ,
+			FRotator(0 , 90 , 0));
 		if (Player2)
 			Player2->aOpponentPlayer = aiplayer1;
 		playerA = aiplayer1;
+
+		//mh
+		player1MaxHP = playerA->MaxHp;
+		//Kazuya
+		playerANum = 2;
 	}
 	if (!this->Player2Class)
 	{
-		ACPP_Tekken8CharacterParent* aiplayer2 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(PlayerAIClass , FVector(0 , 300 , 0) ,
-		                                                             FRotator(0 , -90 , 0));
+		ACPP_Tekken8CharacterParent* aiplayer2 = GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(
+			PlayerAIClass , FVector(0 , 300 , 0) ,
+			FRotator(0 , -90 , 0));
 		if (Player1)
 			Player1->aOpponentPlayer = aiplayer2;
 		playerB = aiplayer2;
+
+		//mh
+		player2MaxHP = playerB->MaxHp;
+		//Kazuya
+		playerBNum = 2;
 	}
 
 	if (CameraPawn)
@@ -69,17 +90,15 @@ void AGameMode_MH::BeginPlay()
 		SpawnedCameraPawn = Cast<APawn>(GetWorld()->SpawnActor<APawn>(CameraPawn));
 
 		SetupCameraViewTarget();
-		//FTimerHandle CameraSetupTimerHandle;
-		//GetWorld()->GetTimerManager().SetTimer(CameraSetupTimerHandle, this,&AGameMode_MH::SetupCameraViewTarget, 0.5f, false);
+
 		maincamera = Cast<APlayerCameraPawn>(SpawnedCameraPawn);
 		playerA->SetMainCamera(maincamera);
 		playerB->SetMainCamera(maincamera);
-
 	}
 	//라운드 스코어 초기화
-	Player1Score = 0;
-	Player2Score = 0;
-	Winner = nullptr;
+	InitRoundState();
+
+	StartGame();
 }
 
 void AGameMode_MH::Tick(float DeltaTime)
@@ -106,6 +125,7 @@ void AGameMode_MH::CountDown(float DeltaTime)
 	if (gameTimer <= 0.0f)
 	{
 		//타임 종료
+		gameTimer = 0.f;
 		SetGameState(EGameState::RoundEnd);
 	}
 }
@@ -129,10 +149,8 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 		StartRound();
 		break;
 	case EGameState::RoundStart:
-		//타이머 초기화
-		gameTimer = roundTimer;
-		//HP 초기화
-		
+		//타이머,HP 초기화
+		ResetRoundState();
 		SetGameState(EGameState::InProgress);
 		break;
 
@@ -167,16 +185,19 @@ void AGameMode_MH::StartGame()
 void AGameMode_MH::StartRound()
 {
 	//라운드 스코어 초기화
-	Player1Score = 0;
-	Player2Score = 0;
-	Winner = nullptr;
+	InitRoundState();
 
 	//게임 UI생성 (타이머, HP,라운드카운트,캐릭터 이미지)
 	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
 	if (inGameUI)
 	{
 		inGameUI->AddToViewport();
-		//inGameUI->SetIsEnabled(false);
+		
+		if (playerA && playerB)
+		{
+			PlayerInfoUI  = inGameUI->WBP_PlayerInfo;
+			PlayerInfoUI->SetPlayerinfo(playerA, playerB, playerANum, playerBNum);
+		}
 	}
 
 	SetGameState(EGameState::RoundStart);
@@ -202,25 +223,40 @@ void AGameMode_MH::SetupCameraViewTarget()
 	UCameraComponent* CameraComponent = SpawnedCameraPawn->FindComponentByClass<UCameraComponent>();
 	if (CameraComponent)
 	{
-		GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("CameraActor!"));
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		if (PlayerController)
 		{
-			GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("PlayerController!"));
-
 			PlayerController->SetViewTarget(SpawnedCameraPawn);
 		}
 	}
 }
 
+void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float NewHP)
+{
+	if (Player == playerA)
+	{
+		player1HP = NewHP;
+	}
+	else if (Player == playerB)
+	{
+		player2HP = NewHP;
+	}
+
+	// UI를 업데이트합니다.
+	if (PlayerInfoUI)
+	{
+		PlayerInfoUI->UpdateHealthBars(player1HP , player1MaxHP , player2HP , player2MaxHP);
+	}
+}
+
 void AGameMode_MH::CheckRoundWinner()
 {
-	if (Player1HP > Player2HP)
+	if (player1HP > player2HP)
 	{
 		// Example: Player 1
 		Player1Score += 1;
 	}
-	else if (Player1HP > Player2HP)
+	else if (player1HP > player2HP)
 	{
 		// Example: Player 2
 		Player2Score += 1;
@@ -268,11 +304,11 @@ void AGameMode_MH::CheckPlayerHP(float DeltaTime)
 	if (playerA && playerB)
 	{
 		// 각 플레이어의 HP를 체크합니다.
-		Player1HP = GetPlayerHP(playerA);
-		Player2HP = GetPlayerHP(playerB);
+		player1HP = GetPlayerHP(playerA);
+		player2HP = GetPlayerHP(playerB);
 
 		// HP가 0이거나 낮은 경우 라운드 종료 상태로 변경합니다.
-		if (Player1HP <= 0 || Player2HP <= 0)
+		if (player1HP <= 0 || player2HP <= 0)
 		{
 			HandleNewState(EGameState::RoundEnd);
 		}
@@ -290,4 +326,22 @@ int32 AGameMode_MH::GetPlayerHP(ACharacter* Player)
 	{
 		return 0;
 	}
+}
+
+void AGameMode_MH::ResetRoundState()
+{
+	gameTimer = initroundTimer;
+
+	player1HP = player1MaxHP;
+	player2HP = player2MaxHP;
+}
+
+void AGameMode_MH::InitRoundState()
+{
+	CurrentRoundNum = initRoundNum;
+	Player1Score = 0;
+	Player2Score = 0;
+	Winner = nullptr;
+
+	ResetRoundState();
 }
