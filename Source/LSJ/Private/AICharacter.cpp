@@ -14,6 +14,11 @@
 #include "AIStateAttackRH.h"
 #include "Components/SphereComponent.h"
 #include "AIStateHit.h"
+#include "AIStateComboLaserAttack.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AAICharacter::AAICharacter()
 {
@@ -66,8 +71,28 @@ AAICharacter::AAICharacter()
 	stateAttackLF->SetStateOwner ( this );
 	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
 	stateAttackRH->SetStateOwner ( this );
-	stateHit = CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
+	stateHit=CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
 	stateHit->SetStateOwner ( this );
+	stateComboLaserAttack = CreateDefaultSubobject<UAIStateComboLaserAttack> ( TEXT ( "stateComboLaserAttack" ));
+	FAttackInfoInteraction attack1;
+	attack1.DamageAmount = 10;
+	attack1.DamagePoint = EDamagePointInteraction::Middle;
+	attack1.HitFrame=23;
+	attack1.AnimEndFrame = 43;
+	attack1.OwnerGuardFrame = -12;
+	attack1.OppositeHitFrame = 101;
+	attack1.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack2;
+	attack2.DamageAmount = 12;
+	attack2.DamagePoint = EDamagePointInteraction::Middle;
+	attack2.HitFrame = 49;
+	attack2.AnimEndFrame = 75;
+	attack2.OwnerGuardFrame = -12;
+	attack2.OppositeHitFrame = 101;
+	attack2.OppositeCounterFrame = 101;
+	stateComboLaserAttack->attackInfoArray.Add(attack1);
+	stateComboLaserAttack->attackInfoArray.Add(attack2);
+	stateComboLaserAttack->SetStateOwner ( this );
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -99,13 +124,37 @@ void AAICharacter::BeginPlay()
 	collisionRF->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionRFBeginOverlap );
 	collisionLH->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionLHBeginOverlap );
 	collisionRH->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnCollisionRHBeginOverlap );
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic ( this , &AAICharacter::OnHitBeginOverlap );
+	
+	// Blackboard 컴포넌트에 접근하여 값을 설정
+	aiController = Cast<AAICharacterController> ( GetController ( ) );
+	check(aiController);
+	//카메라 좌측인지 오른쪽인지 체크
+	float cameraDirection = FVector::DotProduct ( UGameplayStatics::GetPlayerPawn ( GetWorld ( ) , 0 )->GetActorRightVector ( ) , GetActorLocation() );
+	if ( cameraDirection > 0 )
+	{
+		aiController->SetBehaviorTree(1);
 	}
+	else
+	{
+		aiController->SetBehaviorTree(2);
+	}
+	blackboardComp = aiController->GetBlackboardComponent ( );
+	check (blackboardComp);
+}
 
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateState( DeltaTime );
 	
+	//회전
+	if ( bLookTarget )
+	{
+		SetActorRotation ( FMath::RInterpTo ( GetActorRotation ( ) , targetRotator , DeltaTime , 50.0f ) );
+		if ( bLookTarget && FMath::Abs ( targetRotator.Yaw - GetActorRotation ( ).Yaw ) < 0.1 )
+			bLookTarget = false;
+	}
 }
 
 // Called to bind functionality to input
@@ -118,9 +167,10 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void AAICharacter::ChangeState ( IAIStateInterface* NewState )
 {
 	//hit 했을때 필요할거 같다.
-	//if ( currentState) {
+	//if ( NewState == stateHit && currentState != stateHit ) {
 	//	currentState->Exit ( );
 	//}
+
 	currentState = NewState;
 
 	if ( currentState ) {
@@ -134,7 +184,7 @@ void AAICharacter::UpdateState(const float& deltatime)
 		currentState->Execute ( deltatime );
 }
 
-void AAICharacter::ExitCurrentState ( )
+void AAICharacter::ExitCurrentState ( ECharacterStateInteraction state)
 {
 	if ( currentState ) {
 		currentState->Exit ( );
@@ -154,77 +204,154 @@ void AAICharacter::OnAttackCollisionRF ( )
 void AAICharacter::OnAttackCollisionLH ( )
 {
 	collisionLH->SetCollisionEnabled ( ECollisionEnabled::QueryOnly );
+	float radius = 20.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = collisionLH->GetComponentLocation();
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	if ( hit )
+	{
+		for ( AActor* hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
+			{
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				hitCharacter->HitDecision ( SendAttackInfo ( ) , this );
+				//DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+				//if ( hitCharacter->HitDecision ( SendAttackInfo () , this ) )
+		/*			sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;*/
+			}
+		}
+	}
 }
 
 void AAICharacter::OnAttackCollisionRH ( )
 {
 	collisionRH->SetCollisionEnabled ( ECollisionEnabled::QueryOnly );
+	float radius = 20.0f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init ( this , 1 );
+	TArray<AActor*> outActors;
+	FVector sphereSpawnLocation = collisionRH->GetComponentLocation ( );
+	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
+	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
+	if ( hit )
+	{
+		for ( AActor* hitActor : outActors )
+		{
+			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
+			{
+				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				hitCharacter->HitDecision ( SendAttackInfo ( ) , this );
+				//if ( hitCharacter->HitDecision ( SendAttackInfo () , this ) )
+		/*			sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+				else
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;*/
+			}
+		}
+	}
 }
 
 void AAICharacter::OffAttackCollisionLF ( )
 {
 	collisionLF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	currentState->AddAttackCount ( 1 );
 	IsAttacked = false;
 }
 
 void AAICharacter::OffAttackCollisionRF ( )
 {
 	collisionRF->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	currentState->AddAttackCount ( 1 );
 	IsAttacked = false;
 }
 
 void AAICharacter::OffAttackCollisionLH ( )
 {
 	collisionLH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	currentState->AddAttackCount ( 1 );
 	IsAttacked = false;
 }
 
 void AAICharacter::OffAttackCollisionRH ( )
 {
 	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
+	currentState->AddAttackCount(1);
 	IsAttacked = false;
+}
+
+void AAICharacter::OnHitBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
+	{
+		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
+		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		IsAttacked = true;
+	}
 }
 
 void AAICharacter::OnCollisionLHBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
 {
 	if ( IsAttacked )
 		return;
-	
+	if (SweepResult.GetActor() == aOpponentPlayer)
+	{
+		aOpponentPlayer->HitDecision(SendAttackInfo(),this);
+		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		IsAttacked = true;
+	}
+
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
-	DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 ,  0.5f);
-	IsAttacked = true;
 }
 
 void AAICharacter::OnCollisionRHBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
 {
 	if ( IsAttacked )
 		return;
+	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
+	{
+		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
+		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		IsAttacked = true;
+	}
 	//카메라가 제자리로 안돌아간다
 	//float InZoomAmount 어떤 값을 줘도 줌확대가 된다.
 	// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
 		//aiCharacter->aMainCamera->RequestZoomEffect(aiCharacter->GetActorLocation(),0.5f,1.0f,3.0f);
-	aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 0.5f , 100.0f , 0.5f );
+	//aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 0.5f , 100.0f , 0.5f );
 	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
-	DrawDebugSphere ( GetWorld ( ) , collisionRH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
-	IsAttacked = true;
 }
 
 void AAICharacter::OnCollisionRFBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
 {
 	if ( IsAttacked )
 		return;
-	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
-	DrawDebugSphere ( GetWorld ( ) , collisionRF->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
-	IsAttacked = true;
+	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
+	{
+		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
+		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		IsAttacked = true;
+	}
 }
 
 void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedComp , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
 {
 	if ( IsAttacked )
 		return;
-	//DrawDebugSphere(GetWorld(),SweepResult.ImpactPoint,92.0f,2,FColor::Blue,false,5.f);
-	DrawDebugSphere ( GetWorld ( ) , collisionLF->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
-	IsAttacked = true;
+	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
+	{
+		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
+		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		IsAttacked = true;
+	}
 }
 //공격 받았을 때
 bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
@@ -233,7 +360,44 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 	//공격 받았다면 Hit State 상태 처리 attackInfo를 전달 return true;
 	//가드라면 ... return false;
 	//attackInfo
-	ExitCurrentState ();
-	ChangeState( stateHit );
+	if ( blackboardComp )
+	{
+		ExitCurrentState ( ECharacterStateInteraction::HitGround );
+		stateHit->SetAttackInfo ( attackInfo );
+		UE_LOG(LogTemp,Error,TEXT("%d"),attackInfo.DamageAmount);
+		blackboardComp->SetValueAsBool ( TEXT ( "IsHit" ) , true ); // 원하는 값을 설정
+		OnHit.Broadcast ( );
+	}
+
+	//ChangeState( stateHit );
 	return true;
+}
+
+FAttackInfoInteraction AAICharacter::SendAttackInfo ( )
+{
+	auto* state = Cast<UAIStateComponent>(currentState);
+	// 적절한 상태 클래스에 따라 상태 변경
+	if ( state->IsA(UAIStateAttackLF::StaticClass()))
+	{
+
+	}
+	else if ( state->IsA ( UAIStateAttackRH::StaticClass()))
+	{
+
+	}
+	else if( state->IsA ( UAIStateComboLaserAttack::StaticClass()))
+	{
+	
+	}
+	return state->attackInfoArray[state->GetAttackCount ( )];
+}
+
+void AAICharacter::CurrentAttackCountToZero ( )
+{
+	currentState->AddAttackCount(-1*currentState->GetAttackCount());
+}
+
+void AAICharacter::LookTarget (const float& deltaTime , FRotator& rotator )
+{
+	SetActorRotation ( FMath::RInterpConstantTo ( GetActorRotation ( ) , rotator , deltaTime , 200.0f ) );
 }

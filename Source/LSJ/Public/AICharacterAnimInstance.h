@@ -30,6 +30,9 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* hitTopMontage;
 		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* hitMiddleMontage;
+	//콤보 레이저 몽타주 
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* comboLaserMontage;
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class AAICharacter* owner;
 	UPROPERTY( EditAnyWhere , BlueprintReadOnly , Category = Move , Meta = (AllowPrivateAccess = true) )
@@ -60,6 +63,7 @@ public:
 	 // Animation Montage가 끝났을 때 호출될 함수
     UFUNCTION()
     virtual void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
+	virtual void PlayComboLaserMontage ( );
 	virtual void PlayHitTopMontage ( );
 	virtual void PlayHitMiddleMontage ( );
 	virtual void PlayerWalkForwardMontage();
@@ -72,4 +76,8 @@ public:
 	virtual void StateWalkForward ( bool val ) { bStateWalkForward = val; }
 	virtual bool StateWalkBack ( ) const { return bStateWalkBack; }
 	virtual void StateWalkBack ( bool val ) { bStateWalkBack = val; }
+
+	//notify
+	UFUNCTION ()
+	void AnimNotify_LookTarget ();
 };

@@ -3,9 +3,10 @@
 
 #include "AICharacterAnimInstance.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "GameFramework/Character.h"
+#include "Tekken8CharacterParent.h"
 #include "Animation/AnimMontage.h"
 #include "AICharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UAICharacterAnimInstance::UpdateProperties ( )
 {
@@ -92,7 +93,7 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( attackLFMontageFinder.Succeeded ( ) )
         attackLFMontage = attackLFMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitTopMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Hit_Face_Montage.Hit_Face_Montage'" ) );
     if ( hitTopMontageFinder.Succeeded ( ) )
         hitTopMontage = hitTopMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitMiddleMontageFinder
@@ -103,50 +104,69 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Uppercut-LB_S_3_Montage.KB_Uppercut-LB_S_3_Montage'" ) );
     if ( uppercutLHMontageFinder.Succeeded ( ) )
         uppercutLHMontage = uppercutLHMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>comboLaserMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/Combo1.Combo1'" ) );
+    if ( comboLaserMontageFinder.Succeeded ( ) )
+        comboLaserMontage = comboLaserMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
 {
-    if ( Montage == walkBackMontage )
-    {
-        //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
-        if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
-    }else
-        if ( Montage == attackLFMontage )
-        {
-            owner->ExitCurrentState ();
-        }
-    else
-		if ( Montage == attackRHMontage )
-		{
-			owner->ExitCurrentState ( );
-		}
-    else
-        if ( Montage == hitTopMontage )
-        {
-            owner->ExitCurrentState ( );
-        }
-	else
-		if ( Montage == hitMiddleMontage )
-		{
-			owner->ExitCurrentState ( );
-		}
-	else
-		if ( Montage == uppercutLHMontage )
-		{
-			owner->ExitCurrentState ( );
-		}
+
+    
     // Montage가 끝났을 때의 처리 로직
     if ( bInterrupted )
     {
     // Animation Montage가 정상적으로 끝나지 않고 중간에 인터럽트되었습니다. 인터럽트는 다른 애니메이션이 재생되었거나, 명시적으로 중단되는 등의 이유로 발생할 수 있습니다.
 
+     /*   if ( Montage == hitTopMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitGround );
+        }*/
     }
     else
     {
     // Animation Montage가 정상적으로 끝났습니다.
-    
+        if ( Montage == walkBackMontage )
+        {
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+            if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+        }
+        else
+        if ( Montage == attackLFMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
+        }
+        else
+            if ( Montage == attackRHMontage )
+            {
+                owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
+            }
+
+        else
+            if ( Montage == uppercutLHMontage )
+            {
+                owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
+            }
+        else
+        if ( Montage == comboLaserMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
+        }
+        else if ( Montage == hitMiddleMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitGround );
+        }
+        else if ( Montage == hitTopMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitGround );
+        }
     }
+}
+
+void UAICharacterAnimInstance::PlayComboLaserMontage()
+{
+    Montage_Play(comboLaserMontage);
 }
 
 void UAICharacterAnimInstance::PlayHitTopMontage ( )
@@ -188,4 +208,12 @@ void UAICharacterAnimInstance::PlayerIdleMontage ( )
 {
     //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages
     Montage_Play (idleMontage);
+}
+
+void UAICharacterAnimInstance::AnimNotify_LookTarget ( )
+{
+    //회전
+    FRotator lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , owner->aOpponentPlayer->GetActorLocation ( ) );
+    owner->targetRotator = lookPlayerRotator;
+    owner->bLookTarget = true;
 }
