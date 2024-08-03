@@ -197,6 +197,25 @@ public:
 	class UAnimMontage* uMtgBungGuan;
 	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
 	class UAnimMontage* uMtgJinJee;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgSitJab;
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgSitSpineKick;
+
+	
+	// Defence
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgDefence;
+	
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgSitDefence;
+	// hit
+	
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgIdleHit;
+	
+	UPROPERTY(EditDefaultsOnly, Category="MontageList" )
+	class UAnimMontage* uMtgSitHit;
 
 	FVector ToLocation;
 	
@@ -225,6 +244,7 @@ public:
  	*/
 	void CommandIdle ( );
 	void CommandStar ( );
+	void CommandEnd ( );
 	void CommandMoveForward ( );
 	void CommandMoveForwarDash();
 	void CommandMoveBack ();
@@ -238,7 +258,8 @@ public:
 	void CommandCrossStaight ( );
 	void CommandJingun ( );
 	void CommandHighKick ();
-
+	void CommandSitJab ( );
+	void CommandSitSpineKick ( );
 	// 꽃
 	void CommandBungGuan ( );
 	
