@@ -1006,7 +1006,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 		PlayMontageFrameSystem ( uMtgSitHit);
 	else
 		PlayMontageFrameSystem ( uMtgIdleHit );
-		
+	
+	// UI hit newHp 전달하기
 	// 좀 있다 이동 시키기
 	//camera 효과 추가하기s
 	this->CommandAllStop();
@@ -1017,8 +1018,11 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 {
 	float radius = 20.0f;
+	// 스페셜 스킬 이동기 등
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Special )
 		return;
+
+	// 맞는 부분 실행
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
 	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
 	TArray<AActor*> ignoreActors;
@@ -1027,6 +1031,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
 	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
 
+	// 맞은거 판별
 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
 	if ( hit )
 	{
@@ -1035,8 +1040,9 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
 			{
 				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				때려보기
 				if ( hitCharacter->HitDecision ( attackInfo , this ) )
-					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerHitFrame;
 				else
 					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
 			}
@@ -1044,6 +1050,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	}
 	else
 	{
+		// 아무도 안맞았을때
 		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
 	}
 
