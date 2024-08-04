@@ -12,6 +12,7 @@
 UENUM()
 enum class ECharacterStateInteraction
 {
+	Move, // 이동할때
 	Idle, //별표상태
 	//Attack, //공격상태 //상대가 헛발질 할때의 상황을 가져올 수 있나?
 	//상단 중단 하단 가드하기 위해 Attack 위치가 필요하다
