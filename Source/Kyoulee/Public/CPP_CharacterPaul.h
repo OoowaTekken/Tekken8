@@ -132,13 +132,14 @@ public:
 
 	FCommandTree* AddCommandBaseTree ( TArray<int> arrayTreeCommand , int32 keyValue , int32 timingStart , int32 timingEnd , int32 timingAction , void(ACPP_CharacterPaul::* fptr)() );
 	void SetSelfReLinkTree ( TArray<int32> arrayTreeCommand );
-
+	
+	UPROPERTY(EditDefaultsOnly, Category="DebugMode" )
+	bool DebugMode = 0;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
-	bool DebugingMode = 0;
 
 public:	
 	// Called every frame
@@ -171,8 +172,9 @@ public:
 
 	eHitDecision DefencePoint;
 
-	bool bCrouched;
-
+	bool bCrouched = 0;
+	bool bFalling = 0;
+	bool bNuckDown = 0;
 
 	/**
 	 * @title Next Location Data 처리

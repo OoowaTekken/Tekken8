@@ -131,7 +131,7 @@ bool ACPP_CharacterPaul::PlayMontageFrameSystem ( UAnimMontage* montage )
 	if ( !uAnim || !montage )
 		return false;
 	UE_LOG(LogTemp,Warning,TEXT("Montage Start" ));
-	uAnim->Montage_Play ( montage, this->attackInfo.ActionFrame );
+	uAnim->Montage_Play ( montage );
 
 	return true;
 }
@@ -357,12 +357,12 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLPkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandSitJab );
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey } , downLPkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, downLPkey, downLPkey } );
-	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandEnd );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey, downLKkey } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandEnd );
 
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLKkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandSitSpineKick );
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , downLKkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, downLKkey, downLKkey } );
-	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , LK , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandEnd );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey, downLKkey } , LK , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandEnd );
 
 
 	// Branch Add function 만들기 하나의 가지로 합쳐주는 함수이다.
@@ -446,7 +446,7 @@ FCommandTree* ACPP_CharacterPaul::AddCommandTree ( TMap<int32 , FCommandTree*>& 
 	//  음 빈거 확인해야 하는데 잘안됨 확인할 필요있음
 	if ( &CurrCommandTree && CurrCommandTree.Find ( keyValue ) )
 	{
-		if ( DebugingMode )
+		if ( DebugMode )
 			UE_LOG ( LogTemp , Warning , TEXT ( "Error: befor add CommandTree was settinged!! %i" ) , keyValue );
 
 		return CurrCommandTree[keyValue];
@@ -466,7 +466,7 @@ FCommandTree* ACPP_CharacterPaul::AddCommandBaseTree ( TArray<int> arrayTreeComm
 		tempParant = temp;
 		if ( !temp.Find ( commandkey ) )
 		{
-			if ( DebugingMode )
+			if ( DebugMode )
 				UE_LOG ( LogTemp , Error , TEXT ( "[SetParentReLinkTree] No Tree Command " ) );
 
 			return nullptr;
@@ -494,7 +494,7 @@ void ACPP_CharacterPaul::SetSelfReLinkTree ( TArray<int32> arrayTreeCommand )
 		tempParant = temp;
 		if ( !temp.Find ( commandkey ) )
 		{
-			if ( DebugingMode )
+			if ( DebugMode )
 				UE_LOG ( LogTemp , Error , TEXT ( "[SetParentReLinkTree] No Tree Command " ) );
 
 			return;
@@ -526,7 +526,7 @@ void ACPP_CharacterPaul::CommandIdle ( )
 	if ( this->CountIdleFrame > 3 )
 	{
 		this->CountIdleFrame = 0;
-		if ( DebugingMode )
+		if ( DebugMode )
 			UE_LOG ( LogTemp , Warning , TEXT ( "Clean Command" ) );
 
 		this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
@@ -539,13 +539,13 @@ void ACPP_CharacterPaul::CommandIdle ( )
 
 void ACPP_CharacterPaul::CommandStar ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandStar Pressed" ) );
 
 	if ( this->CountStarFrame <= 0 )
 	{
 		this->CountStarFrame = 0;
-		if ( DebugingMode )
+		if ( DebugMode )
 			UE_LOG ( LogTemp , Warning , TEXT ( "Star Clean Command" ) );
 
 		this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
@@ -557,14 +557,15 @@ void ACPP_CharacterPaul::CommandStar ( )
 
 void ACPP_CharacterPaul::CommandEnd ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandEnd Pressed" ) );
+	this->bCrouched = false;
 }
 
 
 void ACPP_CharacterPaul::CommandMoveForward ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveForward Pressed" ) );
 
 	this->SetToLocationPoint ( 30 , 0 , 0 );
@@ -574,7 +575,7 @@ void ACPP_CharacterPaul::CommandMoveForward ( )
 
 void ACPP_CharacterPaul::CommandMoveForwarDash ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "MoveForwarDash Pressed" ) );
 
 	this->SetToLocationPoint ( 200 , 0 , 0 );
@@ -582,7 +583,7 @@ void ACPP_CharacterPaul::CommandMoveForwarDash ( )
 
 void ACPP_CharacterPaul::CommandMoveBack ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveBack Pressed" ) );
 
 	this->SetToLocationPoint ( -30 , 0 , 0 );
@@ -591,7 +592,7 @@ void ACPP_CharacterPaul::CommandMoveBack ( )
 
 void ACPP_CharacterPaul::CommandMoveBackDash ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveBackDash Pressed" ) );
 
 	this->SetToLocationPoint ( -200 , 0 , 0 );
@@ -599,7 +600,7 @@ void ACPP_CharacterPaul::CommandMoveBackDash ( )
 
 void ACPP_CharacterPaul::CommandJump ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJump Pressed" ) );
 	
 	
@@ -612,7 +613,7 @@ void ACPP_CharacterPaul::CommandJump ( )
 
 void ACPP_CharacterPaul::CommandMoveLateralUp ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralPlus Pressed" ) );
 // 
 	this->bCrouched = false;
@@ -634,7 +635,7 @@ void ACPP_CharacterPaul::CommandMoveLateralUp ( )
 
 void ACPP_CharacterPaul::CommandDownCrouch ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandDownCrouch Pressed" ) );
 
 	this->bCrouched = true;
@@ -645,7 +646,7 @@ void ACPP_CharacterPaul::CommandDownCrouch ( )
 
 void ACPP_CharacterPaul::CommandUpCrouch ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandUpCrouch Pressed" ) );
 
 	CountStarFrame = 10;
@@ -653,7 +654,7 @@ void ACPP_CharacterPaul::CommandUpCrouch ( )
 
 void ACPP_CharacterPaul::CommandMoveLateralDown ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralDown Pressed" ) );
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Special;
@@ -673,7 +674,7 @@ void ACPP_CharacterPaul::CommandMoveLateralDown ( )
 
 void ACPP_CharacterPaul::CommandLeadJab ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeadJab Pressed" ) );
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
@@ -709,7 +710,7 @@ void ACPP_CharacterPaul::CommandLeadJab ( )
 
 void ACPP_CharacterPaul::CommandCrossStaight ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandCrossStaight Pressed" ) );
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
@@ -746,7 +747,7 @@ void ACPP_CharacterPaul::CommandCrossStaight ( )
 
 void ACPP_CharacterPaul::CommandJingun ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
@@ -778,7 +779,7 @@ void ACPP_CharacterPaul::CommandJingun ( )
 
 void ACPP_CharacterPaul::CommandHighKick ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
@@ -810,7 +811,7 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 
 void ACPP_CharacterPaul::CommandBungGuan ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandBungGuan Pressed" ) );
 
 	this->bCrouched = false;
@@ -845,7 +846,7 @@ void ACPP_CharacterPaul::CommandBungGuan ( )
 
 void ACPP_CharacterPaul::CommandJinJee ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJinJee Pressed" ) );
 
 	this->bCrouched = false;
@@ -882,7 +883,7 @@ void ACPP_CharacterPaul::CommandJinJee ( )
 
 void ACPP_CharacterPaul::CommandSitJab( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandSitJab Pressed" ) );
 
 	this->bCrouched = false;
@@ -918,7 +919,7 @@ void ACPP_CharacterPaul::CommandSitJab( )
 
 void ACPP_CharacterPaul::CommandSitSpineKick ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandSitJab Pressed" ) );
 
 	this->bCrouched = false;
@@ -954,7 +955,7 @@ void ACPP_CharacterPaul::CommandSitSpineKick ( )
 
 bool ACPP_CharacterPaul::CommandAllStop ( )
 {
-	if ( DebugingMode )
+	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandAllStop Pressed" ) );
 	this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
 	return 0;
@@ -1006,7 +1007,10 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 		PlayMontageFrameSystem ( uMtgSitHit);
 	else
 		PlayMontageFrameSystem ( uMtgIdleHit );
-		
+	
+	// UI hit newHp 전달하기
+	this->Hp -= attackInfoHit.DamageAmount;
+	this->GameModeMH->UpdatePlayerHP(this,this->Hp);
 	// 좀 있다 이동 시키기
 	//camera 효과 추가하기s
 	this->CommandAllStop();
@@ -1017,8 +1021,11 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 {
 	float radius = 20.0f;
+	// 스페셜 스킬 이동기 등
 	if ( attackInfo.DamagePoint == EDamagePointInteraction::Special )
 		return;
+
+	// 맞는 부분 실행
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
 	traceObjectTypes.Add ( UEngineTypes::ConvertToObjectType ( ECollisionChannel::ECC_Pawn ) );
 	TArray<AActor*> ignoreActors;
@@ -1027,6 +1034,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	FVector sphereSpawnLocation = attackInfo.skellEffectLocation;
 	UClass* seekClass = ACPP_Tekken8CharacterParent::StaticClass ( );
 
+	// 맞은거 판별
 	bool hit = UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );;
 	if ( hit )
 	{
@@ -1035,8 +1043,9 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
 			{
 				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
+				//때려보기
 				if ( hitCharacter->HitDecision ( attackInfo , this ) )
-					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
+					sFrameStatus.FrameBlockUsing = attackInfo.OwnerHitFrame;
 				else
 					sFrameStatus.FrameBlockUsing = attackInfo.OwnerGuardFrame;
 			}
@@ -1044,6 +1053,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	}
 	else
 	{
+		// 아무도 안맞았을때
 		sFrameStatus.FrameBlockUsing = attackInfo.OwnerMissFrame;
 	}
 
