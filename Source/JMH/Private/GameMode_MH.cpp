@@ -93,7 +93,9 @@ void AGameMode_MH::BeginPlay()
 
 		maincamera = Cast<APlayerCameraPawn>(SpawnedCameraPawn);
 		playerA->SetMainCamera(maincamera);
+		playerA->aOpponentPlayer = playerB;
 		playerB->SetMainCamera(maincamera);
+		playerB->aOpponentPlayer = playerA;
 	}
 	//라운드 스코어 초기화
 	InitRoundState();
@@ -278,7 +280,7 @@ float AGameMode_MH::SetShakeIntensity(float Damage)
 	{
 		return 0.2f; // 약한 흔들림
 	}
-
+//일단 흔들리게만 하기... 
 	return 0.0f;
 }
 

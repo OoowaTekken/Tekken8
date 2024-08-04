@@ -36,7 +36,7 @@ public:
 	void CountDown(float DeltaTime);
 	
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
-	float initroundTimer  = 5.f;
+	float initroundTimer  = 60.f;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite)
 	float gameTimer = initroundTimer;

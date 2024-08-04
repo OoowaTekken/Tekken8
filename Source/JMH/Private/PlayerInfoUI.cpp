@@ -175,7 +175,6 @@ void UPlayerInfoUI::RequestShakeEffect(float ShakeIntensity)
 	{
 		ShakeEffect(ShakeIntensity);
 	}
-	
 }
 
 void UPlayerInfoUI::ShakeEffect(float Intensity)
@@ -192,11 +191,9 @@ void UPlayerInfoUI::ShakeEffect(float Intensity)
 		TimelineCallback.BindUFunction(this, FName("UpdateShakeEffect"));
 		ShakeTimeline->AddInterpFloat(ShakeCurve, TimelineCallback);
 	}
-
 	// 흔들림 강도 설정
 	ShakeAmount = Intensity;
 	ShakeTimeline->PlayFromStart();
-	
 }
 /*
 void UPlayerInfoUI::UpdateShakeEffect(float Value)
