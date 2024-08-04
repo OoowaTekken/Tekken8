@@ -171,8 +171,9 @@ public:
 
 	eHitDecision DefencePoint;
 
-	bool bCrouched;
-
+	bool bCrouched = 0;
+	bool bFalling = 0;
+	bool bNuckDown = 0;
 
 	/**
 	 * @title Next Location Data 처리

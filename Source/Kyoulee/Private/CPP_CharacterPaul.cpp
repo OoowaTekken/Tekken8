@@ -131,7 +131,7 @@ bool ACPP_CharacterPaul::PlayMontageFrameSystem ( UAnimMontage* montage )
 	if ( !uAnim || !montage )
 		return false;
 	UE_LOG(LogTemp,Warning,TEXT("Montage Start" ));
-	uAnim->Montage_Play ( montage, this->attackInfo.ActionFrame );
+	uAnim->Montage_Play ( montage );
 
 	return true;
 }
@@ -357,12 +357,12 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLPkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandSitJab );
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey } , downLPkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, downLPkey, downLPkey } );
-	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandEnd );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey, downLKkey } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandEnd );
 
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLKkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandSitSpineKick );
 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , downLKkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandDownCrouch );
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, downLKkey, downLKkey } );
-	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , LK , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandEnd );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey, downLKkey } , LK , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandEnd );
 
 
 	// Branch Add function 만들기 하나의 가지로 합쳐주는 함수이다.
@@ -559,6 +559,7 @@ void ACPP_CharacterPaul::CommandEnd ( )
 {
 	if ( DebugingMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandEnd Pressed" ) );
+	this->bCrouched = false;
 }
 
 
@@ -1040,7 +1041,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 			if ( hitActor->IsA<ACPP_Tekken8CharacterParent> ( ) )
 			{
 				ACPP_Tekken8CharacterParent* hitCharacter = Cast<ACPP_Tekken8CharacterParent> ( hitActor );
-				때려보기
+				//때려보기
 				if ( hitCharacter->HitDecision ( attackInfo , this ) )
 					sFrameStatus.FrameBlockUsing = attackInfo.OwnerHitFrame;
 				else

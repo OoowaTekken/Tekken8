@@ -29,5 +29,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite )
 	bool	bFalling;
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite )
+	bool	bNuckDown;
 };
