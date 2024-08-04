@@ -59,15 +59,18 @@ struct FAttackInfoInteraction
 public:
 	EDamagePointInteraction DamagePoint;
 
-	int32 DamageAmount;			// 공격 데미지
+
+	int32 DamageAmount;			// 공격 데미지랑
+	int32 HitFrame;				// 공격이 발생하는 시간
+	int32 AnimEndFrame;			// 공격 애니메이션이 끝나는 시간
 
 	int32 ActionFrame;
 	int32 RetrieveFrame;
 
 	int32 MissFrame;			// 빛나감
-	int32 HitFrame;				// 공격이 맞음
 	int32 GrardFrame;			// 공격이 막힘
 	int32 CounterFrame;			// 카운터 발생
+
 
 	FVector skellEffectLocation = FVector ( 0 );	// Effect Location 스킬 이펙트 및 콜리션 위치
 	FVector KnockBackDirection = FVector ( 0 );						// 넉백 수치 ( -1 , 1, z) : z = 높이 띄우는 값
@@ -160,7 +163,7 @@ public:
 	 * @brief 상대에 대한 정보
 	 */
 	UPROPERTY(EditDefaultsOnly)
-	ACharacter *aOpponentPlayer;
+	ACPP_Tekken8CharacterParent* aOpponentPlayer;
 	
 	bool SetMainCamera ( APlayerCameraPawn* mainCamera )
 	{

@@ -6,7 +6,7 @@
 #include "AIController.h"
 #include "AIStateAttackLF.h"
 #include "AIStateAttackRH.h"
-
+#include "AIStateComboLaserAttack.h"
 UBTTaskNode_ChangeAttack::UBTTaskNode_ChangeAttack ( )
 {
 
@@ -33,6 +33,10 @@ EBTNodeResult::Type UBTTaskNode_ChangeAttack::ExecuteTask ( UBehaviorTreeCompone
 			{
 				stateComponent = Enemy->GetAIStateAttackRH ( );
 			}
+			else if ( newStateClass == UAIStateComboLaserAttack::StaticClass ( ) )
+			{
+				stateComponent = Enemy->StateComboLaserAttack ( );
+			}
 
 			if ( stateComponent )
 			{
@@ -46,6 +50,11 @@ EBTNodeResult::Type UBTTaskNode_ChangeAttack::ExecuteTask ( UBehaviorTreeCompone
 				{
 					if ( !stateAttackRH->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted ) )
 						stateAttackRH->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted );
+				}
+				else if ( UAIStateComboLaserAttack* stateComboLaserAttack = Cast<UAIStateComboLaserAttack> ( stateComponent ) )
+				{
+					if ( !stateComboLaserAttack->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted ) )
+						stateComboLaserAttack->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted );
 				}
 
 				bIsWaitingForState = true;

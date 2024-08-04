@@ -13,9 +13,9 @@ UCLASS()
 class LSJ_API UAIStateHit : public UAIStateComponent
 {
 	GENERATED_BODY()
-	FAttackInfoInteraction attackInfo;
+
 public:
-	void SetAttackInfo( FAttackInfoInteraction pAttackInfo );
+	void SetAttackInfo( FAttackInfoInteraction& pAttackInfo );
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;

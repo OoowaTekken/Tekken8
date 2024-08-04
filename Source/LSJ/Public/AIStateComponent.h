@@ -17,20 +17,21 @@ class LSJ_API UAIStateComponent : public UActorComponent , public IAIStateInterf
 public:	
 	// Sets default values for this component's properties
 	UAIStateComponent();
-
+	TArray<struct FAttackInfoInteraction> attackInfoArray;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	class ACharacter* player;
-	class ACharacter* owner;
+	class AAICharacter* owner;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	virtual void AddAttackCount ( int32 amount );
+	virtual int32 GetAttackCount ( );
 	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance );
 	virtual void Execute ( const float& deltatime );
 	virtual void Exit ( );
-	virtual void SetStateOwner (class ACharacter* pOwner);
+	virtual void SetStateOwner (class AAICharacter* pOwner);
 
 		UPROPERTY(BlueprintAssignable)
     FOnStateWalkForwardComplete OnStateComplete;
