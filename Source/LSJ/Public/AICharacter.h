@@ -62,7 +62,13 @@ public:
 	class USphereComponent* collisionLF;
 	UPROPERTY ( EditDefaultsOnly )
 	class USphereComponent* collisionRF;
-
+	//몸체 콜리전
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionTop;
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionMiddle;
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionLower;
 
 protected:
 	// Called when the game starts or when spawned

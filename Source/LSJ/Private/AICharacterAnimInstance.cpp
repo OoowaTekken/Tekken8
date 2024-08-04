@@ -108,6 +108,10 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/Combo1.Combo1'" ) );
     if ( comboLaserMontageFinder.Succeeded ( ) )
         comboLaserMontage = comboLaserMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>hitFallingMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/Combo1.Combo1'" ) );
+    if ( hitFallingMontageFinder.Succeeded ( ) )
+        hitFallingMontage = hitFallingMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )

@@ -30,6 +30,8 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* hitTopMontage;
 		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* hitMiddleMontage;
+			UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* hitFallingMontage;
 	//콤보 레이저 몽타주 
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* comboLaserMontage;

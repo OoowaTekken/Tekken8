@@ -6,6 +6,7 @@
 #include "AICharacterAnimInstance.h"
 #include "AICharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UAIStateHit::SetAttackInfo ( FAttackInfoInteraction& pAttackInfo )
 {
@@ -24,6 +25,9 @@ void UAIStateHit::Enter ( UAICharacterAnimInstance* pAnimInstance )
 		animInstace->PlayHitTopMontage ( );
 	else
 		animInstace->PlayHitMiddleMontage();
+	if( attackInfoArray[0].DamageAmount ==10 )
+		//owner->GetCharacterMovement ( )->AddImpulse ( attackInfoArray[0].KnockBackDirection * 100.0f , true );
+		owner->LaunchCharacter ( attackInfoArray[0].KnockBackDirection, true , true );
 }
 
 void UAIStateHit::Execute ( const float& deltatime )
