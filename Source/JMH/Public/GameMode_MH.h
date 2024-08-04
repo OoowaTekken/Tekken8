@@ -172,6 +172,10 @@ public:
 	//Player 
 	UFUNCTION()
 	void CheckPlayerHP();
+
+	bool bHasRoundEnded;
+
+	FTimerHandle TimerHandle;
 	
 	UFUNCTION()
 	int32 GetPlayerHP(ACharacter* Player);
