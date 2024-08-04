@@ -111,7 +111,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category="UI")
 	void UpdateEndHP(float playerAHP, float playerBHP);
 
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void RequestShakeEffect(float ShakeIntensity);
+
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void ShakeEffect(float Intensity);
+
+	UPROPERTY()
+	class UTimelineComponent* ShakeTimeline;
 	
+	// 흔들림 강도
+	float ShakeAmount;
+	
+	// 흔들림 애니메이션을 위한 Curve
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	class UCurveFloat* ShakeCurve;
+
+public:
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	//void UpdateShakeEffect(float Value);
 
 	
 };

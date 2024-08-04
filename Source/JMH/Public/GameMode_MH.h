@@ -199,5 +199,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player,float NewHP);
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	float SetShakeIntensity(float Damage);
 	
 };

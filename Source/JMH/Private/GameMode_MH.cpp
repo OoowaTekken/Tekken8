@@ -264,6 +264,24 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 	}
 }
 
+float AGameMode_MH::SetShakeIntensity(float Damage)
+{
+	if (Damage >= 7.0f)
+	{
+		return 1.0f; // 강한 흔들림
+	}
+	else if (Damage >= 3.0f)
+	{
+		return 0.5f; // 중간 흔들림
+	}
+	else if (Damage > 0.0f)
+	{
+		return 0.2f; // 약한 흔들림
+	}
+
+	return 0.0f;
+}
+
 void AGameMode_MH::CheckRoundWinner()
 {
 	if (player1HP == player2HP)

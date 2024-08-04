@@ -7,10 +7,12 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/TimelineComponent.h"
 
 void UPlayerInfoUI::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 }
 
 void UPlayerInfoUI::SetPlayerinfo(ACharacter* PlayerA , ACharacter* PlayerB , int32 playerAnum , int32 playerBnum)
@@ -166,3 +168,45 @@ void UPlayerInfoUI::UpdateEndHP(float playerAHP , float playerBHP)
 		text_EndHPA->SetText(FText::FromString(BHPString));
 	}
 }
+
+void UPlayerInfoUI::RequestShakeEffect(float ShakeIntensity)
+{
+	if (ShakeIntensity > 0.0f)
+	{
+		ShakeEffect(ShakeIntensity);
+	}
+	
+}
+
+void UPlayerInfoUI::ShakeEffect(float Intensity)
+{
+	// 흔들림 애니메이션을 위해 간단한 Timeline을 사용할 수 있습니다.
+	if (ShakeTimeline == nullptr)
+	{
+		// Timeline 생성 및 설정
+		ShakeTimeline = NewObject<UTimelineComponent>(this);
+		ShakeTimeline->RegisterComponent();
+		ShakeTimeline->SetTimelineLength(0.5f); // 애니메이션 지속 시간 설정
+
+		FOnTimelineFloat TimelineCallback;
+		TimelineCallback.BindUFunction(this, FName("UpdateShakeEffect"));
+		ShakeTimeline->AddInterpFloat(ShakeCurve, TimelineCallback);
+	}
+
+	// 흔들림 강도 설정
+	ShakeAmount = Intensity;
+	ShakeTimeline->PlayFromStart();
+	
+}
+/*
+void UPlayerInfoUI::UpdateShakeEffect(float Value)
+{
+	if (Pro_HPBarA)
+	{
+		Pro_HPBarA->SetRenderTranslation(FVector2D(FMath::Sin(Value * PI) * ShakeAmount, 0));
+	}
+	if (Pro_HPBarB)
+	{
+		Pro_HPBarB->SetRenderTranslation(FVector2D(FMath::Sin(Value * PI) * ShakeAmount, 0));
+	}
+}*/
