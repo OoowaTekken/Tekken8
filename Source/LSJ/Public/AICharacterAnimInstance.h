@@ -66,6 +66,7 @@ public:
     UFUNCTION()
     virtual void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 	virtual void PlayComboLaserMontage ( );
+	virtual void PlayHitFallingMontage ( );
 	virtual void PlayHitTopMontage ( );
 	virtual void PlayHitMiddleMontage ( );
 	virtual void PlayerWalkForwardMontage();

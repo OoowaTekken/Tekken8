@@ -20,6 +20,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
+#include "AIStateHitFalling.h"
 
 
 // Sets default values
@@ -88,22 +89,24 @@ AAICharacter::AAICharacter()
 	stateAttackRH->SetStateOwner ( this );
 	stateHit=CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
 	stateHit->SetStateOwner ( this );
+	stateHitFalling = CreateDefaultSubobject<UAIStateHitFalling> ( TEXT ( "stateHitFalling" ) );
+	stateHitFalling->SetStateOwner ( this );
 	stateComboLaserAttack = CreateDefaultSubobject<UAIStateComboLaserAttack> ( TEXT ( "stateComboLaserAttack" ));
 	FAttackInfoInteraction attack1;
-	attack1.KnockBackDirection = FVector (-250.f,0.f,0.f); //0.5 뒤로 밀려난다 5*50 = -250.0f
+	attack1.KnockBackDirection = FVector (250.f,0.f,0.f); //-0.5 뒤로 밀려난다 5*50 = 250.0f
 	attack1.DamageAmount = 10;
 	attack1.DamagePoint = EDamagePointInteraction::Middle;
 	attack1.HitFrame=23;
-	attack1.AnimEndFrame = 43;
+	attack1.RetrieveFrame = 43;
 	attack1.OwnerGuardFrame = -12;
 	attack1.OppositeHitFrame = 101;
 	attack1.OppositeCounterFrame = 101;
 	FAttackInfoInteraction attack2;
-	attack2.KnockBackDirection = FVector ( -11.f , 0.f , 10.f );
+	attack2.KnockBackDirection = FVector ( 110.f * 50.f , 0.f , 10.f * 50.f); //-11.f , 0.f , 10.f 
 	attack2.DamageAmount = 12;
 	attack2.DamagePoint = EDamagePointInteraction::Middle;
 	attack2.HitFrame = 49;
-	attack2.AnimEndFrame = 75;
+	attack2.RetrieveFrame = 75;
 	attack2.OwnerGuardFrame = -12;
 	attack2.OppositeHitFrame = 101;
 	attack2.OppositeCounterFrame = 101;
@@ -171,6 +174,8 @@ void AAICharacter::Tick(float DeltaTime)
 	//회전
 	if ( bLookTarget )
 	{
+		targetRotator.Roll = GetActorRotation ( ).Roll;
+		targetRotator.Pitch = GetActorRotation ( ).Pitch;
 		SetActorRotation ( FMath::RInterpTo ( GetActorRotation ( ) , targetRotator , DeltaTime , 50.0f ) );
 		if ( bLookTarget && FMath::Abs ( targetRotator.Yaw - GetActorRotation ( ).Yaw ) < 0.1 )
 			bLookTarget = false;
@@ -215,6 +220,8 @@ void AAICharacter::ExitCurrentState ( ECharacterStateInteraction state)
 	if ( currentState ) {
 		currentState->Exit ( );
 	}
+	if( state == ECharacterStateInteraction::HitFalling )
+		ChangeState(stateIdle);
 }
 
 void AAICharacter::OnAttackCollisionLF ( )
@@ -389,9 +396,17 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 	if ( blackboardComp )
 	{
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
-		stateHit->SetAttackInfo ( attackInfo );
-		UE_LOG(LogTemp,Error,TEXT("%d"),attackInfo.DamageAmount);
-		blackboardComp->SetValueAsBool ( TEXT ( "IsHit" ) , true ); // 원하는 값을 설정
+		if ( attackInfo.KnockBackDirection.Z > 0 || currentState==stateHitFalling)
+		{
+			stateHitFalling->SetAttackInfo ( attackInfo );
+			blackboardComp->SetValueAsBool ( TEXT ( "IsHitFalling" ) , true ); // 원하는 값을 설정
+		}
+		else
+		{
+			stateHit->SetAttackInfo ( attackInfo );
+			blackboardComp->SetValueAsBool ( TEXT ( "IsHit" ) , true ); // 원하는 값을 설정
+		}
+		
 		OnHit.Broadcast ( );
 	}
 

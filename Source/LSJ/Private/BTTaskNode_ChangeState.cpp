@@ -11,6 +11,7 @@
 #include "AIStateIdle.h"
 #include "AIStateHit.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AIStateHitFalling.h"
 UBTTaskNode_ChangeState::UBTTaskNode_ChangeState ( )
 {
 	
@@ -45,6 +46,10 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 			{
 				currentState = Enemy->GetAIStateHit ( );
 			}
+			else if ( newStateClass == UAIStateHitFalling::StaticClass ( ) )
+			{
+				currentState = Enemy->GetAIStateHitFalling ( );
+			}
 			if ( currentState )
 			{
 				// 상태 완료시 호출될 델리게이트 바인딩
@@ -70,7 +75,11 @@ EBTNodeResult::Type UBTTaskNode_ChangeState::ExecuteTask ( UBehaviorTreeComponen
 					if ( !stateHit->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
 						stateHit->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
 				}
-
+				else if ( UAIStateHitFalling* stateHitFalling = Cast<UAIStateHitFalling> ( currentState ) )
+				{
+					if ( !stateHitFalling->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeState::OnStateCompleted ) )
+						stateHitFalling->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeState::OnStateCompleted );
+				}
 				bIsWaitingForState = true;
 				cachedOwnerComp = &OwnerComp;
 				Enemy->ChangeState ( Cast<IAIStateInterface> ( currentState ) );

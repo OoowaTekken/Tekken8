@@ -109,7 +109,7 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( comboLaserMontageFinder.Succeeded ( ) )
         comboLaserMontage = comboLaserMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitFallingMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/Combo1.Combo1'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/FallBack1_Montage.FallBack1_Montage'" ) );
     if ( hitFallingMontageFinder.Succeeded ( ) )
         hitFallingMontage = hitFallingMontageFinder.Object;
 }
@@ -165,12 +165,21 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
         {
             owner->ExitCurrentState ( ECharacterStateInteraction::HitGround );
         }
+		 else if ( Montage == hitFallingMontage )
+		 {
+			 owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+		 }
     }
 }
 
 void UAICharacterAnimInstance::PlayComboLaserMontage()
 {
     Montage_Play(comboLaserMontage);
+}
+
+void UAICharacterAnimInstance::PlayHitFallingMontage ( )
+{
+    Montage_Play ( hitFallingMontage,0.5f);
 }
 
 void UAICharacterAnimInstance::PlayHitTopMontage ( )
