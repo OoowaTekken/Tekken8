@@ -26,6 +26,9 @@ public:
 
 	UFUNCTION()
 	void UpdateTimerDisplay(float TimerValue);
+
+	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
+	class UPlayerInfoUI* WBP_PlayerInfo;
 	
 	/*
 	

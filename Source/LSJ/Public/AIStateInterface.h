@@ -21,8 +21,11 @@ class LSJ_API IAIStateInterface
 	GENERATED_BODY()
 protected:
 	class UAICharacterAnimInstance* animInstace;
+	int32 attackCount;
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void AddAttackCount ( int32 amount )=0;
+	virtual int32 GetAttackCount ( )=0;
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) = 0;
 	virtual void Execute ( const float& deltatime ) = 0;
 	virtual void Exit ( ) = 0;

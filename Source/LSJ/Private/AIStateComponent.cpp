@@ -3,15 +3,14 @@
 
 #include "AIStateComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
-#include "CPP_CharacterPaul.h"
+#include "AICharacter.h"
 // Sets default values for this component's properties
 UAIStateComponent::UAIStateComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
+	attackCount = 0;
 	// ...
 }
 
@@ -22,8 +21,6 @@ void UAIStateComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-
-	player = UGameplayStatics::GetPlayerCharacter(GetWorld(),0);
 }
 
 
@@ -35,11 +32,20 @@ void UAIStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
+void UAIStateComponent::AddAttackCount ( int32 amount )
+{
+	attackCount += amount;
+}
+
+int32 UAIStateComponent::GetAttackCount ( )
+{
+	return attackCount;
+}
+
 void UAIStateComponent::Enter ( class UAICharacterAnimInstance* pAnimInstance )
 {
 	SetComponentTickEnabled ( true );
 	animInstace = pAnimInstance;
-	player = Cast<ACharacter>(UGameplayStatics::GetActorOfClass ( GetWorld ( ) , ACPP_CharacterPaul::StaticClass ( ) ));
 }
 
 void UAIStateComponent::Execute ( const float& deltatime )
@@ -50,11 +56,11 @@ void UAIStateComponent::Execute ( const float& deltatime )
 void UAIStateComponent::Exit ( )
 {
 	SetComponentTickEnabled ( false );
-	//if( OnStateComplete .IsBound())
+	attackCount = 0;
 	OnStateComplete.Broadcast ( );
 }
 
-void UAIStateComponent::SetStateOwner (ACharacter* pOwner )
+void UAIStateComponent::SetStateOwner ( AAICharacter* pOwner )
 {
 	owner = pOwner;
 }

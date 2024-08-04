@@ -7,6 +7,7 @@
 #include "CPP_Tekken8CharacterParent.h"
 #include "AICharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE ( FOnHit );
 UCLASS()
 class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 {
@@ -25,7 +26,8 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	class UAIStateWalkBack* stateWalkBack;
 	UPROPERTY ( )
 	class UAIStateWalkForward* stateWalkForward;
-
+	UPROPERTY ( )
+	class UAIStateHitFalling* stateHitFalling;
 
 	UPROPERTY ( )
 	class UAIStateAttackLF* stateAttackLF;
@@ -35,7 +37,12 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	class UAIStateIdle* stateIdle;
 	UPROPERTY ( )
 	class UAIStateHit* stateHit;
+	UPROPERTY ( )
+	class UAIStateComboLaserAttack* stateComboLaserAttack;
 	bool IsPlayer1;
+
+	class AAICharacterController* aiController;
+	class UBlackboardComponent* blackboardComp;
 public:
 	// Sets default values for this character's properties
 	AAICharacter();
@@ -45,16 +52,25 @@ public:
 	void StateAttackLF ( class UAIStateAttackLF* val ) { stateAttackLF = val; }
 	class UAIStateAttackRH* GetAIStateAttackRH ( ) const { return stateAttackRH; }
 	void StateAttackRH ( class UAIStateAttackRH* val ) { stateAttackRH = val; }
-
+	class UAIStateComboLaserAttack* StateComboLaserAttack ( ) const { return stateComboLaserAttack; }
+	void StateComboLaserAttack ( class UAIStateComboLaserAttack* val ) { stateComboLaserAttack = val; }
 	//공격 콜리전
-	UPROPERTY ( )
+	UPROPERTY (EditDefaultsOnly)
 	class USphereComponent* collisionLH;
-	UPROPERTY ( )
+	UPROPERTY ( EditDefaultsOnly )
 	class USphereComponent* collisionRH;
-	UPROPERTY ( )
+	UPROPERTY ( EditDefaultsOnly )
 	class USphereComponent* collisionLF;
-	UPROPERTY ( )
+	UPROPERTY ( EditDefaultsOnly )
 	class USphereComponent* collisionRF;
+	//몸체 콜리전
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionTop;
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionMiddle;
+	UPROPERTY ( EditDefaultsOnly )
+	class UBoxComponent* collisionLower;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -66,14 +82,16 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ChangeState (class IAIStateInterface* NewState );
 	void UpdateState ( const float& deltatime );
-	void ExitCurrentState ();
+	void ExitCurrentState (ECharacterStateInteraction state );
 
 	// 상태 이동 객체에 대한 접근 메서드 추가
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
 	UAIStateWalkBack* GetAIStateWalkBack ( ) const { return stateWalkBack; }
 	UAIStateRun* GetAIStateRun ( ) const { return stateRun; }
 	UAIStateBackDash* GetAIStateBackDash ( ) const { return stateBackDash; }
-
+	UAIStateHit* GetAIStateHit ( ) const { return stateHit; }
+	UAIStateHitFalling* GetAIStateHitFalling ( ) const { return stateHitFalling; }
+	
 	//공격 콜리전 켜기 끄기
 	void OnAttackCollisionLF();
 	void OnAttackCollisionRF ( );
@@ -85,6 +103,7 @@ public:
 	void OffAttackCollisionLH ( );
 	void OffAttackCollisionRH ( );
 	bool IsAttacked;
+
 	//공격 콜리전 Overlap
 	UFUNCTION()
 	virtual void OnCollisionLHBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -95,4 +114,25 @@ public:
 	UFUNCTION()
 	virtual void OnCollisionLFBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer );
+	//공격 상태에 따른 공격정보 전달 함수
+	//공격 상태에 몇번째 공격인지 count 변수로 구별하고 count에 해당하는 FAttackInfoInteraction정보를 전달한다.
+	//count 변수는 콜리전을 끌때 count ++해서 공격상태 count에 전달한다
+	virtual FAttackInfoInteraction SendAttackInfo();
+	//공격 count를 0으로 만들기
+	virtual void CurrentAttackCountToZero();
+	//회전
+	bool bLookTarget;
+	FRotator targetRotator;
+	virtual void LookTarget(const float& deltaTime, FRotator& rotator);
+
+	//상체 콜리전 Overlap
+	UFUNCTION()
+	virtual void OnHitBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	//공격받았을때 델리게이트 
+	UPROPERTY(BlueprintAssignable)
+    FOnHit OnHit;
+	UBlackboardComponent* GetBlackboardComponent()
+	{
+		return blackboardComp;
+	};
 };
