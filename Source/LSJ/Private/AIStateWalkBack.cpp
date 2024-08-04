@@ -4,9 +4,9 @@
 #include "AIStateWalkBack.h"
 #include "AICharacterAnimInstance.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "AICharacter.h"
 
 
 
@@ -18,7 +18,7 @@ void UAIStateWalkBack::SetDistance ( float pDistance )
 void UAIStateWalkBack::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter ( pAnimInstance );
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , owner->aOpponentPlayer->GetActorLocation ( ) );
 	owner->SetActorRotation (lookPlayerRotator);
 	animInstace->PlayerWalkBackMontage();
 	animInstace->StateWalkBack ( true );

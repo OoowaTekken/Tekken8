@@ -3,19 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CPP_Tekken8CharacterParent.h"
 #include "AIStateComponent.h"
-#include "AIStateHit.generated.h"
+#include "AIStateComboLaserAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAIStateHit : public UAIStateComponent
+class LSJ_API UAIStateComboLaserAttack : public UAIStateComponent
 {
 	GENERATED_BODY()
-
+	
+	class AAICharacter* aiCharacter;
+	FRotator lookPlayerRotator;
 public:
-	void SetAttackInfo( FAttackInfoInteraction& pAttackInfo );
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;

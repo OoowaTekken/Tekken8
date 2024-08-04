@@ -4,13 +4,13 @@
 #include "AIStateBackDash.h"
 #include "AICharacterAnimInstance.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AICharacter.h"
 
 void UAIStateBackDash::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter ( pAnimInstance );
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , player->GetActorLocation ( ) );
+	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , owner->aOpponentPlayer->GetActorLocation ( ) );
 	dashLocation = owner->GetActorForwardVector ( ) * -1.0f * 50.f;
 	startLocation = owner->GetActorLocation ( );
 	//owner->LaunchCharacter ( owner->GetActorForwardVector()*-1.0f*1000.0f , true , false );
