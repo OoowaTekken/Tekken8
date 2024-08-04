@@ -91,4 +91,10 @@ public:
 	//notify
 	UFUNCTION ()
 	void AnimNotify_LookTarget ();
+	UFUNCTION ( )
+	void AnimNotify_Move ( );
+	UFUNCTION ( )
+	void AnimNotify_MoveEnd ( );
+	UFUNCTION ( )
+	void AnimNotify_Laser ( );
 };

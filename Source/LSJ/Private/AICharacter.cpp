@@ -105,7 +105,7 @@ AAICharacter::AAICharacter()
 	attack1.OppositeHitFrame = 101;
 	attack1.OppositeCounterFrame = 101;
 	FAttackInfoInteraction attack2;
-	attack2.KnockBackDirection = FVector ( 110.f * 50.f , 0.f , 10.f * 50.f); //-11.f , 0.f , 10.f 
+	attack2.KnockBackDirection = FVector ( 1000.f * 50.f , 0.f , 10.f * 50.f); //-11.f , 0.f , 10.f 
 	attack2.DamageAmount = 12;
 	attack2.DamagePoint = EDamagePointInteraction::Middle;
 	attack2.HitFrame = 49;
@@ -113,8 +113,78 @@ AAICharacter::AAICharacter()
 	attack2.OwnerGuardFrame = -12;
 	attack2.OppositeHitFrame = 101;
 	attack2.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack3;
+	attack3.KnockBackDirection = FVector ( 200.f , 0.f , 0.f ); //-0.5 보다 적게 예상 4*
+	attack3.DamageAmount = 5;
+	attack3.DamagePoint = EDamagePointInteraction::Middle;
+	attack3.HitFrame = 49;
+	attack3.RetrieveFrame = 75;
+	attack3.OwnerGuardFrame = -12;
+	attack3.OppositeHitFrame = 101;
+	attack3.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack4;
+	attack4.KnockBackDirection = FVector ( 150.f , 0.f , 0.f ); //-0.5 보다 적게 예상 3*
+	attack4.DamageAmount = 8;
+	attack4.DamagePoint = EDamagePointInteraction::Middle;
+	attack4.HitFrame = 49;
+	attack4.RetrieveFrame = 75;
+	attack4.OwnerGuardFrame = -12;
+	attack4.OppositeHitFrame = 101;
+	attack4.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack5;
+	attack5.KnockBackDirection = FVector ( 200.f , 0.f , 40.f ); // 2,0,4
+	attack5.DamageAmount = 18;
+	attack5.DamagePoint = EDamagePointInteraction::Middle;
+	attack5.HitFrame = 49;
+	attack5.RetrieveFrame = 75;
+	attack5.OwnerGuardFrame = -12;
+	attack5.OppositeHitFrame = 101;
+	attack5.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack6;
+	attack6.KnockBackDirection = FVector ( 200.f , 0.f , 50.f ); //-0.5 보다 적게 예상 3*
+	attack6.DamageAmount = 25;
+	attack6.DamagePoint = EDamagePointInteraction::Middle;
+	attack6.HitFrame = 49;
+	attack6.RetrieveFrame = 75;
+	attack6.OwnerGuardFrame = -12;
+	attack6.OppositeHitFrame = 101;
+	attack6.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack7;
+	attack7.KnockBackDirection = FVector ( 300.f , 0.f , 40.f ); //-0.5 보다 적게 예상 3*
+	attack7.DamageAmount = 5;
+	attack7.DamagePoint = EDamagePointInteraction::Middle;
+	attack7.HitFrame = 49;
+	attack7.RetrieveFrame = 75;
+	attack7.OwnerGuardFrame = -12;
+	attack7.OppositeHitFrame = 101;
+	attack7.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack8;
+	attack8.KnockBackDirection = FVector ( 300.f , 0.f , 100.f ); // 2,0,4
+	attack8.DamageAmount = 8;
+	attack8.DamagePoint = EDamagePointInteraction::Middle;
+	attack8.HitFrame = 49;
+	attack8.RetrieveFrame = 75;
+	attack8.OwnerGuardFrame = -12;
+	attack8.OppositeHitFrame = 101;
+	attack8.OppositeCounterFrame = 101;
+	FAttackInfoInteraction attack9;
+	attack9.KnockBackDirection = FVector ( 300.f , 0.f , 50.f ); //-0.5 보다 적게 예상 3*
+	attack9.DamageAmount = 25;
+	attack9.DamagePoint = EDamagePointInteraction::Middle;
+	attack9.HitFrame = 49;
+	attack9.RetrieveFrame = 75;
+	attack9.OwnerGuardFrame = -12;
+	attack9.OppositeHitFrame = 101;
+	attack9.OppositeCounterFrame = 101;
 	stateComboLaserAttack->attackInfoArray.Add(attack1);
 	stateComboLaserAttack->attackInfoArray.Add(attack2);
+	stateComboLaserAttack->attackInfoArray.Add(attack3);
+	stateComboLaserAttack->attackInfoArray.Add(attack4);
+	stateComboLaserAttack->attackInfoArray.Add(attack5);
+	stateComboLaserAttack->attackInfoArray.Add(attack6);
+	stateComboLaserAttack->attackInfoArray.Add(attack7);
+	stateComboLaserAttack->attackInfoArray.Add(attack8);
+	stateComboLaserAttack->attackInfoArray.Add(attack9);
 	stateComboLaserAttack->SetStateOwner ( this );
 	
 	//중력적용
@@ -187,7 +257,7 @@ void AAICharacter::Tick(float DeltaTime)
 	if ( GetCharacterMovement ( )->IsFalling ( ) )
 	{
 		FVector Gravity = FVector ( 0 , 0 , -980 ); // 기본 중력 값
-		AddMovementInput ( Gravity * DeltaTime);
+		AddMovementInput ( Gravity * DeltaTime,true);
 	}
 
 
@@ -401,15 +471,20 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 	if ( blackboardComp )
 	{
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
-		if ( attackInfo.KnockBackDirection.Z > 0 || currentState==stateHitFalling)
+		if ( attackInfo.KnockBackDirection.Z > 0 || currentState == stateBound || currentState == stateHitFalling )
 		{
 			stateHitFalling->SetAttackInfo ( attackInfo );
-			blackboardComp->SetValueAsBool ( TEXT ( "IsHitFalling" ) , true ); // 원하는 값을 설정
+			blackboardComp->SetValueAsBool ( TEXT ( "IsHitFalling" ) , true );
 		}
+		/*else if ( )
+		{
+			stateBound->SetAttackInfo ( attackInfo );
+			blackboardComp->SetValueAsBool ( TEXT ( "IsBound" ) , true );
+		}*/
 		else
 		{
 			stateHit->SetAttackInfo ( attackInfo );
-			blackboardComp->SetValueAsBool ( TEXT ( "IsHit" ) , true ); // 원하는 값을 설정
+			blackboardComp->SetValueAsBool ( TEXT ( "IsHit" ) , true );
 		}
 		
 		OnHit.Broadcast ( );

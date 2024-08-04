@@ -86,6 +86,8 @@ public:
 	void ExitCurrentState (ECharacterStateInteraction state );
 
 	// 상태 이동 객체에 대한 접근 메서드 추가
+	IAIStateInterface* GetCurrentState ( ) const { return currentState; }
+	UAIStateIdle* GetAIStateIdle ( ) const { return stateIdle; }
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
 	UAIStateWalkBack* GetAIStateWalkBack ( ) const { return stateWalkBack; }
 	UAIStateRun* GetAIStateRun ( ) const { return stateRun; }
@@ -136,4 +138,6 @@ public:
 	{
 		return blackboardComp;
 	};
+
+	FVector direction;
 };
