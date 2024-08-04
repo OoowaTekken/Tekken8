@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode_MH.h"
+#include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -55,18 +56,29 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 
 	if ( this->fCurrTimeForFrame > this->fFrameTime )
 	{
+		AnimationFrame ( );
 		this->currKeyValue = this->GetCurrInputKeyValue ( );
 		this->fCurrTimeForFrame = 0;
 		sFrameStatus.FrameBlockUsing--;
 		sFrameStatus.FrameUsing--;
 		attackInfo.ActionFrame--;
+ 		if (attackInfo.ActionFrame > 0 )
+			eCharacterState = ECharacterStateInteraction::AttackLower;
+// 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Action Frame : %d"), attackInfo.ActionFrame )  );
+		if (sFrameStatus.FrameBlockUsing > 0 )
+		{
+			eCharacterState = ECharacterStateInteraction::HitFalling;
+// 			if ( GameModeMH->Player1 == this )
+// 				GEngine->AddOnScreenDebugMessage ( -1 , 2.0f , FColor::Red , FString::Printf ( TEXT ( "Block Frame Attack : %d" ) , sFrameStatus.FrameBlockUsing ) );
+// 			if ( GameModeMH->Player1 != this )
+// 				GEngine->AddOnScreenDebugMessage (-1 , 2.0f , FColor::Blue , FString::Printf ( TEXT ( "Block Frame Defence : %d" ) , sFrameStatus.FrameBlockUsing ), false);
+		}
 		if ( attackInfo.ActionFrame == 0 )
 		{
 			this->CommentHitFrameExecute ();
 		}
 		iCurrFrame++;
 
-		AnimationFrame ( );
 		if ( this->sFrameStatus.FrameBlockUsing < 0 )
 			this->FrameSystem ( );
  	}
@@ -82,15 +94,14 @@ void ACPP_CharacterPaul::FrameSystem ( )
 		this->CommandIdle ( );
 		return;
 	}
+	else
+		this->CountIdleFrame = 0;
+
 	if ( currKeyValue  ==  InputKeyValue(0,true,0,0,0))
 		iCurrFrame = 0;
+
 	FCommandTree* temptree = this->mCurrCommandTree[currKeyValue];
-	if ( !(temptree->timingStart <= iCurrFrame) )
-	{
-		this->CommandIdle ( );
-		return;
-	}
-	if ( temptree->timingEnd && iCurrFrame > temptree->timingEnd )
+	if ( (!(temptree->timingStart <= iCurrFrame)) || (temptree->timingEnd && iCurrFrame > temptree->timingEnd) )
 	{
 		this->CommandIdle ( );
 		return;
@@ -116,21 +127,22 @@ void ACPP_CharacterPaul::FrameSystem ( )
 
 void ACPP_CharacterPaul::SetAttackInfoOwnerOpposite ( )
 {
-	attackInfo.OwnerHitFrame = attackInfo.RetrieveFrame + attackInfo.HitFrame < 0 ? attackInfo.HitFrame * -1 : 0;
+	attackInfo.OwnerHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame < 0 ? attackInfo.HitFrame * -1 : 0);
 	attackInfo.OwnerGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame < 0 ? attackInfo.GrardFrame * -1 : 0);
-	attackInfo.OwnerCounterFrame = attackInfo.RetrieveFrame + attackInfo.CounterFrame < 0 ? attackInfo.CounterFrame * -1 : 0;
-	attackInfo.OwnerMissFrame = attackInfo.RetrieveFrame + attackInfo.MissFrame < 0 ? attackInfo.MissFrame * -1 : 0;
+	attackInfo.OwnerCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame < 0 ? attackInfo.CounterFrame * -1 : 0);
+	attackInfo.OwnerMissFrame = attackInfo.RetrieveFrame + (attackInfo.MissFrame < 0 ? attackInfo.MissFrame * -1 : 0);
 
-	attackInfo.OppositeHitFrame = attackInfo.RetrieveFrame + attackInfo.HitFrame > 0 ? attackInfo.HitFrame : 0;
-	attackInfo.OppositeGuardFrame = attackInfo.RetrieveFrame + attackInfo.GrardFrame > 0 ? attackInfo.GrardFrame : 0;
-	attackInfo.OppositeCounterFrame = attackInfo.RetrieveFrame + attackInfo.CounterFrame > 0 ? attackInfo.CounterFrame : 0;
+	attackInfo.OppositeHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame > 0 ? attackInfo.HitFrame : 0);
+	attackInfo.OppositeGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame > 0 ? attackInfo.GrardFrame : 0);
+	attackInfo.OppositeCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame > 0 ? attackInfo.CounterFrame : 0);
 }
 
 bool ACPP_CharacterPaul::PlayMontageFrameSystem ( UAnimMontage* montage )
 {
 	if ( !uAnim || !montage )
 		return false;
-	UE_LOG(LogTemp,Warning,TEXT("Montage Start" ));
+	if (DebugMode )
+		UE_LOG(LogTemp,Warning,TEXT("Montage Start" ));
 	uAnim->Montage_Play ( montage );
 
 	return true;
@@ -523,12 +535,14 @@ void ACPP_CharacterPaul::CommandIdle ( )
 	//this->uCharacterMesh->SetRelativeScale3D ( FVector ( 1 , 1 , 1 ) );
 	this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -90 ) );
 
+	this->eCharacterState = ECharacterStateInteraction::GuardStand;
 	if ( this->CountIdleFrame > 3 )
 	{
 		this->CountIdleFrame = 0;
 		if ( DebugMode )
 			UE_LOG ( LogTemp , Warning , TEXT ( "Clean Command" ) );
 
+		this->bCrouched = false;
 		this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
 		this->sCurrCommand = mBaseCommandTree[0];
 		return;
@@ -638,6 +652,7 @@ void ACPP_CharacterPaul::CommandDownCrouch ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandDownCrouch Pressed" ) );
 
+	this->eCharacterState = ECharacterStateInteraction::GuardSit;
 	this->bCrouched = true;
 	//this->GetCapsuleComponent ( )->SetWorldScale3D ( FVector ( 0.1 , 0.6 , 0.1 ) );
 	//this->uCharacterMesh->SetRelativeLocation ( FVector ( 0 , 0 , -130 ) );
@@ -648,6 +663,8 @@ void ACPP_CharacterPaul::CommandUpCrouch ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandUpCrouch Pressed" ) );
+
+	this->eCharacterState = ECharacterStateInteraction::Up;
 
 	CountStarFrame = 10;
 }
@@ -684,12 +701,12 @@ void ACPP_CharacterPaul::CommandLeadJab ( )
 	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
-	attackInfo.HitFrame = 1;
-	attackInfo.GrardFrame = 8;
+	attackInfo.HitFrame = 8;
+	attackInfo.GrardFrame = 1;
 	attackInfo.CounterFrame = 8;
 	
 	attackInfo.skellEffectLocation = this->RelativePointVector ( 90 , 5 , 50 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 140 , 0 , 0 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 300 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 	
@@ -720,12 +737,12 @@ void ACPP_CharacterPaul::CommandCrossStaight ( )
 	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
-	attackInfo.HitFrame = 0;
-	attackInfo.GrardFrame = 6;
+	attackInfo.HitFrame = 6;
+	attackInfo.GrardFrame = 0;
 	attackInfo.CounterFrame = 6;
 
 
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , 60 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 90 , -5 , 60 );
 	attackInfo.KnockBackDirection = this->RelativePointVector ( 160 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
@@ -760,8 +777,8 @@ void ACPP_CharacterPaul::CommandJingun ( )
 	attackInfo.HitFrame = -1;
 	attackInfo.GrardFrame = -12;
 	attackInfo.CounterFrame = -1;
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 170 , 5 , 00 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 180 , 0 , 0 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 100 , 5 , 00 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 150 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -789,11 +806,11 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
-	attackInfo.HitFrame = 4;
-	attackInfo.GrardFrame = 14;
+	attackInfo.HitFrame = 14;
+	attackInfo.GrardFrame = 4;
 	attackInfo.CounterFrame = 57;
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 160 , -5 , 60 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 180 , 0 , 0 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , 60 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 150 , 0 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -844,6 +861,7 @@ void ACPP_CharacterPaul::CommandBungGuan ( )
 	this->sFrameStatus.FrameUsing = attackInfo.ActionFrame;
 }
 
+
 void ACPP_CharacterPaul::CommandJinJee ( )
 {
 	if ( DebugMode )
@@ -856,15 +874,15 @@ void ACPP_CharacterPaul::CommandJinJee ( )
 	attackInfo.DamageAmount = 20;
 
 	attackInfo.ActionFrame = 5;
-	attackInfo.RetrieveFrame = 35;
+	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
 	attackInfo.HitFrame = 15;
 	attackInfo.GrardFrame = -14;
 	attackInfo.CounterFrame = 0;
 
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 80 , -5 , 10 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 200 , 0 , 300 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 50 , -5 , 10 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 10 , 0 , 300 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -893,7 +911,7 @@ void ACPP_CharacterPaul::CommandSitJab( )
 	attackInfo.DamageAmount = 15;
 
 	attackInfo.ActionFrame = 4;
-	attackInfo.RetrieveFrame = 15;
+	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
 	attackInfo.HitFrame = 10;
@@ -929,15 +947,15 @@ void ACPP_CharacterPaul::CommandSitSpineKick ( )
 	attackInfo.DamageAmount = 15;
 
 	attackInfo.ActionFrame = 4;
-	attackInfo.RetrieveFrame = 15;
+	attackInfo.RetrieveFrame = 5;
 
 	attackInfo.MissFrame = 0;
 	attackInfo.HitFrame = 10;
 	attackInfo.GrardFrame = -5;
 	attackInfo.CounterFrame = 6;
 
-	attackInfo.skellEffectLocation = this->RelativePointVector ( 140 , -5 , -40 );
-	attackInfo.KnockBackDirection = this->RelativePointVector ( 160 , -5 , 0 );
+	attackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , -40 );
+	attackInfo.KnockBackDirection = this->RelativePointVector ( 140 , -5 , 0 );
 
 	this->SetAttackInfoOwnerOpposite ( ); // 내부 owner frame opposite frame 자동 세팅용 함수
 
@@ -945,7 +963,7 @@ void ACPP_CharacterPaul::CommandSitSpineKick ( )
 	attackInfo.cameraZoom = 0;
 	attackInfo.cameraDelay = 0;
 
-	this->SetToLocationPoint ( 10 , 0 , 0 );
+	this->SetToLocationPoint ( 0 , 0 , 0 );
 
 	// 애니매이션 실행 부분
 	PlayMontageFrameSystem ( uMtgSitSpineKick );
@@ -958,6 +976,7 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandAllStop Pressed" ) );
 	this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
+	attackInfo.ActionFrame = -1;
 	return 0;
 }
 
@@ -973,30 +992,40 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection / 4 );
+		this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ));
 		// defense animation 추가하기
 		PlayMontageFrameSystem ( uMtgDefence );
+		// 디펜스 파티클
 
+		if ( uNS_DefenceEffect )
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), uNS_DefenceEffect, attackInfoHit.skellEffectLocation );
 		return false;
 	}
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Middle && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection / 4 );
+		this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ) );
 		// defense animation 추가하기
 		if (this->bCrouched )
 			PlayMontageFrameSystem ( uMtgSitDefence );
 		else
 			PlayMontageFrameSystem ( uMtgDefence );
 
+		if ( uNS_DefenceEffect )
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , uNS_DefenceEffect , attackInfoHit.skellEffectLocation );
+
 		return false;
 	}
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Lower && this->eCharacterState == ECharacterStateInteraction::GuardSit )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection / 4 );
+		this->SetToWorldLocationPoint ( ( attackInfoHit.KnockBackDirection - this->GetActorLocation ( ) ) / 2 + this->GetActorLocation ( ) );
 		// defense animation 추가하기
 		PlayMontageFrameSystem ( uMtgSitDefence );
+
+		if ( uNS_DefenceEffect )
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , uNS_DefenceEffect , attackInfoHit.skellEffectLocation );
+
 		return false;
 	}
 	this->SetActorRotation ( UKismetMathLibrary::FindLookAtRotation ( this->GetActorLocation ( ) , this->aOpponentPlayer->GetActorLocation ( ) ) );
@@ -1012,7 +1041,12 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	this->Hp -= attackInfoHit.DamageAmount;
 	this->GameModeMH->UpdatePlayerHP(this,this->Hp);
 	// 좀 있다 이동 시키기
+	this->eCharacterState = ECharacterStateInteraction::HitGround;
 	//camera 효과 추가하기s
+
+	if ( uNS_DefenceEffect )
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , uNS_HitEffect , attackInfoHit.skellEffectLocation );
+
 	this->CommandAllStop();
 	return true;
 }
@@ -1064,8 +1098,8 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 	else if ( attackInfo.DamagePoint == EDamagePointInteraction::Lower )
 		attackInfo.debugColor = FColor ( 0 , 0 , 255 );
 
-
-	DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , attackInfo.debugColor , false , 1.0f );
+	if (DebugMode )
+		DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , attackInfo.debugColor , false , 1.0f );
 }
 
 //void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
@@ -1085,7 +1119,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 // 
 // 	// Array of actors that are inside the radius of the sphere
 // 	TArray<AActor*> outActors;
-// 
+
 // 	// Total radius of the sphere
 // 	float radius = 750.0f;
 // 	// Sphere's spawn loccation within the world
