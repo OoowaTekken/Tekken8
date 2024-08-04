@@ -21,6 +21,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "AIStateHitFalling.h"
+#include "AIStateBound.h"
 
 
 // Sets default values
@@ -91,6 +92,8 @@ AAICharacter::AAICharacter()
 	stateHit->SetStateOwner ( this );
 	stateHitFalling = CreateDefaultSubobject<UAIStateHitFalling> ( TEXT ( "stateHitFalling" ) );
 	stateHitFalling->SetStateOwner ( this );
+	stateBound = CreateDefaultSubobject<UAIStateBound> ( TEXT ( "stateBound" ) );
+	stateBound->SetStateOwner ( this );
 	stateComboLaserAttack = CreateDefaultSubobject<UAIStateComboLaserAttack> ( TEXT ( "stateComboLaserAttack" ));
 	FAttackInfoInteraction attack1;
 	attack1.KnockBackDirection = FVector (250.f,0.f,0.f); //-0.5 뒤로 밀려난다 5*50 = 250.0f
@@ -184,8 +187,10 @@ void AAICharacter::Tick(float DeltaTime)
 	if ( GetCharacterMovement ( )->IsFalling ( ) )
 	{
 		FVector Gravity = FVector ( 0 , 0 , -980 ); // 기본 중력 값
-		AddMovementInput ( Gravity * DeltaTime );
+		AddMovementInput ( Gravity * DeltaTime);
 	}
+
+
 }
 
 // Called to bind functionality to input

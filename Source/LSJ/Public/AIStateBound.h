@@ -4,15 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "AIStateComponent.h"
-#include "AIStateHitFalling.generated.h"
+#include "AIStateBound.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LSJ_API UAIStateHitFalling : public UAIStateComponent
+class LSJ_API UAIStateBound : public UAIStateComponent
 {
 	GENERATED_BODY()
+	
 	float maxLocationZ;
 	float currnetLocationZ;
 	float minLocationZ;

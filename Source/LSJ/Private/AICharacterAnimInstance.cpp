@@ -19,6 +19,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 
         // Z축이 필요없기 때문에 Z는 0.f로 처리해서 속력를 구한다
         FVector velocity = owner->GetVelocity ( );
+        velocityZ = velocity.Z;
         velocity = FVector ( velocity.X , velocity.Y , 0.f );
         movementSpeed = FVector ( velocity.X , velocity.Y , 0.f ).Size ( );
 
@@ -112,6 +113,14 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/FallBack1_Montage.FallBack1_Montage'" ) );
     if ( hitFallingMontageFinder.Succeeded ( ) )
         hitFallingMontage = hitFallingMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>hitFallingTurnMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/A_FallBack_Twist_R2_Montage.A_FallBack_Twist_R2_Montage'" ) );
+    if ( hitFallingTurnMontageFinder.Succeeded ( ) )
+        hitFallingTurnMontage = hitFallingTurnMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>boundMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
+    if ( boundMontageFinder.Succeeded ( ) )
+        boundMontage = boundMontageFinder.Object;
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -169,6 +178,14 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
 		 {
 			 owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
 		 }
+         else if ( Montage == hitFallingTurnMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+        }
+         else if ( Montage == boundMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+        }
     }
 }
 
@@ -177,9 +194,21 @@ void UAICharacterAnimInstance::PlayComboLaserMontage()
     Montage_Play(comboLaserMontage);
 }
 
+void UAICharacterAnimInstance::PlayBoundMontage ( )
+{
+    FAlphaBlendArgs a;
+
+    Montage_Play( boundMontage , 0.5f , EMontagePlayReturnType::MontageLength , 0.2f , false );
+}
+
 void UAICharacterAnimInstance::PlayHitFallingMontage ( )
 {
     Montage_Play ( hitFallingMontage,0.5f);
+}
+
+void UAICharacterAnimInstance::PlayHitFallingTurnMontage ( )
+{
+    Montage_Play ( hitFallingTurnMontage , 0.5f );
 }
 
 void UAICharacterAnimInstance::PlayHitTopMontage ( )

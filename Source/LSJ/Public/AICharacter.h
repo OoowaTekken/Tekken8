@@ -28,7 +28,8 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	class UAIStateWalkForward* stateWalkForward;
 	UPROPERTY ( )
 	class UAIStateHitFalling* stateHitFalling;
-
+	UPROPERTY ( )
+	class UAIStateBound* stateBound;
 	UPROPERTY ( )
 	class UAIStateAttackLF* stateAttackLF;
 	UPROPERTY ( )
@@ -91,7 +92,7 @@ public:
 	UAIStateBackDash* GetAIStateBackDash ( ) const { return stateBackDash; }
 	UAIStateHit* GetAIStateHit ( ) const { return stateHit; }
 	UAIStateHitFalling* GetAIStateHitFalling ( ) const { return stateHitFalling; }
-	
+	UAIStateBound* GetAIStateBound ( ) const { return stateBound; }
 	//공격 콜리전 켜기 끄기
 	void OnAttackCollisionLF();
 	void OnAttackCollisionRF ( );

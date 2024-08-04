@@ -26,12 +26,16 @@ class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 	UAnimMontage* attackRHMontage;
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* attackLFMontage;
-		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* hitTopMontage;
-		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* hitMiddleMontage;
-			UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* hitFallingMontage;
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* hitFallingTurnMontage;
+	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* boundMontage;
 	//콤보 레이저 몽타주 
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* comboLaserMontage;
@@ -61,12 +65,16 @@ public:
     
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite )
 	bool bIsInAir;
-
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite )
+	float velocityZ;
 	 // Animation Montage가 끝났을 때 호출될 함수
     UFUNCTION()
     virtual void HandleOnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
 	virtual void PlayComboLaserMontage ( );
+	virtual void PlayBoundMontage ( );
+
 	virtual void PlayHitFallingMontage ( );
+	virtual void PlayHitFallingTurnMontage ( );
 	virtual void PlayHitTopMontage ( );
 	virtual void PlayHitMiddleMontage ( );
 	virtual void PlayerWalkForwardMontage();
