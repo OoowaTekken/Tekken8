@@ -84,7 +84,7 @@ void AGameMode_MH::BeginPlay()
 		//Kazuya
 		playerBNum = 2;
 	}
-	
+
 	if (CameraPawn)
 	{
 		SpawnedCameraPawn = Cast<APawn>(GetWorld()->SpawnActor<APawn>(CameraPawn));
@@ -96,6 +96,33 @@ void AGameMode_MH::BeginPlay()
 		playerA->aOpponentPlayer = playerB;
 		playerB->SetMainCamera(maincamera);
 		playerB->aOpponentPlayer = playerA;
+
+		initCameraLoc = maincamera->GetActorLocation();
+		initCameraRot = maincamera->GetActorRotation();
+	}
+	//플레이어 초기위치 저장
+	if (playerA && playerB)
+	{
+		initPlayerALoc = playerA->GetActorLocation();
+		initPlayerARot = playerA->GetActorRotation();
+
+		initPlayerBLoc = playerB->GetActorLocation();
+		initPlayerBRot = playerB->GetActorRotation();
+
+		//플레이어 인풋 막기 왜안돼는지 모르겟
+/*
+		playerAController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		playerBController = UGameplayStatics::GetPlayerController(GetWorld(), 1);
+		
+		if (playerAController)
+		{
+			playerAController->DisableInput(nullptr);
+		}
+		if (playerBController)
+		{
+			playerBController->DisableInput(nullptr);
+		}*/
+		
 	}
 	//라운드 스코어 초기화
 	InitRoundState();
@@ -104,6 +131,7 @@ void AGameMode_MH::BeginPlay()
 
 	//라운드 종료 초기화
 	bHasRoundEnded = false;
+	bStartRound = false;
 }
 
 void AGameMode_MH::Tick(float DeltaTime)
@@ -115,9 +143,11 @@ void AGameMode_MH::Tick(float DeltaTime)
 	{
 		//HP 체크
 		CheckPlayerHP();
-		if(!bHasRoundEnded)
-		//타임 체크
-		CountDown(DeltaTime);
+		if (!bHasRoundEnded && bStartRound)
+		{
+			//타임 체크
+			CountDown(DeltaTime);
+		}
 	}
 }
 
@@ -153,20 +183,40 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	switch (NewState)
 	{
 	case EGameState::GameStart:
+		
 		//라운드 시작
 		//라운드 초기화
 		//라운드 스코어 초기화
 		InitRoundState();
-		StartRound();
+		SetGameStart();
 		break;
 	case EGameState::RoundStart:
 		//타이머,HP 초기화
 		ResetRoundState();
-		SetGameState(EGameState::InProgress);
+	//플레이어 위치 초기화
+		if (playerA && playerB)
+		{
+			playerA->SetActorLocation(initPlayerALoc);
+			playerA->SetActorRotation(initPlayerARot);
+			playerB->SetActorLocation(initPlayerBLoc);
+			playerB->SetActorRotation(initPlayerBRot);
+		}
+		if (maincamera)
+		{
+			maincamera->SetActorLocation(initCameraLoc);
+			maincamera->SetActorRotation(initCameraRot);
+		}
+	//라운드 num 띄우기
+		inGameUI->ShowRoundText(++CurrentRoundNum);
+
+	//5초후 라운드 시작 //인풋 막아두기.
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle , this , &AGameMode_MH::RoundStart , 3.0f , false);
+
 		GEngine->AddOnScreenDebugMessage(-5 , 5.f , FColor::Red , TEXT("RoundStart"));
 		break;
 
 	case EGameState::InProgress:
+		
 		//게임 진행 중
 		//HP체크,타임체크
 		break;
@@ -179,16 +229,17 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 		//PlayerInfoUI->UpdateEndHP(player1HP,player2HP);	
 		//라운드 스코어 ++
 		CheckRoundWinner();
-		
-		//5초후 라운드 체크-> 다시시작 or 게임오버
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGameMode_MH::CheckForGameOver, 5.0f, false);
-		//CheckForGameOver();
+
+	//5초후 라운드 체크-> 다시시작 or 게임오버
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle , this , &AGameMode_MH::CheckForGameOver , 3.0f , false);
+	//CheckForGameOver();
 		GEngine->AddOnScreenDebugMessage(-6 , 5.f , FColor::Red , TEXT("RoundEnd"));
 		break;
 
 	case EGameState::GameOver:
 		//게임 종료 처리
-		//승자 영상 출력
+		inGameUI->ShowGameOver();
+	//승자 영상 출력
 		break;
 
 	default:
@@ -202,10 +253,11 @@ void AGameMode_MH::StartGame()
 	SetGameState(EGameState::GameStart);
 }
 
-void AGameMode_MH::StartRound()
+void AGameMode_MH::SetGameStart()
 {
 	//게임 UI생성 (타이머, HP,라운드카운트,캐릭터 이미지)
 	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
+
 	if (inGameUI)
 	{
 		inGameUI->AddToViewport();
@@ -221,11 +273,18 @@ void AGameMode_MH::StartRound()
 	SetGameState(EGameState::RoundStart);
 }
 
+void AGameMode_MH::RoundStart()
+{
+	inGameUI->HideRoundText();
+	bStartRound = true;
+	SetGameState(EGameState::InProgress);
+}
+
 void AGameMode_MH::CheckForGameOver()
 {
 	if (IsGameOverConditionMet())
 	{
-	    GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("GameOver"));
+		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("GameOver"));
 		SetGameState(EGameState::GameOver);
 	}
 	else
@@ -262,10 +321,18 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 	if (Player == playerA)
 	{
 		player1HP = NewHP;
+		if(PlayerInfoUI)
+		{
+			PlayerInfoUI->PlayHPShakeAnim(1);
+		}
 	}
 	else if (Player == playerB)
 	{
 		player2HP = NewHP;
+		if(PlayerInfoUI)
+		{
+			PlayerInfoUI->PlayHPShakeAnim(2);
+		}
 	}
 
 	// UI를 업데이트
@@ -289,7 +356,7 @@ float AGameMode_MH::SetShakeIntensity(float Damage)
 	{
 		return 0.2f; // 약한 흔들림
 	}
-//일단 흔들리게만 하기... 
+	//일단 흔들리게만 하기... 
 	return 0.0f;
 }
 
@@ -345,6 +412,14 @@ void AGameMode_MH::HandleRoundEnd(AActor* RoundWinner)
 	}
 }
 
+void AGameMode_MH::DisablePlayerInput()
+{
+}
+
+void AGameMode_MH::EnablePlayerInput()
+{
+}
+
 void AGameMode_MH::CheckPlayerHP()
 {
 	if (playerA && playerB)
@@ -357,7 +432,8 @@ void AGameMode_MH::CheckPlayerHP()
 		if ((player1HP <= 0 || player2HP <= 0) && !bHasRoundEnded)
 		{
 			HandleNewState(EGameState::RoundEnd);
-			bHasRoundEnded = true;  // 라운드 종료 플래그 설정		
+			bHasRoundEnded = true;
+			bStartRound = false; // 라운드 종료 플래그 설정		
 		}
 	}
 }
@@ -380,12 +456,11 @@ void AGameMode_MH::ResetRoundState()
 	gameTimer = initroundTimer;
 	playerA->Hp = player1MaxHP;
 	playerB->Hp = player2MaxHP;
-	
+
 	player1HP = player1MaxHP;
 	player2HP = player2MaxHP;
-	
-	bHasRoundEnded = false;
 
+	bHasRoundEnded = false;
 	// UI를 업데이트
 	if (PlayerInfoUI)
 	{

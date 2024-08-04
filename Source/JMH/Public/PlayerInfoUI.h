@@ -93,7 +93,7 @@ public:
 	UTexture* img_paul;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FString JIN = "JIN";
+	FText JIN = FText::FromString("JIN");
 
 	// 플레이어 HP를 업데이트하는 함수
 	UFUNCTION(BlueprintCallable, Category = "UI")
@@ -126,6 +126,18 @@ public:
 	// 흔들림 애니메이션을 위한 Curve
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	class UCurveFloat* ShakeCurve;
+
+	//HPUI 애니메이션
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* HP_AShake;
+
+	//HPUI 애니메이션
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* HP_BShake;
+
+	// 애니메이션을 호출하는 함수
+	UFUNCTION()
+	void PlayHPShakeAnim(int32 playernum);
 
 public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")

@@ -125,7 +125,7 @@ public:
 
 	//Round Num
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
-	int32 initRoundNum = 1;
+	int32 initRoundNum = 0;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite , Category = "Round")
 	int32 CurrentRoundNum = initRoundNum;
@@ -155,9 +155,12 @@ public:
 	UFUNCTION()
 	void StartGame();
 
-	// 라운드 시작 처리
+	// 게임 시작 라운드 시작 처리
 	UFUNCTION()
-	void StartRound();
+	void SetGameStart();
+
+	UFUNCTION()
+	void RoundStart();
 
 	// 게임 오버 조건 체크
 	UFUNCTION()
@@ -174,6 +177,7 @@ public:
 	void CheckPlayerHP();
 
 	bool bHasRoundEnded;
+	bool bStartRound;
 
 	FTimerHandle TimerHandle;
 	
@@ -196,7 +200,19 @@ public:
 
 	UFUNCTION()
 	void HandleRoundEnd(AActor* RoundWinner);
+	
+	UFUNCTION()
+	void DisablePlayerInput();
+	
+	UFUNCTION()
+	void EnablePlayerInput();
 
+	UPROPERTY()
+	class APlayerController* playerAController;
+UPROPERTY()
+	class APlayerController* playerBController;
+
+	
 	//Camera
 	UFUNCTION()
 	void SetupCameraViewTarget();
@@ -206,5 +222,23 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	float SetShakeIntensity(float Damage);
+
+	//플레이어 초기위치 저장
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FVector initPlayerALoc;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FRotator initPlayerARot;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FVector initPlayerBLoc ; 
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FRotator initPlayerBRot;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FVector initCameraLoc;
 	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	FRotator initCameraRot;
 };
