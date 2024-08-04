@@ -20,6 +20,7 @@ void UCPP_PualAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	this->fHorizontal = FVector::DotProduct(player->GetActorRightVector(), velocity);
 
 	this->bCrouch = player->bCrouched;
-	this->bFalling =  player->GetCharacterMovement()->IsFalling();
+	this->bFalling = player->bFalling;
+	this->bNuckDown = player->bNuckDown;
 
 }
