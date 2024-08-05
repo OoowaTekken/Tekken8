@@ -332,7 +332,7 @@ void UAICharacterAnimInstance::AnimNotify_MoveEnd ( )
 
 void UAICharacterAnimInstance::AnimNotify_Laser ( )
 {
-    const FVector start = owner->GetMesh()->GetSocketLocation("headSocket");
+    FVector start = owner->GetMesh()->GetSocketLocation("headSocket");
     FVector ForwardVector = owner->GetActorForwardVector ( );
     FRotator TiltedRotator = FRotator ( -15.f , 0 , 0 ); // Pitch를 -15도로 회전
     // 끝점 계산 (라인의 길이를 조절할 수 있습니다. 여기서는 1000 유닛)
@@ -355,7 +355,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
             owner->aOpponentPlayer->HitDecision ( owner->SendAttackInfo ( ) , owner );
         }
     }
-    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , laserFXSystem , start, start.Rotation());
+    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld() , laserFXSystem , start, (end-start).Rotation());
 
 }
 
