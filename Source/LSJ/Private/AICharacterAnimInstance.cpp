@@ -7,6 +7,8 @@
 #include "Animation/AnimMontage.h"
 #include "AICharacter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AIStateComboLaserAttack.h"
+#include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 
 void UAICharacterAnimInstance::UpdateProperties ( )
 {
@@ -19,6 +21,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 
         // Z축이 필요없기 때문에 Z는 0.f로 처리해서 속력를 구한다
         FVector velocity = owner->GetVelocity ( );
+        velocityZ = velocity.Z;
         velocity = FVector ( velocity.X , velocity.Y , 0.f );
         movementSpeed = FVector ( velocity.X , velocity.Y , 0.f ).Size ( );
 
@@ -73,7 +76,7 @@ void UAICharacterAnimInstance::NativeInitializeAnimation ( )
 UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 {
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkForwardMontageFinder
-    ( TEXT ( "/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
+    ( TEXT ("/Script/Engine.AnimMontage'/Game/LSJ/Animation/Step_Forward1_Montage.Step_Forward1_Montage'")); //"/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
@@ -112,6 +115,19 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/FallBack1_Montage.FallBack1_Montage'" ) );
     if ( hitFallingMontageFinder.Succeeded ( ) )
         hitFallingMontage = hitFallingMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>hitFallingTurnMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/A_FallBack_Twist_R2_Montage.A_FallBack_Twist_R2_Montage'" ) );
+    if ( hitFallingTurnMontageFinder.Succeeded ( ) )
+        hitFallingTurnMontage = hitFallingTurnMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>boundMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
+    if ( boundMontageFinder.Succeeded ( ) )
+        boundMontage = boundMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Laser.Laser'" ) );
+    if ( NE.Succeeded ( ) )
+    {
+        laserFXSystem = NE.Object;
+    }
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -169,6 +185,14 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
 		 {
 			 owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
 		 }
+         else if ( Montage == hitFallingTurnMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+        }
+         else if ( Montage == boundMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+        }
     }
 }
 
@@ -177,9 +201,21 @@ void UAICharacterAnimInstance::PlayComboLaserMontage()
     Montage_Play(comboLaserMontage);
 }
 
+void UAICharacterAnimInstance::PlayBoundMontage ( )
+{
+    FAlphaBlendArgs a;
+
+    Montage_Play( boundMontage , 0.5f , EMontagePlayReturnType::MontageLength , 0.2f , false );
+}
+
 void UAICharacterAnimInstance::PlayHitFallingMontage ( )
 {
     Montage_Play ( hitFallingMontage,0.5f);
+}
+
+void UAICharacterAnimInstance::PlayHitFallingTurnMontage ( )
+{
+    Montage_Play ( hitFallingTurnMontage , 0.5f );
 }
 
 void UAICharacterAnimInstance::PlayHitTopMontage ( )
@@ -230,3 +266,96 @@ void UAICharacterAnimInstance::AnimNotify_LookTarget ( )
     owner->targetRotator = lookPlayerRotator;
     owner->bLookTarget = true;
 }
+
+void UAICharacterAnimInstance::AnimNotify_Move ( )
+{
+    FVector Direction = owner->GetActorForwardVector ( );
+    float Distance = 100.0f; // 한 걸음의 거리
+    float  Duration = 1.0f; // 한 걸음의 시간
+    switch ( owner->StateComboLaserAttack ( )->GetAttackCount ( ) )
+    {
+    case 0:
+        Distance = 30.0f; // 한 걸음의 거리
+        Duration = 0.5f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 1:
+        Distance = 250.0f; // 한 걸음의 거리
+        Duration = 1.0f;// 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 2:
+        Distance = 25.0f; // 한 걸음의 거리
+        Duration = 0.7f;// 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 3:
+        Distance = 25.0f; // 한 걸음의 거리
+        Duration = 0.7f;// 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 4:
+        Distance = 60.0f; // 한 걸음의 거리
+        Duration = 1.f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 5:
+        Distance = 60.0f; // 한 걸음의 거리
+        Duration = 1.f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 6:
+        Distance = 40.0f; // 한 걸음의 거리
+        Duration = 1.f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 7:
+        Distance = 40.0f; // 한 걸음의 거리
+        Duration = 1.f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    case 8:
+        Distance = 40.0f; // 한 걸음의 거리
+        Duration = 1.f; // 한 걸음의 시간
+        owner->StateComboLaserAttack ( )->StepAndAttack ( Direction , Distance , Duration );
+        break;
+    default:
+        break;
+    }
+   
+}
+
+void UAICharacterAnimInstance::AnimNotify_MoveEnd ( )
+{
+    owner->StateComboLaserAttack ( )->FinishStep ();
+}
+
+void UAICharacterAnimInstance::AnimNotify_Laser ( )
+{
+    const FVector start = owner->GetMesh()->GetSocketLocation("headSocket");
+    FVector ForwardVector = owner->GetActorForwardVector ( );
+    FRotator TiltedRotator = FRotator ( -15.f , 0 , 0 ); // Pitch를 -15도로 회전
+    // 끝점 계산 (라인의 길이를 조절할 수 있습니다. 여기서는 1000 유닛)
+    FVector end = start + (TiltedRotator.RotateVector ( ForwardVector ) * 1000.0f);
+
+    FHitResult hitResult;
+    FCollisionQueryParams collisionParams;
+    collisionParams.AddIgnoredActor ( owner );
+
+    DrawDebugLine ( GetWorld ( ) , start , end , FColor::Red , false , 1.0f );
+    if ( GetWorld ( )->LineTraceSingleByChannel (
+        hitResult ,
+        start ,
+        end ,
+        ECC_Visibility ,
+        collisionParams ) )
+    {
+        if ( hitResult.GetActor ( ) == owner->aOpponentPlayer )
+        {
+            owner->aOpponentPlayer->HitDecision ( owner->SendAttackInfo ( ) , owner );
+        }
+    }
+    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , laserFXSystem , start, start.Rotation());
+
+}
+
