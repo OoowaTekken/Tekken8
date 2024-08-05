@@ -28,7 +28,8 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	class UAIStateWalkForward* stateWalkForward;
 	UPROPERTY ( )
 	class UAIStateHitFalling* stateHitFalling;
-
+	UPROPERTY ( )
+	class UAIStateBound* stateBound;
 	UPROPERTY ( )
 	class UAIStateAttackLF* stateAttackLF;
 	UPROPERTY ( )
@@ -46,7 +47,12 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 public:
 	// Sets default values for this character's properties
 	AAICharacter();
+	//이펙트
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraSystem* niagaraFXSystem;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraComponent* niagaraFXComponent;
 	// 상태 공격 객체에 대한 접근 메서드 추가
 	class UAIStateAttackLF* GetAIStateAttackLF ( ) const { return stateAttackLF; }
 	void StateAttackLF ( class UAIStateAttackLF* val ) { stateAttackLF = val; }
@@ -85,13 +91,15 @@ public:
 	void ExitCurrentState (ECharacterStateInteraction state );
 
 	// 상태 이동 객체에 대한 접근 메서드 추가
+	IAIStateInterface* GetCurrentState ( ) const { return currentState; }
+	UAIStateIdle* GetAIStateIdle ( ) const { return stateIdle; }
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
 	UAIStateWalkBack* GetAIStateWalkBack ( ) const { return stateWalkBack; }
 	UAIStateRun* GetAIStateRun ( ) const { return stateRun; }
 	UAIStateBackDash* GetAIStateBackDash ( ) const { return stateBackDash; }
 	UAIStateHit* GetAIStateHit ( ) const { return stateHit; }
 	UAIStateHitFalling* GetAIStateHitFalling ( ) const { return stateHitFalling; }
-	
+	UAIStateBound* GetAIStateBound ( ) const { return stateBound; }
 	//공격 콜리전 켜기 끄기
 	void OnAttackCollisionLF();
 	void OnAttackCollisionRF ( );
@@ -135,4 +143,6 @@ public:
 	{
 		return blackboardComp;
 	};
+
+	FVector direction;
 };
