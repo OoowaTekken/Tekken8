@@ -22,6 +22,8 @@
 #include "Components/BoxComponent.h"
 #include "AIStateHitFalling.h"
 #include "AIStateBound.h"
+#include "GameMode_MH.h"
+#include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 
 
 // Sets default values
@@ -187,6 +189,11 @@ AAICharacter::AAICharacter()
 	stateComboLaserAttack->attackInfoArray.Add(attack9);
 	stateComboLaserAttack->SetStateOwner ( this );
 	
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Hit_High.Hit_High'" ) );
+	if ( NE.Succeeded ( ) )
+	{
+		niagaraFXSystem = NE.Object;
+	}
 	//중력적용
 	//GetCharacterMovement()->bApplyGravityWhileJumping = true;
 
@@ -237,6 +244,8 @@ void AAICharacter::BeginPlay()
 	}
 	blackboardComp = aiController->GetBlackboardComponent ( );
 	check (blackboardComp);
+
+
 }
 
 void AAICharacter::Tick(float DeltaTime)
@@ -412,8 +421,10 @@ void AAICharacter::OnCollisionLHBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		return;
 	if (SweepResult.GetActor() == aOpponentPlayer)
 	{
-		aOpponentPlayer->HitDecision(SendAttackInfo(),this);
-		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		FAttackInfoInteraction hitInfo = SendAttackInfo ( );
+		hitInfo.skellEffectLocation = collisionLH->GetComponentLocation();
+		aOpponentPlayer->HitDecision( hitInfo ,this);
+		//DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 		IsAttacked = true;
 	}
 
@@ -426,8 +437,10 @@ void AAICharacter::OnCollisionRHBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		return;
 	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
 	{
-		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
-		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		FAttackInfoInteraction hitInfo = SendAttackInfo ( );
+		hitInfo.skellEffectLocation = collisionRH->GetComponentLocation ( );
+		aOpponentPlayer->HitDecision ( hitInfo , this );
+		//DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 		IsAttacked = true;
 	}
 	//카메라가 제자리로 안돌아간다
@@ -444,8 +457,10 @@ void AAICharacter::OnCollisionRFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		return;
 	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
 	{
-		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
-		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		FAttackInfoInteraction hitInfo = SendAttackInfo ( );
+		hitInfo.skellEffectLocation = collisionRF->GetComponentLocation ( );
+		aOpponentPlayer->HitDecision ( hitInfo , this );
+		//DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 		IsAttacked = true;
 	}
 }
@@ -456,8 +471,10 @@ void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		return;
 	if ( SweepResult.GetActor ( ) == aOpponentPlayer )
 	{
-		aOpponentPlayer->HitDecision ( SendAttackInfo ( ) , this );
-		DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
+		FAttackInfoInteraction hitInfo = SendAttackInfo ( );
+		hitInfo.skellEffectLocation = collisionLF->GetComponentLocation ( );
+		aOpponentPlayer->HitDecision ( hitInfo , this );
+		//DrawDebugSphere ( GetWorld ( ) , collisionLH->GetComponentLocation ( ) , 20 , 26 , FColor ( 181 , 0 , 0 ) , true , 0.5f , 0 , 0.5f );
 		IsAttacked = true;
 	}
 }
@@ -470,6 +487,17 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 	//attackInfo
 	if ( blackboardComp )
 	{
+		
+		niagaraFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , niagaraFXSystem , attackInfo.skellEffectLocation);
+
+		Hp -= attackInfo.DamageAmount;
+		Hp = FMath::Clamp(Hp,0.0f,MaxHp);
+		AGameMode_MH* gameMode = Cast<AGameMode_MH>(GetWorld()->GetAuthGameMode());
+		if( gameMode )
+			gameMode->UpdatePlayerHP(this,Hp);
+		// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
+		aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 30.0f , 0.5f , 0.5f );
+
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
 		if ( attackInfo.KnockBackDirection.Z > 0 || currentState == stateBound || currentState == stateHitFalling )
 		{

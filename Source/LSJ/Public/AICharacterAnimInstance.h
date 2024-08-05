@@ -97,4 +97,11 @@ public:
 	void AnimNotify_MoveEnd ( );
 	UFUNCTION ( )
 	void AnimNotify_Laser ( );
+
+	//laser effect
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraSystem* laserFXSystem;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraComponent* laserFXComponent;
 };

@@ -8,6 +8,7 @@
 #include "AICharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AIStateComboLaserAttack.h"
+#include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 
 void UAICharacterAnimInstance::UpdateProperties ( )
 {
@@ -122,6 +123,11 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
     if ( boundMontageFinder.Succeeded ( ) )
         boundMontage = boundMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Laser.Laser'" ) );
+    if ( NE.Succeeded ( ) )
+    {
+        laserFXSystem = NE.Object;
+    }
 }
 
 void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
@@ -349,5 +355,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
             owner->aOpponentPlayer->HitDecision ( owner->SendAttackInfo ( ) , owner );
         }
     }
+    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , laserFXSystem , start, start.Rotation());
+
 }
 

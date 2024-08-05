@@ -47,7 +47,12 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 public:
 	// Sets default values for this character's properties
 	AAICharacter();
+	//이펙트
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraSystem* niagaraFXSystem;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	class UNiagaraComponent* niagaraFXComponent;
 	// 상태 공격 객체에 대한 접근 메서드 추가
 	class UAIStateAttackLF* GetAIStateAttackLF ( ) const { return stateAttackLF; }
 	void StateAttackLF ( class UAIStateAttackLF* val ) { stateAttackLF = val; }
