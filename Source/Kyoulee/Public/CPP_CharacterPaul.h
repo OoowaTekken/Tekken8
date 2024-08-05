@@ -254,6 +254,10 @@ public:
 	* @brief 시작 지점 트리를 가지고 있습니다.
 	*	모든 스킬트리는 맵형식의 반복된 값을 가지고 있음으로 참고 바랍니다.
  	*/
+
+	void CommandStarTest1 ( );
+	void CommandStarTest2 ( );
+	////
 	void CommandIdle ( );
 	void CommandStar ( );
 	void CommandEnd ( );

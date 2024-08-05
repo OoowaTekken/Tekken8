@@ -14,8 +14,10 @@ class LSJ_API UBTDecorator_Distance : public UBTDecorator
 {
 	GENERATED_BODY()
 	//attack range < walk range < run range
-	UPROPERTY(EditAnywhere,Category="Distance",meta=(AllowPrivateAccess="true") )
+	UPROPERTY(EditAnywhere,Category="MaxDistance",meta=(AllowPrivateAccess="true") )
 	float distance;
+		UPROPERTY(EditAnywhere,Category="MinDistance",meta=(AllowPrivateAccess="true") )
+	float minDistance;
 public:
 	UBTDecorator_Distance ( );
 

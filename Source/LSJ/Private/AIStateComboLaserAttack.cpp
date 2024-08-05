@@ -8,21 +8,59 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "CPP_CharacterPaul.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 void UAIStateComboLaserAttack::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter ( pAnimInstance );
 	animInstace->PlayComboLaserMontage ( );
 	aiCharacter = Cast<AAICharacter> ( owner );
-
+	direction=aiCharacter->GetActorForwardVector();
+	attackCount = 0;
 	//회전
 	//lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( aiCharacter->GetActorLocation ( ) , aiCharacter->aOpponentPlayer->GetActorLocation ( ) );
 	//aiCharacter->targetRotator=lookPlayerRotator;
 	//aiCharacter->bLookTarget = true;
 
 }
+void UAIStateComboLaserAttack::FinishStep ( )
+{
+	bIsStepping = false;
+}
+
+void UAIStateComboLaserAttack::StepAndAttack ( FVector Direction , float Distance , float Duration )
+{
+	if ( bIsStepping )
+	{
+		return;
+	}
+
+	MoveDirection = Direction.GetSafeNormal ( );
+	MoveDistance = Distance;
+	MoveDuration = Duration;
+	MoveElapsedTime = 0.0f;
+	bIsStepping = true;
+}
 
 void UAIStateComboLaserAttack::Execute ( const float& deltatime )
 {
+	//owner->GetMovementComponent ( )->AddInputVector ( MoveDirection * 10 );
+	if ( bIsStepping )
+	{
+		MoveElapsedTime += deltatime;
+		//owner->GetMovementComponent ( )->AddInputVector ( MoveDirection * 100000);
+		
+		if ( MoveElapsedTime >= MoveDuration )
+		{
+			FinishStep ( );
+		}
+		else
+		{
+			FVector v = owner->GetActorForwardVector ( );
+			MoveDirection = v.GetSafeNormal( );
+			aiCharacter->AddMovementInput ( MoveDirection , MoveDistance / MoveDuration * deltatime );
+		}
+	}
+
 
 	//밀쳐내기
 	FVector start = aiCharacter->GetActorLocation ( );

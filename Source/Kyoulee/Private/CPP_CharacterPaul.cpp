@@ -56,6 +56,10 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 
 	if ( this->fCurrTimeForFrame > this->fFrameTime )
 	{
+		if ( this->Hp <= 0 )
+			return;
+		else
+			this->bFalling = false;
 		AnimationFrame ( );
 		this->currKeyValue = this->GetCurrInputKeyValue ( );
 		this->fCurrTimeForFrame = 0;
@@ -63,15 +67,14 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 		sFrameStatus.FrameUsing--;
 		attackInfo.ActionFrame--;
  		if (attackInfo.ActionFrame > 0 )
-			eCharacterState = ECharacterStateInteraction::AttackLower;
 // 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Action Frame : %d"), attackInfo.ActionFrame )  );
 		if (sFrameStatus.FrameBlockUsing > 0 )
 		{
 			eCharacterState = ECharacterStateInteraction::HitFalling;
-// 			if ( GameModeMH->Player1 == this )
-// 				GEngine->AddOnScreenDebugMessage ( -1 , 2.0f , FColor::Red , FString::Printf ( TEXT ( "Block Frame Attack : %d" ) , sFrameStatus.FrameBlockUsing ) );
-// 			if ( GameModeMH->Player1 != this )
-// 				GEngine->AddOnScreenDebugMessage (-1 , 2.0f , FColor::Blue , FString::Printf ( TEXT ( "Block Frame Defence : %d" ) , sFrameStatus.FrameBlockUsing ), false);
+			if ( GameModeMH->Player1 == this )
+				GEngine->AddOnScreenDebugMessage ( -1 , .5f , FColor::Red , FString::Printf ( TEXT ( "Block Frame Attack : %d" ) , sFrameStatus.FrameBlockUsing ) );
+			if ( GameModeMH->Player1 != this )
+				GEngine->AddOnScreenDebugMessage (-1 , 0.5f , FColor::Blue , FString::Printf ( TEXT ( "Block Frame Defence : %d" ) , sFrameStatus.FrameBlockUsing ), false);
 		}
 		if ( attackInfo.ActionFrame == 0 )
 		{
@@ -396,10 +399,9 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, 0, 0, LP , LP } );
 
 	// 붕권
-// 	this->AddCommandBaseTree ( { 0, downkey } , 0 , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
-// 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, 0 } );
-// 	this->AddCommandBaseTree ( { 0, downkey, 0 } , i3key , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
-// 	this->AddCommandBaseTree ( { 0, downkey, 0, i3key } , forwardkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStar );
+	this->AddCommandBaseTree ( { 0, downkey } , 0 , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandStarTest1 );
+	this->AddCommandBaseTree ( { 0, downkey } , i3key , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStarTest1 );
+	this->AddCommandBaseTree ( { 0, downkey, i3key } , forwardkey , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandStarTest2 );
 
 	/**
 	 * Punch
@@ -524,6 +526,40 @@ void ACPP_CharacterPaul::SetupPlayerInputComponent ( UInputComponent* PlayerInpu
 	Super::SetupPlayerInputComponent ( PlayerInputComponent );
 }
 
+// Command Test 
+void ACPP_CharacterPaul::CommandStarTest1 ( )
+{
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandStarTest1 Pressed" ) );
+
+	if ( this->CountStarFrame <= 0 )
+	{
+		this->CountStarFrame = 5;
+		if ( DebugMode )
+			UE_LOG ( LogTemp , Warning , TEXT ( "Star Clean Command" ) );
+
+		this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
+		this->sCurrCommand = mBaseCommandTree[0];
+		return;
+	}
+	CountStarFrame--;
+}
+void ACPP_CharacterPaul::CommandStarTest2 ( )
+{
+		UE_LOG ( LogTemp , Warning , TEXT ( "CommandStarTest1 Pressed" ) );
+
+	if ( this->CountStarFrame <= 0 )
+	{
+		this->CountStarFrame = 5;
+		if ( DebugMode )
+			UE_LOG ( LogTemp , Warning , TEXT ( "Star Clean Command" ) );
+
+		this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
+		this->sCurrCommand = mBaseCommandTree[0];
+		return;
+	}
+	CountStarFrame--;
+}
+
 // Command Funtion
 
 void ACPP_CharacterPaul::CommandIdle ( )
@@ -558,7 +594,7 @@ void ACPP_CharacterPaul::CommandStar ( )
 
 	if ( this->CountStarFrame <= 0 )
 	{
-		this->CountStarFrame = 0;
+		this->CountStarFrame = 3;
 		if ( DebugMode )
 			UE_LOG ( LogTemp , Warning , TEXT ( "Star Clean Command" ) );
 
@@ -582,6 +618,8 @@ void ACPP_CharacterPaul::CommandMoveForward ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveForward Pressed" ) );
 
+	eCharacterState = ECharacterStateInteraction::WalkForward;
+
 	this->SetToLocationPoint ( 30 , 0 , 0 );
 
 	this->CountStarFrame = 5;
@@ -591,6 +629,8 @@ void ACPP_CharacterPaul::CommandMoveForwarDash ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "MoveForwarDash Pressed" ) );
+	//상태 표시
+	eCharacterState = ECharacterStateInteraction::Run;
 
 	this->SetToLocationPoint ( 200 , 0 , 0 );
 }
@@ -599,6 +639,8 @@ void ACPP_CharacterPaul::CommandMoveBack ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveBack Pressed" ) );
+
+	eCharacterState = ECharacterStateInteraction::GuardStand;
 
 	this->SetToLocationPoint ( -30 , 0 , 0 );
 	this->CountStarFrame = 5;
@@ -609,6 +651,8 @@ void ACPP_CharacterPaul::CommandMoveBackDash ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveBackDash Pressed" ) );
 
+	eCharacterState = ECharacterStateInteraction::Move;
+
 	this->SetToLocationPoint ( -200 , 0 , 0 );
 }
 
@@ -616,7 +660,8 @@ void ACPP_CharacterPaul::CommandJump ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJump Pressed" ) );
-	
+
+	eCharacterState = ECharacterStateInteraction::Air;
 	
 	//this->GetMesh ( )->AddImpulse ( FVector::UpVector * 100 );
 	//this->uCharacterMesh->SetRelativeScale3D ( FVector ( 0.8 , 0.8 , 0.8 ) );
@@ -630,6 +675,8 @@ void ACPP_CharacterPaul::CommandMoveLateralUp ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralPlus Pressed" ) );
 // 
+	eCharacterState = ECharacterStateInteraction::Move;
+
 	this->bCrouched = false;
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Special;
@@ -674,6 +721,8 @@ void ACPP_CharacterPaul::CommandMoveLateralDown ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandMoveLateralDown Pressed" ) );
 
+	this->eCharacterState = ECharacterStateInteraction::Move;
+
 	attackInfo.DamagePoint = EDamagePointInteraction::Special;
 	attackInfo.DamageAmount = 0;
 
@@ -693,6 +742,8 @@ void ACPP_CharacterPaul::CommandLeadJab ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandLeadJab Pressed" ) );
+
+	this->eCharacterState = ECharacterStateInteraction::AttackTop;
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
 	attackInfo.DamageAmount = 5;
@@ -729,6 +780,8 @@ void ACPP_CharacterPaul::CommandCrossStaight ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandCrossStaight Pressed" ) );
+
+	this->eCharacterState = ECharacterStateInteraction::AttackTop;
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
 	attackInfo.DamageAmount = 10;
@@ -767,6 +820,8 @@ void ACPP_CharacterPaul::CommandJingun ( )
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
 
+	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
+
 	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
 	attackInfo.DamageAmount = 14;
 
@@ -798,6 +853,8 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJingun Pressed" ) );
+
+	this->eCharacterState = ECharacterStateInteraction::AttackTop;
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Top;
 	attackInfo.DamageAmount = 17;
@@ -832,6 +889,8 @@ void ACPP_CharacterPaul::CommandBungGuan ( )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandBungGuan Pressed" ) );
 
 	this->bCrouched = false;
+
+	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
 	attackInfo.DamageAmount = 17;
@@ -868,6 +927,8 @@ void ACPP_CharacterPaul::CommandJinJee ( )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandJinJee Pressed" ) );
 
 	this->bCrouched = false;
+
+	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
 
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
@@ -906,6 +967,8 @@ void ACPP_CharacterPaul::CommandSitJab( )
 
 	this->bCrouched = false;
 
+	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
+
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Middle;
 	attackInfo.DamageAmount = 15;
@@ -942,6 +1005,8 @@ void ACPP_CharacterPaul::CommandSitSpineKick ( )
 
 	this->bCrouched = false;
 
+	this->eCharacterState = ECharacterStateInteraction::AttackLower;
+
 
 	attackInfo.DamagePoint = EDamagePointInteraction::Lower;
 	attackInfo.DamageAmount = 15;
@@ -975,6 +1040,9 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 {
 	if ( DebugMode )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandAllStop Pressed" ) );
+	
+	this->eCharacterState = ECharacterStateInteraction::Idle;
+
 	this->mCurrCommandTree = mBaseCommandTree[0]->NextTrees;
 	attackInfo.ActionFrame = -1;
 	return 0;
@@ -997,7 +1065,7 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 		PlayMontageFrameSystem ( uMtgDefence );
 		// 디펜스 파티클
 
-		if ( uNS_DefenceEffect )
+		if ( uNS_DefenceEffect && this->Hp > 0 )
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), uNS_DefenceEffect, attackInfoHit.skellEffectLocation );
 		return false;
 	}
@@ -1011,7 +1079,7 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 		else
 			PlayMontageFrameSystem ( uMtgDefence );
 
-		if ( uNS_DefenceEffect )
+		if ( uNS_DefenceEffect && this->Hp > 0 )
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , uNS_DefenceEffect , attackInfoHit.skellEffectLocation );
 
 		return false;
@@ -1023,7 +1091,7 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 		// defense animation 추가하기
 		PlayMontageFrameSystem ( uMtgSitDefence );
 
-		if ( uNS_DefenceEffect )
+		if ( uNS_DefenceEffect && this->Hp > 0 )
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , uNS_DefenceEffect , attackInfoHit.skellEffectLocation );
 
 		return false;
@@ -1032,14 +1100,19 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeHitFrame;
 	this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection );
 	// heart animation 추가하기
-	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Lower )
-		PlayMontageFrameSystem ( uMtgSitHit);
-	else
-		PlayMontageFrameSystem ( uMtgIdleHit );
-	
+	if ( this->Hp > 0 )
+	{
+		if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Lower  )
+			PlayMontageFrameSystem ( uMtgSitHit );
+		else
+			PlayMontageFrameSystem ( uMtgIdleHit );
+	}
 	// UI hit newHp 전달하기
 	this->Hp -= attackInfoHit.DamageAmount;
 	this->GameModeMH->UpdatePlayerHP(this,this->Hp);
+
+	if (this->Hp < 0 )
+		this->bFalling = true;
 	// 좀 있다 이동 시키기
 	this->eCharacterState = ECharacterStateInteraction::HitGround;
 	//camera 효과 추가하기s

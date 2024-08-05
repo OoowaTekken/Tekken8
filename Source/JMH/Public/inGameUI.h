@@ -18,17 +18,43 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
+	UPROPERTY()
+	class AGameMode_MH* gm;
+	
+	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
+	class UPlayerInfoUI* WBP_PlayerInfo;
+
 	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
 	class UTextBlock* text_Timer;
 
-	UPROPERTY()
-	class AGameMode_MH* gm;
 
 	UFUNCTION()
 	void UpdateTimerDisplay(float TimerValue);
 
+
+	//라운드 UI num 변경
+	UFUNCTION()
+	void ShowRoundText(int32 RoundNum);
+
+	UFUNCTION()
+	void HideRoundText();
+	
+	UFUNCTION()
+	void ShowGameOver();
+
+	UFUNCTION()
+	void HideGameOver();
+	
 	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
-	class UPlayerInfoUI* WBP_PlayerInfo;
+	class UTextBlock* text_Round;
+
+	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
+	class UCanvasPanel* can_Round;
+
+	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
+	class UCanvasPanel* can_GameOver;
+
+	
 	
 	/*
 	

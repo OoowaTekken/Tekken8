@@ -16,14 +16,21 @@ void UAIStateWalkForward::SetDistance ( float pDistance )
 void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
-	if ( owner->GetDistanceTo ( owner->aOpponentPlayer ) < distance )
-		Exit ( );
+
 	animInstace->StateWalkForward(true);
 }
 
 void UAIStateWalkForward::Execute ( const float& deltatime )
 {
-	owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector());
+	if ( owner->GetDistanceTo ( owner->aOpponentPlayer ) < 200.0f )
+		Exit();
+	else
+	{
+		owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) );
+		animInstace->AnimNotify_LookTarget();
+	}
+	
+
 }
 
 void UAIStateWalkForward::Exit ( )
@@ -31,13 +38,13 @@ void UAIStateWalkForward::Exit ( )
 	animInstace->StateWalkForward ( false );
 	Super::Exit ( );
 }
-void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
-	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , owner->aOpponentPlayer->GetActorLocation ( ) );
-	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime ,200.0f ) );
-	if( owner->GetDistanceTo( owner->aOpponentPlayer )<distance)
-		Exit();
-
-	// ...
-}
+//void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )
+//{
+//	Super::TickComponent ( DeltaTime , TickType , ThisTickFunction );
+//	lookPlayerRotator = UKismetMathLibrary::FindLookAtRotation ( owner->GetActorLocation ( ) , owner->aOpponentPlayer->GetActorLocation ( ) );
+//	owner->SetActorRotation ( FMath::RInterpConstantTo ( owner->GetActorRotation ( ) , lookPlayerRotator , DeltaTime ,200.0f ) );
+//	if( owner->GetDistanceTo( owner->aOpponentPlayer )<distance)
+//		Exit();
+//
+//	// ...
+//}

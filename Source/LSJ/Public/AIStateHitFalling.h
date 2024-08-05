@@ -13,7 +13,9 @@ UCLASS()
 class LSJ_API UAIStateHitFalling : public UAIStateComponent
 {
 	GENERATED_BODY()
-	
+	float maxLocationZ;
+	float currnetLocationZ;
+	float minLocationZ;
 public:
 	void SetAttackInfo ( FAttackInfoInteraction& pAttackInfo );
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
