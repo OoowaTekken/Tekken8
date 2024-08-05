@@ -58,6 +58,8 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 	{
 		if ( this->Hp <= 0 )
 			return;
+		else
+			this->bFalling = false;
 		AnimationFrame ( );
 		this->currKeyValue = this->GetCurrInputKeyValue ( );
 		this->fCurrTimeForFrame = 0;
