@@ -84,7 +84,7 @@ void AGameMode_MH::BeginPlay()
 		//Kazuya
 		playerBNum = 2;
 	}
-
+	
 	if (CameraPawn)
 	{
 		SpawnedCameraPawn = Cast<APawn>(GetWorld()->SpawnActor<APawn>(CameraPawn));
@@ -101,6 +101,9 @@ void AGameMode_MH::BeginPlay()
 	InitRoundState();
 
 	StartGame();
+
+	//라운드 종료 초기화
+	bHasRoundEnded = false;
 }
 
 void AGameMode_MH::Tick(float DeltaTime)
@@ -112,6 +115,7 @@ void AGameMode_MH::Tick(float DeltaTime)
 	{
 		//HP 체크
 		CheckPlayerHP();
+		if(!bHasRoundEnded)
 		//타임 체크
 		CountDown(DeltaTime);
 	}
@@ -151,12 +155,15 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	case EGameState::GameStart:
 		//라운드 시작
 		//라운드 초기화
+		//라운드 스코어 초기화
+		InitRoundState();
 		StartRound();
 		break;
 	case EGameState::RoundStart:
 		//타이머,HP 초기화
 		ResetRoundState();
 		SetGameState(EGameState::InProgress);
+		GEngine->AddOnScreenDebugMessage(-5 , 5.f , FColor::Red , TEXT("RoundStart"));
 		break;
 
 	case EGameState::InProgress:
@@ -168,10 +175,15 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 		// 라운드 종료 처리
 		//HP가 0이 되었을 때 호출,
 		//타이머가 0 이 되었을 떄 호출
-		PlayerInfoUI->UpdateEndHP(player1HP,player2HP);	
+		//타이머가 0이 된 경우에만 End HP 호출
+		//PlayerInfoUI->UpdateEndHP(player1HP,player2HP);	
 		//라운드 스코어 ++
 		CheckRoundWinner();
-		CheckForGameOver();
+		
+		//5초후 라운드 체크-> 다시시작 or 게임오버
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGameMode_MH::CheckForGameOver, 5.0f, false);
+		//CheckForGameOver();
+		GEngine->AddOnScreenDebugMessage(-6 , 5.f , FColor::Red , TEXT("RoundEnd"));
 		break;
 
 	case EGameState::GameOver:
@@ -192,9 +204,6 @@ void AGameMode_MH::StartGame()
 
 void AGameMode_MH::StartRound()
 {
-	//라운드 스코어 초기화
-	InitRoundState();
-
 	//게임 UI생성 (타이머, HP,라운드카운트,캐릭터 이미지)
 	inGameUI = CreateWidget<UinGameUI>(GetWorld() , inGameWidget);
 	if (inGameUI)
@@ -297,7 +306,7 @@ void AGameMode_MH::CheckRoundWinner()
 		//Player 1
 		Player1Score += 1;
 	}
-	else if (player1HP < player2HP)
+	else
 	{
 		//Player 2
 		Player2Score += 1;
@@ -345,9 +354,10 @@ void AGameMode_MH::CheckPlayerHP()
 		player2HP = GetPlayerHP(playerB);
 
 		// HP가 0이거나 낮은 경우 라운드 종료 상태로 변경
-		if (player1HP <= 0 || player2HP <= 0)
+		if ((player1HP <= 0 || player2HP <= 0) && !bHasRoundEnded)
 		{
 			HandleNewState(EGameState::RoundEnd);
+			bHasRoundEnded = true;  // 라운드 종료 플래그 설정		
 		}
 	}
 }
@@ -368,9 +378,19 @@ int32 AGameMode_MH::GetPlayerHP(ACharacter* Player)
 void AGameMode_MH::ResetRoundState()
 {
 	gameTimer = initroundTimer;
-
+	playerA->Hp = player1MaxHP;
+	playerB->Hp = player2MaxHP;
+	
 	player1HP = player1MaxHP;
 	player2HP = player2MaxHP;
+	
+	bHasRoundEnded = false;
+
+	// UI를 업데이트
+	if (PlayerInfoUI)
+	{
+		PlayerInfoUI->UpdateHealthBars(player1HP , player1MaxHP , player2HP , player2MaxHP);
+	}
 }
 
 void AGameMode_MH::InitRoundState()

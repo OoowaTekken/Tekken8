@@ -17,10 +17,8 @@ void UPlayerInfoUI::NativeConstruct()
 
 void UPlayerInfoUI::SetPlayerinfo(ACharacter* PlayerA , ACharacter* PlayerB , int32 playerAnum , int32 playerBnum)
 {
-	GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("setplayerinfo"));
 	if (PlayerA)
 	{
-		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("PlayerA is valid."));
 		// pual=1,kazuya=2,jin=3
 		if (playerAnum == 1)
 		{
@@ -48,7 +46,6 @@ void UPlayerInfoUI::SetPlayerinfo(ACharacter* PlayerA , ACharacter* PlayerB , in
 	{
 		if (playerBnum == 1)
 		{
-			GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("PlayerB is valid."));
 			//플레이어2 폴
 			//폴이름, 사진
 			text_NameB->SetText(PAUL);
@@ -125,15 +122,18 @@ void UPlayerInfoUI::UpdateRoundImages(int32 RoundScoreA , int32 RoundScoreB)
 	{
 	case 1:
 		img_VictoryPoint1B->SetVisibility(ESlateVisibility::Visible);
+		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("Round1."));
 		break;
 	case 2:
 		img_VictoryPoint1B->SetVisibility(ESlateVisibility::Visible);
 		img_VictoryPoint2B->SetVisibility(ESlateVisibility::Visible);
+		GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("Round2."));
 		break;
 	case 3:
 		img_VictoryPoint1B->SetVisibility(ESlateVisibility::Visible);
 		img_VictoryPoint2B->SetVisibility(ESlateVisibility::Visible);
 		img_VictoryPoint3B->SetVisibility(ESlateVisibility::Visible);
+		GEngine->AddOnScreenDebugMessage(-3 , 5.f , FColor::Red , TEXT("Round3."));
 		break;
 	default:
 		break;

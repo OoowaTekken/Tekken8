@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CPP_Tekken8CharacterParent.h"
 #include "PlayerCameraPawn.h"
+#include "../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
 #include "CPP_CharacterPaul.generated.h"
 
 
@@ -235,7 +236,16 @@ public:
 	 * @brief 히트의 충돌체 카메라 효과를 위한 작업입니다.
 	 */
 	class AGameMode_MH* GameModeMH;
+	
+	/**
+	 * @title Paticle Effect
+	 * @brief 파티클 이펙트에 대한
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect" )
+	UNiagaraSystem* uNS_HitEffect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect" )
+	UNiagaraSystem* uNS_DefenceEffect;
 
 	// APlayerCameraPawn* aMainCamera;
 
@@ -244,6 +254,10 @@ public:
 	* @brief 시작 지점 트리를 가지고 있습니다.
 	*	모든 스킬트리는 맵형식의 반복된 값을 가지고 있음으로 참고 바랍니다.
  	*/
+
+	void CommandStarTest1 ( );
+	void CommandStarTest2 ( );
+	////
 	void CommandIdle ( );
 	void CommandStar ( );
 	void CommandEnd ( );
