@@ -26,7 +26,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
         movementSpeed = FVector ( velocity.X , velocity.Y , 0.f ).Size ( );
 
         // AnimInstance에 있는 CalculateDriection() 메소드를 통해 방향을 구한다.
-        direction = CalculateDirection ( velocity , owner->GetActorRotation ( ) );
+        direction = CalculateDirection ( velocity , owner->GetActorRotation());
         
 		if ( bStateWalkBack && GetInstanceForMontage (walkBackMontage)!=nullptr &&GetInstanceForMontage ( walkBackMontage )->GetBlendTime ( ) < 0.1f )
 			bStateWalkBack = false;
@@ -37,7 +37,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
 {
     Super::NativeUpdateAnimation ( DeltaSeconds );
-    UpdateProperties ( );
+    UpdateProperties();
 
     //if ( Montage_IsPlaying ( walkBackMontage ) )
     //{
@@ -62,9 +62,9 @@ void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
     //}
 }
 
-void UAICharacterAnimInstance::NativeInitializeAnimation ( )
+void UAICharacterAnimInstance::NativeInitializeAnimation()
 {
-	Super::NativeInitializeAnimation ( );
+	Super::NativeInitializeAnimation();
 	if ( owner == nullptr )
 	{
 		owner = Cast<AAICharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
@@ -97,10 +97,12 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
         attackLFMontage = attackLFMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitTopMontageFinder
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Hit_Face_Montage.Hit_Face_Montage'" ) );
+    //( TEXT ( "/Script/Engine.AnimMontage'/Game/Kyoulee/character/Ani/Montage/Hit_Face_Montage.Hit_Face_Montage'" ) );
     if ( hitTopMontageFinder.Succeeded ( ) )
         hitTopMontage = hitTopMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitMiddleMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    //( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    (TEXT ( "/Script/Engine.AnimMontage'/Game/Kyoulee/character/Ani/Montage/Hit_Face_Montage.Hit_Face_Montage'" ));
     if ( hitMiddleMontageFinder.Succeeded ( ) )
         hitMiddleMontage = hitMiddleMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>uppercutLHMontageFinder
@@ -347,7 +349,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
         hitResult ,
         start ,
         end ,
-        ECC_Visibility ,
+        ECC_Camera ,
         collisionParams ) )
     {
         if ( hitResult.GetActor ( ) == owner->aOpponentPlayer )
@@ -355,7 +357,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
             owner->aOpponentPlayer->HitDecision ( owner->SendAttackInfo ( ) , owner );
         }
     }
-    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld() , laserFXSystem , start, (end-start).Rotation());
+    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld() , laserFXSystem , start,(end-start).Rotation());
 
 }
 

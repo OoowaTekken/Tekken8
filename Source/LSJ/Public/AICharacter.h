@@ -121,7 +121,7 @@ public:
 	virtual void OnCollisionRFBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	virtual void OnCollisionLFBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer );
+	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer);
 	//공격 상태에 따른 공격정보 전달 함수
 	//공격 상태에 몇번째 공격인지 count 변수로 구별하고 count에 해당하는 FAttackInfoInteraction정보를 전달한다.
 	//count 변수는 콜리전을 끌때 count ++해서 공격상태 count에 전달한다

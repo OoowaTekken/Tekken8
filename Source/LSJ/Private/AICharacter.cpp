@@ -478,13 +478,52 @@ void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		IsAttacked = true;
 	}
 }
+//void CheckCollision (bool guard, UBoxComponent* hitCollision )
+//{
+//	if ( guard )
+//	{
+//		if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		} 
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//	}
+//	else
+//	{
+//		if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//	}
+//}
 //공격 받았을 때
-bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
+bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer)
 {
 	//현재 상태와 공격정보를 확인해서 데미지 처리
 	//공격 받았다면 Hit State 상태 처리 attackInfo를 전달 return true;
 	//가드라면 ... return false;
 	//attackInfo
+	//if()
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
+	//else if()
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
+	//else
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
 	if ( blackboardComp )
 	{
 		
@@ -496,7 +535,7 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 		if( gameMode )
 			gameMode->UpdatePlayerHP(this,Hp);
 		// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
-		aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 10.0f , 10.0f , 0.3f );
+		//aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 10.0f , 10.0f , 0.3f );
 
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
 		if ( attackInfo.KnockBackDirection.Z > 0 || currentState == stateBound || currentState == stateHitFalling )
