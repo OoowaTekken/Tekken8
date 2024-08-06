@@ -5,6 +5,18 @@
 #include "CPP_CharacterPaul.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+void UCPP_PualAnimInstance::NativeInitializeAnimation ( )
+{
+	Super::NativeInitializeAnimation ( );
+
+	if ( aOwner == nullptr )
+	{
+		aOwner = Cast<ACPP_CharacterPaul> ( TryGetPawnOwner ( ) );	// 소유자의 Pawn 를 가져온다.
+	}
+
+	OnMontageEnded.AddDynamic ( this , &UCPP_PualAnimInstance::HandleOnMontageEnded );
+}
+
 void UCPP_PualAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
@@ -22,5 +34,11 @@ void UCPP_PualAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	this->bCrouch = player->bCrouched;
 	this->bFalling = player->bFalling;
 	this->bNuckDown = player->bNuckDown;
+}
 
+void UCPP_PualAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
+{
+	aOwner->SetToWorldLocationPoint ( aOwner->GetActorLocation ( ) );
+	aOwner->bMoveTo = true;
+	aOwner->eCharacterState = ECharacterStateInteraction::GuardStand;
 }

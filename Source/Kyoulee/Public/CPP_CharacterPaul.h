@@ -135,7 +135,7 @@ public:
 	void SetSelfReLinkTree ( TArray<int32> arrayTreeCommand );
 	
 	UPROPERTY(EditDefaultsOnly, Category="DebugMode" )
-	bool DebugMode = 0;
+	bool DebugMode = 1;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -295,5 +295,6 @@ public:
  *
  */
 	virtual bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer ) override;
+	bool bMoveTo= true;
 };
 	            

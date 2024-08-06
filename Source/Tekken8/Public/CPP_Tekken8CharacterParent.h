@@ -87,6 +87,7 @@ public:
 	int32 OwnerGuardFrame = 0;
 	int32 OwnerCounterFrame = 0;
 	int32 OwnerMissFrame = 0;
+	
 
 
 	/**
