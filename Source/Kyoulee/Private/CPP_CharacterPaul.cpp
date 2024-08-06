@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode_MH.h"
 #include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "CPP_PualAnimInstance.h"
 
 // Sets default values
 ACPP_CharacterPaul::ACPP_CharacterPaul ( )
@@ -42,7 +43,6 @@ void ACPP_CharacterPaul::BeginPlay ( )
 	GameModeMH = Cast<AGameMode_MH>( GetWorld ( )->GetAuthGameMode ( ) );
 
 	uAnim = this->GetMesh ( )->GetAnimInstance ( );
-
 }
 
 
@@ -105,10 +105,7 @@ void ACPP_CharacterPaul::FrameSystem ( )
 
 	FCommandTree* temptree = this->mCurrCommandTree[currKeyValue];
 	if ( (!(temptree->timingStart <= iCurrFrame)) || (temptree->timingEnd && iCurrFrame > temptree->timingEnd) )
-	{
-		this->CommandIdle ( );
 		return;
-	}
 	this->CountIdleFrame = 0;
 	iCurrFrame = 0;
 	//UE_LOG ( LogTemp , Warning , TEXT ( "input : %i " ) , currKeyValue );
@@ -130,11 +127,13 @@ void ACPP_CharacterPaul::FrameSystem ( )
 
 void ACPP_CharacterPaul::SetAttackInfoOwnerOpposite ( )
 {
+	//공격자
 	attackInfo.OwnerHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame < 0 ? attackInfo.HitFrame * -1 : 0);
 	attackInfo.OwnerGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame < 0 ? attackInfo.GrardFrame * -1 : 0);
 	attackInfo.OwnerCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame < 0 ? attackInfo.CounterFrame * -1 : 0);
 	attackInfo.OwnerMissFrame = attackInfo.RetrieveFrame + (attackInfo.MissFrame < 0 ? attackInfo.MissFrame * -1 : 0);
 
+	//수비자
 	attackInfo.OppositeHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame > 0 ? attackInfo.HitFrame : 0);
 	attackInfo.OppositeGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame > 0 ? attackInfo.GrardFrame : 0);
 	attackInfo.OppositeCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame > 0 ? attackInfo.CounterFrame : 0);
@@ -146,8 +145,8 @@ bool ACPP_CharacterPaul::PlayMontageFrameSystem ( UAnimMontage* montage )
 		return false;
 	if (DebugMode )
 		UE_LOG(LogTemp,Warning,TEXT("Montage Start" ));
-	uAnim->Montage_Play ( montage );
-
+	UCPP_PualAnimInstance * tempAnim = Cast<UCPP_PualAnimInstance>( uAnim );
+	tempAnim->Montage_Play ( montage );
 	return true;
 }
 
@@ -181,10 +180,12 @@ void ACPP_CharacterPaul::SetToWorldLocationPoint ( FVector vector )
 
 void ACPP_CharacterPaul::AnimationFrame ( )
 {
-	
-	FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
-	AddMovementInput(dir);
-	// this->SetActorLocation ( this->GetActorLocation ( ) + dir );
+	if (bMoveTo)
+	{ 
+		FVector dir = (this->ToLocation - this->GetActorLocation ( )) / 60;
+		AddMovementInput(dir);
+		//this->SetActorLocation ( this->GetActorLocation ( ) + dir );
+	}
 
 	// 인풋이 있을 경우 상대를 바라본다 
 	if ( currKeyValue )
@@ -1053,6 +1054,8 @@ bool ACPP_CharacterPaul::CommandAllStop ( )
 /************************************************************************/
 bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , ACPP_Tekken8CharacterParent* ownerHitPlayer )
 {
+	bMoveTo = false;
+
 	if ( aMainCamera )
 		aMainCamera->RequestZoomEffect ( attackInfoHit.skellEffectLocation , attackInfoHit.cameraZoom , attackInfoHit.cameraShake , attackInfoHit.cameraDelay );
 	else
@@ -1060,7 +1063,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Top && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ));
+		//this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ));
+		LaunchCharacter( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ), true, true );
 		// defense animation 추가하기
 		PlayMontageFrameSystem ( uMtgDefence );
 		// 디펜스 파티클
@@ -1072,7 +1076,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Middle && this->eCharacterState == ECharacterStateInteraction::GuardStand )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ) );
+		//this->SetToWorldLocationPoint ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ) );
+		LaunchCharacter ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ) , true , true );
 		// defense animation 추가하기
 		if (this->bCrouched )
 			PlayMontageFrameSystem ( uMtgSitDefence );
@@ -1087,7 +1092,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	if ( attackInfoHit.DamagePoint == EDamagePointInteraction::Lower && this->eCharacterState == ECharacterStateInteraction::GuardSit )
 	{
 		this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeGuardFrame;
-		this->SetToWorldLocationPoint ( ( attackInfoHit.KnockBackDirection - this->GetActorLocation ( ) ) / 2 + this->GetActorLocation ( ) );
+		//this->SetToWorldLocationPoint ( ( attackInfoHit.KnockBackDirection - this->GetActorLocation ( ) ) / 2 + this->GetActorLocation ( ) );
+		LaunchCharacter ( (attackInfoHit.KnockBackDirection - this->GetActorLocation ( )) / 2 + this->GetActorLocation ( ) , true , true );
 		// defense animation 추가하기
 		PlayMontageFrameSystem ( uMtgSitDefence );
 
@@ -1098,7 +1104,8 @@ bool ACPP_CharacterPaul::HitDecision ( FAttackInfoInteraction attackInfoHit , AC
 	}
 	this->SetActorRotation ( UKismetMathLibrary::FindLookAtRotation ( this->GetActorLocation ( ) , this->aOpponentPlayer->GetActorLocation ( ) ) );
 	this->sFrameStatus.FrameBlockUsing = attackInfoHit.OppositeHitFrame;
-	this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection );
+	//this->SetToWorldLocationPoint ( attackInfoHit.KnockBackDirection );
+	LaunchCharacter ( attackInfoHit.KnockBackDirection , true , true );
 	// heart animation 추가하기
 	if ( this->Hp > 0 )
 	{
@@ -1175,8 +1182,8 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 		DrawDebugSphere ( GetWorld ( ) , attackInfo.skellEffectLocation , radius , 26 , attackInfo.debugColor , false , 1.0f );
 }
 
-//void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
-//{
+// void ACPP_CharacterPaul::HowtoUseSphereOverlapActors ( )
+// {
 // 	/**
 // 	 * @use SphereOverlapActors
 // 	 * @url https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Kismet/UKismetSystemLibrary/SphereOverlapActors?application_version=5.4
@@ -1192,7 +1199,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 // 
 // 	// Array of actors that are inside the radius of the sphere
 // 	TArray<AActor*> outActors;
-
+// 
 // 	// Total radius of the sphere
 // 	float radius = 750.0f;
 // 	// Sphere's spawn loccation within the world
@@ -1201,7 +1208,7 @@ void  ACPP_CharacterPaul::CommentHitFrameExecute ( )
 // 	UClass* seekClass = ACharacter::StaticClass ( ); // NULL;
 // 	UKismetSystemLibrary::SphereOverlapActors ( GetWorld ( ) , sphereSpawnLocation , radius , traceObjectTypes , seekClass , ignoreActors , outActors );
 // 
-//}
+// }
 
 /*
 * @ tamplelate skell
