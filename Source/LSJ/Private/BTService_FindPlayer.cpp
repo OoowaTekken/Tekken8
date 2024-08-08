@@ -3,10 +3,9 @@
 
 #include "BTService_FindPlayer.h"
 #include "BehaviorTree/BlackBoardComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
-#include "CPP_CharacterPaul.h"
-
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "AICharacter.h"
+#include "AICharacterController.h"
 UBTService_FindPlayer::UBTService_FindPlayer ( )
 {
 	NodeName = TEXT ( "FindPlayer" );
@@ -15,5 +14,8 @@ UBTService_FindPlayer::UBTService_FindPlayer ( )
 
 void UBTService_FindPlayer::TickNode ( UBehaviorTreeComponent& OwnerComp , uint8* NodeMemory , float DeltaSeconds )
 {
-	OwnerComp.GetBlackboardComponent ( )->SetValueAsObject ( FName("Player" ) , UGameplayStatics::GetActorOfClass ( GetWorld ( ) , ACPP_CharacterPaul::StaticClass ( ) ) );
+	AAICharacter* owner = Cast<AAICharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	if(nullptr==owner)
+		return;
+	OwnerComp.GetBlackboardComponent ( )->SetValueAsObject ( TEXT("Player") , owner->aOpponentPlayer);
 }

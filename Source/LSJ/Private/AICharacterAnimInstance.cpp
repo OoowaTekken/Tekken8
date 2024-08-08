@@ -76,7 +76,7 @@ void UAICharacterAnimInstance::NativeInitializeAnimation()
 UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 {
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkForwardMontageFinder
-    ( TEXT ("/Script/Engine.AnimMontage'/Game/LSJ/Animation/Step_Forward1_Montage.Step_Forward1_Montage'")); //"/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
+    ( TEXT ("/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Step_Forward1_Montage.Step_Forward1_Montage'")); //"/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
@@ -122,9 +122,17 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( hitFallingTurnMontageFinder.Succeeded ( ) )
         hitFallingTurnMontage = hitFallingTurnMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>boundMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
     if ( boundMontageFinder.Succeeded ( ) )
         boundMontage = boundMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>crossWalkClockwiseMontageFinder 
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Pivot-L_T1_Montage.KB_Pivot-L_T1_Montage'" ) );
+    if ( crossWalkClockwiseMontageFinder.Succeeded ( ) )
+        crossWalkClockwiseMontage = crossWalkClockwiseMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>crossWalkCounterclockwiseMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Pivot-R_T1_Montage.KB_Pivot-R_T1_Montage'" ) );
+    if ( crossWalkCounterclockwiseMontageFinder.Succeeded ( ) )
+        crossWalkCounterclockwiseMontage = crossWalkCounterclockwiseMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Laser.Laser'" ) );
     if ( NE.Succeeded ( ) )
     {
@@ -149,10 +157,28 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
     else
     {
     // Animation Montage가 정상적으로 끝났습니다.
+        if ( Montage == crossWalkCounterclockwiseMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::Move );
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
+        if ( Montage == crossWalkClockwiseMontage)
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::Move );
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
+        if ( Montage == walkForwardMontage)
+        {
+           owner->ExitCurrentState ( ECharacterStateInteraction::Move);
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
         if ( Montage == walkBackMontage )
         {
             //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
-            if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+            //if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
         }
         else
         if ( Montage == attackLFMontage )
@@ -210,6 +236,16 @@ void UAICharacterAnimInstance::PlayBoundMontage ( )
     Montage_Play( boundMontage , 0.5f , EMontagePlayReturnType::MontageLength , 0.2f , false );
 }
 
+void UAICharacterAnimInstance::PlayCrossWalkClockwiseMontage ( )
+{
+    Montage_Play ( crossWalkClockwiseMontage );
+}
+
+void UAICharacterAnimInstance::PlayCrossWalkCounterclockwiseMontage ( )
+{
+    Montage_Play ( crossWalkCounterclockwiseMontage );
+}
+
 void UAICharacterAnimInstance::PlayHitFallingMontage ( )
 {
     Montage_Play ( hitFallingMontage,0.5f);
@@ -232,8 +268,8 @@ void UAICharacterAnimInstance::PlayHitMiddleMontage ( )
 
 void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 {
-    NowLocation = owner->GetActorLocation ( );
-    BeforeLocation = NowLocation;
+   // NowLocation = owner->GetActorLocation ( );
+   // BeforeLocation = NowLocation;
     Montage_Play( walkForwardMontage );
 }
 
@@ -330,6 +366,11 @@ void UAICharacterAnimInstance::AnimNotify_Move ( )
 void UAICharacterAnimInstance::AnimNotify_MoveEnd ( )
 {
     owner->StateComboLaserAttack ( )->FinishStep ();
+}
+
+void UAICharacterAnimInstance::AnimNotify_WalkMoveEnd ( )
+{
+    owner->ExitCurrentState ( ECharacterStateInteraction::Move );
 }
 
 void UAICharacterAnimInstance::AnimNotify_Laser ( )
