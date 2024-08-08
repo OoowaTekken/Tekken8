@@ -24,6 +24,7 @@
 #include "AIStateBound.h"
 #include "GameMode_MH.h"
 #include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "AIStateWalkCross.h"
 
 
 // Sets default values
@@ -97,6 +98,10 @@ AAICharacter::AAICharacter()
 	stateBound = CreateDefaultSubobject<UAIStateBound> ( TEXT ( "stateBound" ) );
 	stateBound->SetStateOwner ( this );
 	stateComboLaserAttack = CreateDefaultSubobject<UAIStateComboLaserAttack> ( TEXT ( "stateComboLaserAttack" ));
+	stateComboLaserAttack->SetStateOwner ( this );
+	stateWalkCross = CreateDefaultSubobject<UAIStateWalkCross> ( TEXT ( "stateWalkCross" ) );
+	stateWalkCross->SetStateOwner ( this );
+
 	FAttackInfoInteraction attack1;
 	attack1.KnockBackDirection = FVector (250.f,0.f,0.f); //-0.5 뒤로 밀려난다 5*50 = 250.0f
 	attack1.DamageAmount = 10;
@@ -196,6 +201,8 @@ AAICharacter::AAICharacter()
 	}
 	//중력적용
 	//GetCharacterMovement()->bApplyGravityWhileJumping = true;
+	//앞으로만 이동되게 하는 설정
+	//GetCharacterMovement ( )->bOrientRotationToMovement = true;
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -268,8 +275,6 @@ void AAICharacter::Tick(float DeltaTime)
 		FVector Gravity = FVector ( 0 , 0 , -980 ); // 기본 중력 값
 		AddMovementInput ( Gravity * DeltaTime,true);
 	}
-
-
 }
 
 // Called to bind functionality to input
@@ -306,6 +311,11 @@ void AAICharacter::ExitCurrentState ( ECharacterStateInteraction state)
 	}
 	if( state == ECharacterStateInteraction::HitFalling )
 		ChangeState(stateIdle);
+}
+
+void AAICharacter::SetStateIdle ( )
+{
+	ChangeState ( stateIdle );
 }
 
 void AAICharacter::OnAttackCollisionLF ( )
@@ -511,7 +521,7 @@ void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 //		}
 //	}
 //}
-//공격 받았을 때
+//공격 받았을 때 //FAttackInfoInteraction attackInfo에서 공격받는 애니메이션 혹은 가드 애니메이션 전달 
 bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer)
 {
 	//현재 상태와 공격정보를 확인해서 데미지 처리

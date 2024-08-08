@@ -40,6 +40,8 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	class UAIStateHit* stateHit;
 	UPROPERTY ( )
 	class UAIStateComboLaserAttack* stateComboLaserAttack;
+	UPROPERTY ( )
+	class UAIStateWalkCross* stateWalkCross;
 	bool IsPlayer1;
 
 	class AAICharacterController* aiController;
@@ -91,6 +93,8 @@ public:
 	void ExitCurrentState (ECharacterStateInteraction state );
 
 	// 상태 이동 객체에 대한 접근 메서드 추가
+	void SetStateIdle();
+	UAIStateWalkCross* GetAIStateWalkCross ( ) const { return stateWalkCross; }
 	IAIStateInterface* GetCurrentState ( ) const { return currentState; }
 	UAIStateIdle* GetAIStateIdle ( ) const { return stateIdle; }
 	UAIStateWalkForward* GetAIStateWalkForward ( ) const { return stateWalkForward; }
