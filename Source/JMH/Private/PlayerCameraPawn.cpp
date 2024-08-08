@@ -58,7 +58,7 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 			// 플레이어들 간의 거리 계산
 
 			// 거리 변화가 임계값을 초과하는지 확인
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("11111111"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("11111111"));
 			FVector playerALoc1 = playerA->GetActorLocation();
 			FVector playerBLoc1 = playerB->GetActorLocation();
 			originalLocation = (playerALoc1 + playerBLoc1)*.5f;
@@ -88,7 +88,7 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 			{
 				// 전환이 완료되면 수치 초기화
 				ResetZoomEffect();
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("!!!!!!!!"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("!!!!!!!!"));
 			}
 			else
 			{
@@ -99,7 +99,7 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 		
 		else{
 		//플레이이어가 호출하면
-		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("bIsZoomActive!"));
+		//GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("bIsZoomActive!"));
 		// 줌 효과 적용
 			//
 			FVector playerALoc1 = playerA->GetActorLocation();
@@ -147,7 +147,7 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	FString PlayerDistanceString = FString::Printf(TEXT("Player Distance: %.2f"), playerDistance);
 
 	// 화면에 디버그 메시지로 출력
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, PlayerDistanceString);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, PlayerDistanceString);
 	
     //두 플레이어의 거리
 	playerALoc = playerA->GetActorLocation();
@@ -226,7 +226,7 @@ void APlayerCameraPawn::CameraZoom(float DeltaTime , float playerDistance)
 {
 	//플레이어 둘다
 	//float targetArmLength = FMath::Clamp(baseArmLength + playerDistance * ZoomAmount , MinDistance , MaxDistance);
-	GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("CameraZoom!"));
+	//GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("CameraZoom!"));
 	float targetArmLength = FMath::Clamp(baseArmLength + playerDistance * ZoomAmount , MinDistance , MaxDistance);
 
 	//Lerp를 사용하여 카메라 줌을 부드럽게 변경
