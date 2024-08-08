@@ -47,9 +47,57 @@ void APlayerCameraPawn::BeginPlay()
 void APlayerCameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	//플레이어가 호출하는 상황 일 때
 	if (bIsZoomActive)
 	{
+		// 줌 시간이 경과했는지 확인
+		ZoomElapsedTime += DeltaTime;
+		if (ZoomElapsedTime >= ZoomDuration)
+		{
+			// 플레이어들 간의 거리 계산
+
+			// 거리 변화가 임계값을 초과하는지 확인
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("11111111"));
+			FVector playerALoc1 = playerA->GetActorLocation();
+			FVector playerBLoc1 = playerB->GetActorLocation();
+			originalLocation = (playerALoc1 + playerBLoc1)*.5f;
+			// 원래 위치로 부드럽게 전환
+			float playerDistance = FVector::Dist(playerALoc1, playerBLoc1);
+			
+			targetArmLength1 = FMath::Clamp(250, MinDistance , MaxDistance);
+
+			//Lerp를 사용하여 카메라 줌을 부드럽게 변경
+			//newArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength , targetArmLength1 , DeltaTime , CameraLagSpeed);
+			//SpringArmComp->TargetArmLength = newArmLength;
+			
+			// 카메라 위치도 원래 위치로 부드럽게 전환
+			FVector newLocation1 = FMath::VInterpTo(GetActorLocation(),originalLocation,
+												   DeltaTime , CameraLagSpeed);
+			SetActorLocation(newLocation1);
+
+			//카메라 줌
+			float newArmLength1 = FMath::FInterpTo(SpringArmComp->TargetArmLength ,
+												   targetArmLength1 , DeltaTime ,
+												   CameraLagSpeed);
+			// 전환이 완료된 것으로 간주할 수 있는 허용 범위 정의
+			float armLengthTolerance = 10.f; // 허용 오차, 필요에 따라 조정
+			float locationTolerance = 100.f; // 허용 오차, 필요에 따라 조정
+			ShakingValue = 0.0f;
+			if (FMath::Abs(SpringArmComp->TargetArmLength - targetArmLength1) < armLengthTolerance)
+			{
+				// 전환이 완료되면 수치 초기화
+				ResetZoomEffect();
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("!!!!!!!!"));
+			}
+			else
+			{
+				// 전환을 계속 진행
+				SpringArmComp->TargetArmLength = newArmLength1;
+			}
+		}
+		
+		else{
 		//플레이이어가 호출하면
 		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("bIsZoomActive!"));
 		// 줌 효과 적용
@@ -69,51 +117,6 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 		                                          CameraLagSpeed);
 		SetActorLocation(cameraLocation);
 
-		// 줌 시간이 경과했는지 확인
-		ZoomElapsedTime += DeltaTime;
-		if (ZoomElapsedTime >= ZoomDuration)
-		{
-			// 플레이어들 간의 거리 계산
-
-			// 거리 변화가 임계값을 초과하는지 확인
-			
-			FVector playerALoc1 = playerA->GetActorLocation();
-			FVector playerBLoc1 = playerB->GetActorLocation();
-			FVector centralLocation1 = (playerALoc1 + playerBLoc1) * 0.5f;
-			// 원래 위치로 부드럽게 전환
-			float playerDistance = FVector::Dist(playerALoc1, playerBLoc1);
-			//float distanceChange = FMath::Abs(playerDistance);
-			
-			targetArmLength1 = FMath::Clamp(baseArmLength + playerDistance * ZoomAmount , MinDistance , MaxDistance);
-
-			//Lerp를 사용하여 카메라 줌을 부드럽게 변경
-			//newArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength , targetArmLength1 , DeltaTime , CameraLagSpeed);
-			//SpringArmComp->TargetArmLength = newArmLength;
-			
-			// 카메라 위치도 원래 위치로 부드럽게 전환
-			FVector newLocation1 = FMath::VInterpTo(GetActorLocation(),originalLocation,
-			                                       DeltaTime , CameraLagSpeed);
-			SetActorLocation(newLocation1);
-
-			//카메라 줌
-			float newArmLength1 = FMath::FInterpTo(SpringArmComp->TargetArmLength ,
-			                                       targetArmLength1 , DeltaTime ,
-			                                       CameraLagSpeed);
-			// 전환이 완료된 것으로 간주할 수 있는 허용 범위 정의
-			float armLengthTolerance = 100.f; // 허용 오차, 필요에 따라 조정
-			float locationTolerance = 100.f; // 허용 오차, 필요에 따라 조정
-			ShakingValue = 0.0f;
-			if (FMath::Abs(SpringArmComp->TargetArmLength - targetArmLength1) < armLengthTolerance)
-			{
-				// 전환이 완료되면 수치 초기화
-				ResetZoomEffect();
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("!!!!!!!!"));
-			}
-			else
-			{
-				// 전환을 계속 진행
-				SpringArmComp->TargetArmLength = newArmLength1;
-			}
 		}
 
 		/*//UpdateCameraDynamic(DeltaTime);
@@ -126,10 +129,14 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 			// 흔들림 값 초기화 등 필요한 기본값 복귀
 			ResetZoomEffect(DeltaTime);
 		}*/
+		
+		//벗어날 때 CameraArmLenth 최소값으로 넣어주기
+		//SpringArmComp->TargetArmLength =
 	}
 
 	else
 	{
+		
 		UpdateCameraDynamic(DeltaTime);
 	}
 }
@@ -147,6 +154,12 @@ void APlayerCameraPawn::UpdateCameraDynamic(float DeltaTime)
 	float playerDistance = FVector::Dist(playerALoc , playerBLoc);
 	// 거리 변화가 임계값을 초과하는지 확인
 	float distanceChange = FMath::Abs(playerDistance);
+
+	FString PlayerDistanceString = FString::Printf(TEXT("Player Distance: %.2f"), playerDistance);
+
+	// 화면에 디버그 메시지로 출력
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, PlayerDistanceString);
+	
     //두 플레이어의 거리
 	playerALoc = playerA->GetActorLocation();
 	playerBLoc = playerB->GetActorLocation();
@@ -241,7 +254,7 @@ void APlayerCameraPawn::RequestZoomEffect(FVector TargetLocation , float InZoomA
 	ZoomDuration = InDuration;
 	ZoomElapsedTime = 0.0f;
 	currentArmLength = SpringArmComp->TargetArmLength;
-	originalLocation = playerALoc+playerBLoc/2;
+	//originalLocation = playerALoc+playerBLoc/2;
 	centralRotation = SpringArmComp->GetTargetRotation();
 	bIsZoomActive = true;
 }
