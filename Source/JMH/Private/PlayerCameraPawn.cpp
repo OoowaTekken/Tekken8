@@ -74,14 +74,14 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 			// 카메라 위치도 원래 위치로 부드럽게 전환
 			FVector newLocation1 = FMath::VInterpTo(GetActorLocation(),originalLocation,
 												   DeltaTime , CameraLagSpeed);
-			SetActorLocation(newLocation1);
+			SetActorLocation(newLocation1 + FVector(0 , 0 , 1.58));
 
 			//카메라 줌
 			float newArmLength1 = FMath::FInterpTo(SpringArmComp->TargetArmLength ,
 												   targetArmLength1 , DeltaTime ,
 												   CameraLagSpeed);
 			// 전환이 완료된 것으로 간주할 수 있는 허용 범위 정의
-			float armLengthTolerance = 10.f; // 허용 오차, 필요에 따라 조정
+			float armLengthTolerance = 1.f; // 허용 오차, 필요에 따라 조정
 			float locationTolerance = 100.f; // 허용 오차, 필요에 따라 조정
 			ShakingValue = 0.0f;
 			if (FMath::Abs(SpringArmComp->TargetArmLength - targetArmLength1) < armLengthTolerance)
@@ -101,10 +101,14 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 		//플레이이어가 호출하면
 		GEngine->AddOnScreenDebugMessage(-1 , 5.f , FColor::Red , TEXT("bIsZoomActive!"));
 		// 줌 효과 적용
-		float targetArmLength = FMath::Clamp((baseArmLength * ZoomAmount) * .15f , MinDistance , MaxDistance);
-		PlayerArmLength = SpringArmComp->TargetArmLength = FMath::FInterpTo(
-			SpringArmComp->TargetArmLength , targetArmLength , DeltaTime ,
-			CameraLagSpeed);
+			//
+			FVector playerALoc1 = playerA->GetActorLocation();
+			FVector playerBLoc1 = playerB->GetActorLocation();
+			// 원래 위치로 부드럽게 전환
+			float playerDistance = FVector::Dist(playerALoc1, playerBLoc1);
+//
+			float targetArmLength = FMath::Clamp((baseArmLength + playerDistance * ZoomAmount), MinDistance , MaxDistance);
+		SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength , targetArmLength , DeltaTime ,CameraLagSpeed);
 
 		//카메라 쉐이크
 		FVector shakeOffset = FVector::ZeroVector;
@@ -118,25 +122,10 @@ void APlayerCameraPawn::Tick(float DeltaTime)
 		SetActorLocation(cameraLocation);
 
 		}
-
-		/*//UpdateCameraDynamic(DeltaTime);
-		ZoomElapsedTime += DeltaTime;
-		if (ZoomElapsedTime >= ZoomDuration)
-		{
-			PlayerArmLength = SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength , currentArmLength  , DeltaTime ,
-															  CameraLagSpeed);
-
-			// 흔들림 값 초기화 등 필요한 기본값 복귀
-			ResetZoomEffect(DeltaTime);
-		}*/
-		
-		//벗어날 때 CameraArmLenth 최소값으로 넣어주기
-		//SpringArmComp->TargetArmLength =
 	}
 
 	else
 	{
-		
 		UpdateCameraDynamic(DeltaTime);
 	}
 }
