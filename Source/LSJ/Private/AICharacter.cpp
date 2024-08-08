@@ -43,7 +43,7 @@ AAICharacter::AAICharacter()
 		GetMesh ( )->SetAnimInstanceClass ( animFinder.Class );
 	}
 	GetMesh ( )->SetRelativeScale3D ( FVector ( 0.1f , 0.1f , 0.1f ) );
-	GetMesh( )->SetRelativeLocation(FVector(0,0,-80.f));
+	GetMesh( )->SetRelativeLocation(FVector(0,0,-90.f));
 	GetMesh ( )->SetRelativeRotation ( FRotator (  0, -90.f , 0 ) );
 
 	collisionLH = CreateDefaultSubobject<USphereComponent> ( TEXT ( "collisionLH" ) );
