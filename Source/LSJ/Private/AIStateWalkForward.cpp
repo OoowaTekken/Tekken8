@@ -16,26 +16,26 @@ void UAIStateWalkForward::SetDistance ( float pDistance )
 void UAIStateWalkForward::Enter (UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
-
-	animInstace->StateWalkForward(true);
+	animInstace->PlayerWalkForwardMontage();
+	//animInstace->StateWalkForward(true);
 }
 
 void UAIStateWalkForward::Execute ( const float& deltatime )
 {
-	if ( owner->GetDistanceTo ( owner->aOpponentPlayer ) < 200.0f )
-		Exit();
-	else
-	{
-		owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) );
-		animInstace->AnimNotify_LookTarget();
-	}
+	//if ( owner->GetDistanceTo ( owner->aOpponentPlayer ) < 200.0f )
+	//	Exit();
+	//else
+	//{
+	//	//owner->GetMovementComponent ( )->AddInputVector ( owner->GetActorForwardVector ( ) );
+	//	animInstace->AnimNotify_LookTarget();
+	//}
 	
 
 }
 
 void UAIStateWalkForward::Exit ( )
 {
-	animInstace->StateWalkForward ( false );
+	//animInstace->StateWalkForward ( false );
 	Super::Exit ( );
 }
 //void UAIStateWalkForward::TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction )

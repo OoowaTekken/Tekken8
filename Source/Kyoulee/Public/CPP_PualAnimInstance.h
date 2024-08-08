@@ -15,8 +15,9 @@ class KYOULEE_API UCPP_PualAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 	
 public:
+	virtual void NativeInitializeAnimation ( ) override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite )
 	float fHorizontal;
 	
@@ -32,4 +33,10 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite )
 	bool	bNuckDown;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite )
+	class ACPP_CharacterPaul* aOwner;
+
+	UFUNCTION ( )
+	void HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted );
 };

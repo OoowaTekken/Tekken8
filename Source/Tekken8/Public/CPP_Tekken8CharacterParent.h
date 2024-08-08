@@ -87,6 +87,7 @@ public:
 	int32 OwnerGuardFrame = 0;
 	int32 OwnerCounterFrame = 0;
 	int32 OwnerMissFrame = 0;
+	
 
 
 	/**
@@ -140,6 +141,10 @@ public:
 // 		bGaurdBreaker = pbGaurdBreaker;
 // 	}
 	FColor debugColor;
+	//해당 공격받았을때 실행되는 몽타지
+	UAnimMontage* hitMontage;
+	//해당 공격이 가드되었을때 실행되는 몽타지
+	UAnimMontage* guardMontage;
 };
 
 UCLASS()

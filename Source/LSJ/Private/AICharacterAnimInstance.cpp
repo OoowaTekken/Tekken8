@@ -26,7 +26,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
         movementSpeed = FVector ( velocity.X , velocity.Y , 0.f ).Size ( );
 
         // AnimInstance에 있는 CalculateDriection() 메소드를 통해 방향을 구한다.
-        direction = CalculateDirection ( velocity , owner->GetActorRotation ( ) );
+        direction = CalculateDirection ( velocity , owner->GetActorRotation());
         
 		if ( bStateWalkBack && GetInstanceForMontage (walkBackMontage)!=nullptr &&GetInstanceForMontage ( walkBackMontage )->GetBlendTime ( ) < 0.1f )
 			bStateWalkBack = false;
@@ -37,7 +37,7 @@ void UAICharacterAnimInstance::UpdateProperties ( )
 void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
 {
     Super::NativeUpdateAnimation ( DeltaSeconds );
-    UpdateProperties ( );
+    UpdateProperties();
 
     //if ( Montage_IsPlaying ( walkBackMontage ) )
     //{
@@ -62,9 +62,9 @@ void UAICharacterAnimInstance::NativeUpdateAnimation ( float DeltaSeconds )
     //}
 }
 
-void UAICharacterAnimInstance::NativeInitializeAnimation ( )
+void UAICharacterAnimInstance::NativeInitializeAnimation()
 {
-	Super::NativeInitializeAnimation ( );
+	Super::NativeInitializeAnimation();
 	if ( owner == nullptr )
 	{
 		owner = Cast<AAICharacter>(TryGetPawnOwner ( ));	// 소유자의 Pawn 를 가져온다.
@@ -76,7 +76,7 @@ void UAICharacterAnimInstance::NativeInitializeAnimation ( )
 UAICharacterAnimInstance::UAICharacterAnimInstance ( )
 {
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkForwardMontageFinder
-    ( TEXT ("/Script/Engine.AnimMontage'/Game/LSJ/Animation/Step_Forward1_Montage.Step_Forward1_Montage'")); //"/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
+    ( TEXT ("/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Step_Forward1_Montage.Step_Forward1_Montage'")); //"/Script/Engine.AnimSequence'/Game/Jaebin/Kazuya/Walk_Forward/Walking_Anim.Walking_Anim'" ) );
     if ( walkForwardMontageFinder.Succeeded ( ) )
         walkForwardMontage = walkForwardMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage> walkBackMontageFinder
@@ -97,10 +97,12 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
         attackLFMontage = attackLFMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitTopMontageFinder
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Hit_Face_Montage.Hit_Face_Montage'" ) );
+    //( TEXT ( "/Script/Engine.AnimMontage'/Game/Kyoulee/character/Ani/Montage/Hit_Face_Montage.Hit_Face_Montage'" ) );
     if ( hitTopMontageFinder.Succeeded ( ) )
         hitTopMontage = hitTopMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>hitMiddleMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    //( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
+    (TEXT ( "/Script/Engine.AnimMontage'/Game/Kyoulee/character/Ani/Montage/Hit_Face_Montage.Hit_Face_Montage'" ));
     if ( hitMiddleMontageFinder.Succeeded ( ) )
         hitMiddleMontage = hitMiddleMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>uppercutLHMontageFinder
@@ -120,9 +122,17 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( hitFallingTurnMontageFinder.Succeeded ( ) )
         hitFallingTurnMontage = hitFallingTurnMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>boundMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/NewAnimation6_Montage.NewAnimation6_Montage'" ) );
     if ( boundMontageFinder.Succeeded ( ) )
         boundMontage = boundMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>crossWalkClockwiseMontageFinder 
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Pivot-L_T1_Montage.KB_Pivot-L_T1_Montage'" ) );
+    if ( crossWalkClockwiseMontageFinder.Succeeded ( ) )
+        crossWalkClockwiseMontage = crossWalkClockwiseMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>crossWalkCounterclockwiseMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Pivot-R_T1_Montage.KB_Pivot-R_T1_Montage'" ) );
+    if ( crossWalkCounterclockwiseMontageFinder.Succeeded ( ) )
+        crossWalkCounterclockwiseMontage = crossWalkCounterclockwiseMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Laser.Laser'" ) );
     if ( NE.Succeeded ( ) )
     {
@@ -147,10 +157,28 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
     else
     {
     // Animation Montage가 정상적으로 끝났습니다.
+        if ( Montage == crossWalkCounterclockwiseMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::Move );
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
+        if ( Montage == crossWalkClockwiseMontage)
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::Move );
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
+        if ( Montage == walkForwardMontage)
+        {
+           owner->ExitCurrentState ( ECharacterStateInteraction::Move);
+            //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
+        }
+        else
         if ( Montage == walkBackMontage )
         {
             //owner->SetActorLocation ( owner->GetActorLocation ( ) + BeforeLocation - NowLocation );
-            if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
+            //if ( OnLog ) UE_LOG ( LogTemp , Warning , TEXT ( "walkBackMontage walkBackMontage %s" ) , *Montage->GetName ( ) );
         }
         else
         if ( Montage == attackLFMontage )
@@ -208,6 +236,16 @@ void UAICharacterAnimInstance::PlayBoundMontage ( )
     Montage_Play( boundMontage , 0.5f , EMontagePlayReturnType::MontageLength , 0.2f , false );
 }
 
+void UAICharacterAnimInstance::PlayCrossWalkClockwiseMontage ( )
+{
+    Montage_Play ( crossWalkClockwiseMontage );
+}
+
+void UAICharacterAnimInstance::PlayCrossWalkCounterclockwiseMontage ( )
+{
+    Montage_Play ( crossWalkCounterclockwiseMontage );
+}
+
 void UAICharacterAnimInstance::PlayHitFallingMontage ( )
 {
     Montage_Play ( hitFallingMontage,0.5f);
@@ -230,8 +268,8 @@ void UAICharacterAnimInstance::PlayHitMiddleMontage ( )
 
 void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 {
-    NowLocation = owner->GetActorLocation ( );
-    BeforeLocation = NowLocation;
+   // NowLocation = owner->GetActorLocation ( );
+   // BeforeLocation = NowLocation;
     Montage_Play( walkForwardMontage );
 }
 
@@ -330,9 +368,14 @@ void UAICharacterAnimInstance::AnimNotify_MoveEnd ( )
     owner->StateComboLaserAttack ( )->FinishStep ();
 }
 
+void UAICharacterAnimInstance::AnimNotify_WalkMoveEnd ( )
+{
+    owner->ExitCurrentState ( ECharacterStateInteraction::Move );
+}
+
 void UAICharacterAnimInstance::AnimNotify_Laser ( )
 {
-    const FVector start = owner->GetMesh()->GetSocketLocation("headSocket");
+    FVector start = owner->GetMesh()->GetSocketLocation("headSocket");
     FVector ForwardVector = owner->GetActorForwardVector ( );
     FRotator TiltedRotator = FRotator ( -15.f , 0 , 0 ); // Pitch를 -15도로 회전
     // 끝점 계산 (라인의 길이를 조절할 수 있습니다. 여기서는 1000 유닛)
@@ -347,7 +390,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
         hitResult ,
         start ,
         end ,
-        ECC_Visibility ,
+        ECC_Camera ,
         collisionParams ) )
     {
         if ( hitResult.GetActor ( ) == owner->aOpponentPlayer )
@@ -355,7 +398,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
             owner->aOpponentPlayer->HitDecision ( owner->SendAttackInfo ( ) , owner );
         }
     }
-    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld ( ) , laserFXSystem , start, start.Rotation());
+    laserFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation ( GetWorld() , laserFXSystem , start,(end-start).Rotation());
 
 }
 

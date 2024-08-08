@@ -24,6 +24,7 @@
 #include "AIStateBound.h"
 #include "GameMode_MH.h"
 #include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "AIStateWalkCross.h"
 
 
 // Sets default values
@@ -97,6 +98,10 @@ AAICharacter::AAICharacter()
 	stateBound = CreateDefaultSubobject<UAIStateBound> ( TEXT ( "stateBound" ) );
 	stateBound->SetStateOwner ( this );
 	stateComboLaserAttack = CreateDefaultSubobject<UAIStateComboLaserAttack> ( TEXT ( "stateComboLaserAttack" ));
+	stateComboLaserAttack->SetStateOwner ( this );
+	stateWalkCross = CreateDefaultSubobject<UAIStateWalkCross> ( TEXT ( "stateWalkCross" ) );
+	stateWalkCross->SetStateOwner ( this );
+
 	FAttackInfoInteraction attack1;
 	attack1.KnockBackDirection = FVector (250.f,0.f,0.f); //-0.5 뒤로 밀려난다 5*50 = 250.0f
 	attack1.DamageAmount = 10;
@@ -196,6 +201,8 @@ AAICharacter::AAICharacter()
 	}
 	//중력적용
 	//GetCharacterMovement()->bApplyGravityWhileJumping = true;
+	//앞으로만 이동되게 하는 설정
+	//GetCharacterMovement ( )->bOrientRotationToMovement = true;
 
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -268,8 +275,6 @@ void AAICharacter::Tick(float DeltaTime)
 		FVector Gravity = FVector ( 0 , 0 , -980 ); // 기본 중력 값
 		AddMovementInput ( Gravity * DeltaTime,true);
 	}
-
-
 }
 
 // Called to bind functionality to input
@@ -306,6 +311,11 @@ void AAICharacter::ExitCurrentState ( ECharacterStateInteraction state)
 	}
 	if( state == ECharacterStateInteraction::HitFalling )
 		ChangeState(stateIdle);
+}
+
+void AAICharacter::SetStateIdle ( )
+{
+	ChangeState ( stateIdle );
 }
 
 void AAICharacter::OnAttackCollisionLF ( )
@@ -478,13 +488,52 @@ void AAICharacter::OnCollisionLFBeginOverlap ( UPrimitiveComponent* OverlappedCo
 		IsAttacked = true;
 	}
 }
-//공격 받았을 때
-bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )
+//void CheckCollision (bool guard, UBoxComponent* hitCollision )
+//{
+//	if ( guard )
+//	{
+//		if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		} 
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//	}
+//	else
+//	{
+//		if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//		else if ( hitCollision == topCollision )
+//		{
+//			Play_Montage ( )
+//		}
+//	}
+//}
+//공격 받았을 때 //FAttackInfoInteraction attackInfo에서 공격받는 애니메이션 혹은 가드 애니메이션 전달 
+bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer)
 {
 	//현재 상태와 공격정보를 확인해서 데미지 처리
 	//공격 받았다면 Hit State 상태 처리 attackInfo를 전달 return true;
 	//가드라면 ... return false;
 	//attackInfo
+	//if()
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
+	//else if()
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
+	//else
+	//	CheckCollision ( bool guard , UBoxComponent * hitCollision )
 	if ( blackboardComp )
 	{
 		
@@ -496,7 +545,7 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 		if( gameMode )
 			gameMode->UpdatePlayerHP(this,Hp);
 		// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
-		aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 10.0f , 10.0f , 0.3f );
+		//aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 10.0f , 10.0f , 0.3f );
 
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
 		if ( attackInfo.KnockBackDirection.Z > 0 || currentState == stateBound || currentState == stateHitFalling )
