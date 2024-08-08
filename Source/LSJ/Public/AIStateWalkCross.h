@@ -4,24 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "AIStateComponent.h"
-#include "AIStateWalkForward.generated.h"
+#include "AIStateWalkCross.generated.h"
 
 /**
  * 
  */
-
 UCLASS()
-class LSJ_API UAIStateWalkForward : public UAIStateComponent
+class LSJ_API UAIStateWalkCross : public UAIStateComponent
 {
 	GENERATED_BODY()
-	FRotator lookPlayerRotator;
+	//FVector Center;
+	//float RadAngle;
+	float direction = 1.0f;
+	float reduceRange = 20.f;
+	float OrbitRadius;
+	float OrbitSpeed;
+	float CurrentAngle;
+	float startFrame;
+	float endFrame;
+	//FVector OrbitLocation;
 public:
-	void SetDistance ( float pDistance );
 	UPROPERTY(EditAnywhere, Category = "AI")
-	float distance=200.0f;
+	bool  bClockwise;
 	virtual void Enter (class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
 
-	//virtual void TickComponent ( float DeltaTime , ELevelTick TickType , FActorComponentTickFunction* ThisTickFunction ) override;
+	void OrbitAroundTarget (float Speed );
+	void MoveStep ( float DeltaTime );
 };

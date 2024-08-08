@@ -13,7 +13,7 @@ void UAIStateIdle::BeginPlay ( )
 void UAIStateIdle::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter(pAnimInstance);
-	animInstace->PlayerIdleMontage();
+	//animInstace->PlayerIdleMontage();
 }
 
 void UAIStateIdle::Execute ( const float& deltatime )

@@ -14,7 +14,11 @@ UCLASS()
 class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-		UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+			UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* crossWalkClockwiseMontage;
+				UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* crossWalkCounterclockwiseMontage;
+			UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* uppercutLHMontage;
 	UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* walkForwardMontage;
@@ -73,6 +77,8 @@ public:
 	virtual void PlayComboLaserMontage ( );
 	virtual void PlayBoundMontage ( );
 
+	virtual void PlayCrossWalkClockwiseMontage ( );
+	virtual void PlayCrossWalkCounterclockwiseMontage ( );
 	virtual void PlayHitFallingMontage ( );
 	virtual void PlayHitFallingTurnMontage ( );
 	virtual void PlayHitTopMontage ( );
@@ -95,6 +101,8 @@ public:
 	void AnimNotify_Move ( );
 	UFUNCTION ( )
 	void AnimNotify_MoveEnd ( );
+	UFUNCTION ( )
+	void AnimNotify_WalkMoveEnd ( );
 	UFUNCTION ( )
 	void AnimNotify_Laser ( );
 

@@ -57,7 +57,7 @@ public:
 	float MaxDistance = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float CameraLagSpeed = 1.f;
+	float CameraLagSpeed = 0.2f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float CameraLagRotSpeed = 15.f;
@@ -95,12 +95,29 @@ public:
 	
 public:
 	FVector ZoomTargetLocation;
-	float ZoomAmount = 0.5f;
+
+	float initZoomAmount = 0.5f;
+	float ZoomAmount = initZoomAmount;
 	float ShakingValue = 0.0f;
 	bool bIsZoomActive= false;
 	float ZoomDuration = 0.0f;
 	float ZoomElapsedTime = 0.0f;
+
+
+	float zoomtime = 0;
 	
+	float targetArmLength1;
+	
+	float  PlayerArmLength;
+	
+	// 카메라 위치도 원래 위치로 부드럽게 전환
+	UPROPERTY()
+	FVector originalLocation ;
+	UPROPERTY()
+	FVector centralLocation;
+
+	UPROPERTY()
+	FRotator centralRotation;
 
 	
 
