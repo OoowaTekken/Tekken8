@@ -129,10 +129,10 @@ int32 ACPP_CharacterPaul::InputKeyValue ( int ArrowKey , bool LeftArm , bool Rig
 void ACPP_CharacterPaul::Tick ( float DeltaTime )
 {
 	Super::Tick ( DeltaTime );
-	if ( this->GameModeMH->Player2 == this )
-		return;
-	if (this->GameModeMH->Player1 == this)
-		this->DebugMode = 1;
+// 	if ( this->GameModeMH->Player2 == this )
+// 		return;
+// 	if (this->GameModeMH->Player1 == this)
+// 		this->DebugMode = 1;
 
 	// 주의 모든 작업은 FrameSystem에서 하는걸 권장합니다.
 	this->fCurrTimeForFrame += DeltaTime;
@@ -144,10 +144,8 @@ void ACPP_CharacterPaul::Tick ( float DeltaTime )
 	sAttackInfo.ActionFrame--;
 	iCurrFrame++;
 
-	if ( this->Hp <= 0 )
+	if ( this->bIsDead )
 		return;
-	else
-		this->bDead = false;
 
 	// 다음 행동 정의
 	this->FrameSystem ( );

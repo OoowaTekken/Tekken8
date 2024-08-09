@@ -35,7 +35,7 @@ void UCPP_PualAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	this->bFalling = player->bFalling;
 	this->bNuckDown = player->bNuckDown;
 	
-	this->bDead = player->bDead;
+	this->bDead = player->bIsDead;
 }
 
 void UCPP_PualAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted )
