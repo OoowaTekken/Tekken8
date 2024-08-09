@@ -1,6 +1,4 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AIStateAttackLF.h"
 #include "AICharacterAnimInstance.h"
 #include "AICharacter.h"
@@ -10,29 +8,37 @@
 void UAIStateAttackLF::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
 	Super::Enter ( pAnimInstance );
-	animInstace->PlayeAttackLFMontage ( );
-	aiCharacter =Cast<AAICharacter>(owner); 
+
+	if(attackPoint==EAttackPoint::Lower)
+		animInstace->PlayeAttackLowerLFMontage ( );
+	else
+		animInstace->PlayeAttackLFMontage ( );
+
+	owner->GetCurrentMontage ( )->GetSectionStartAndEndTime ( 0 , startFrame , endFrame );
+	startLocation = owner->GetMesh ( )->GetBoneLocation ( (TEXT ( "head" )) );
+	startLocation.Z = 0;
+	TArray<const FAnimNotifyEvent*> notifyEvents;
+	//몽타지 노티파이의 끝나는 시간
+	owner->GetCurrentMontage ( )->GetAnimNotifies ( startFrame , endFrame , false , notifyEvents );
+	for ( const FAnimNotifyEvent* NotifyEvent : notifyEvents )
+	{
+		endFrame = NotifyEvent->GetTriggerTime ( );
+	}
+	totalTime = 0;
+	btest = false;
 }
 
 void UAIStateAttackLF::Execute ( const float& deltatime )
 {
-	//밀쳐내기
-	FVector start = aiCharacter->GetActorLocation();
-	FVector end = aiCharacter->collisionLF->GetComponentLocation();
-	FHitResult hitResult;
-	DrawDebugLine ( GetWorld ( ) , start , end , FColor ( 255 , 0 , 0 ) , false , .1f , 0 , 12.3f );
-	if ( GetWorld ( )->LineTraceSingleByObjectType ( hitResult , start , end , FCollisionObjectQueryParams ( EObjectTypeQuery::ObjectTypeQuery1 ) ) )
+	totalTime += deltatime;
+	if ( totalTime >= endFrame && !btest )
 	{
-		if ( hitResult.GetActor ( )->IsA ( ACPP_CharacterPaul::StaticClass ( ) ) )
-		{
-	
-			//확대할 위치, 줌 정도 0.5 기본, 흔들림정도, 흔들림 시간
-			//aiCharacter->aMainCamera->RequestZoomEffect(aiCharacter->GetActorLocation(),0.5f,1.0f,3.0f);
-			//UE_LOG ( LogTemp , Error , TEXT ( "%s" ) , *hitResult.GetActor ( )->GetName ( ) );
-			//hitResult.GetActor ( )->SetActorLocation( hitResult.GetActor ( )->GetActorLocation() + 1000.0f*deltatime * aiCharacter->GetActorForwardVector ( ));
-		}
+		btest = true;
+		FVector location =owner->collisionLF->GetComponentLocation ( );
+		location.Z = 0;
+		GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "range : %f " ) , FVector::Dist ( location , startLocation ) ) );
 	}
-	//owner->GetMovementComponent()->AddInputVector(owner->GetActorForwardVector()*deltatime,true);
+		
 }
 
 void UAIStateAttackLF::Exit ( )

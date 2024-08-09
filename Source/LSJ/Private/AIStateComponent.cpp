@@ -47,6 +47,8 @@ void UAIStateComponent::Enter ( class UAICharacterAnimInstance* pAnimInstance )
 	SetComponentTickEnabled ( true );
 	animInstace = pAnimInstance;
 	//초기 상대를 바라보는 Rotator
+	if ( nullptr== owner || nullptr == owner->aOpponentPlayer )
+		return;
 	FVector opponentPlayerRotator = owner->aOpponentPlayer->GetMesh()->GetBoneLocation((TEXT("head")));
 	opponentPlayerRotator.Z = owner->GetActorLocation ( ).Z;
 	toLookTargetRotator = (opponentPlayerRotator - owner->GetActorLocation ( )).Rotation ( );

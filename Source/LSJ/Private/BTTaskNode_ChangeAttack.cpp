@@ -7,6 +7,7 @@
 #include "AIStateAttackLF.h"
 #include "AIStateAttackRH.h"
 #include "AIStateComboLaserAttack.h"
+#include "AIStateAttackLH.h"
 UBTTaskNode_ChangeAttack::UBTTaskNode_ChangeAttack ( )
 {
 
@@ -37,9 +38,14 @@ EBTNodeResult::Type UBTTaskNode_ChangeAttack::ExecuteTask ( UBehaviorTreeCompone
 			{
 				stateComponent = Enemy->StateComboLaserAttack ( );
 			}
+			else if ( newStateClass == UAIStateAttackLH::StaticClass ( ) )
+			{
+				stateComponent = Enemy->GetAIStateAttackLH();
+			}
 
 			if ( stateComponent )
 			{
+				stateComponent->attackPoint = attackPoint;
 				// 상태 완료시 호출될 델리게이트 바인딩
 				if ( UAIStateAttackLF* stateAttackLF = Cast<UAIStateAttackLF> ( stateComponent ) )
 				{
@@ -55,6 +61,11 @@ EBTNodeResult::Type UBTTaskNode_ChangeAttack::ExecuteTask ( UBehaviorTreeCompone
 				{
 					if ( !stateComboLaserAttack->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted ) )
 						stateComboLaserAttack->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted );
+				}
+				else if ( UAIStateAttackLH* stateAttackLH = Cast<UAIStateAttackLH> ( stateComponent ) )
+				{
+					if ( !stateAttackLH->OnStateComplete.IsAlreadyBound ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted ) )
+						stateAttackLH->OnStateComplete.AddDynamic ( this , &UBTTaskNode_ChangeAttack::OnStateCompleted );
 				}
 
 				bIsWaitingForState = true;

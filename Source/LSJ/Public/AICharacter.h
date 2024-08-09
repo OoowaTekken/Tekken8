@@ -39,6 +39,8 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 	UPROPERTY ( )
 	class UAIStateHit* stateHit;
 	UPROPERTY ( )
+	class UAIStateAttackLH* stateAttackLH;
+	UPROPERTY ( )
 	class UAIStateComboLaserAttack* stateComboLaserAttack;
 	UPROPERTY ( )
 	class UAIStateWalkCross* stateWalkCross;
@@ -63,6 +65,8 @@ public:
 	void StateAttackLF ( class UAIStateAttackLF* val ) { stateAttackLF = val; }
 	class UAIStateAttackRH* GetAIStateAttackRH ( ) const { return stateAttackRH; }
 	void StateAttackRH ( class UAIStateAttackRH* val ) { stateAttackRH = val; }
+	class UAIStateAttackLH* GetAIStateAttackLH ( ) const { return stateAttackLH; }
+	void StateAttackLH ( class UAIStateAttackLH* val ) { stateAttackLH = val; }
 	class UAIStateComboLaserAttack* StateComboLaserAttack ( ) const { return stateComboLaserAttack; }
 	void StateComboLaserAttack ( class UAIStateComboLaserAttack* val ) { stateComboLaserAttack = val; }
 	//공격 콜리전

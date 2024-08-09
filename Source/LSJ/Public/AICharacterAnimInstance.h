@@ -14,6 +14,8 @@ UCLASS()
 class LSJ_API UAICharacterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
+				UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* attackLowerLFMontage;
 			UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* crossWalkClockwiseMontage;
 				UPROPERTY(EditAnyWhere , BlueprintReadOnly, Category = Move, Meta = (AllowPrivateAccess = true))
@@ -93,6 +95,7 @@ public:
 	virtual void PlayeAttackRHMontage ( );
 	virtual void PlayeAttackLHMontage ( );
 	virtual void PlayeAttackLFMontage ( );
+	virtual void PlayeAttackLowerLFMontage ( );
 	virtual void PlayerIdleMontage( );
 	virtual bool StateWalkForward ( ) const { return bStateWalkForward; }
 	virtual void StateWalkForward ( bool val ) { bStateWalkForward = val; }
