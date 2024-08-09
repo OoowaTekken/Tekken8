@@ -46,7 +46,7 @@ void UAIStateWalkCross::Execute ( const float& deltatime )
 	MoveStep(deltatime);
 
 	//상대방을 쳐다보자
-	FVector opponentPlayerRotator = owner->aOpponentPlayer->GetMesh ( )->GetComponentLocation ( );
+	FVector opponentPlayerRotator = owner->aOpponentPlayer->GetMesh ( )->GetBoneLocation ((TEXT("head" )));
 	opponentPlayerRotator.Z = owner->GetActorLocation ( ).Z;
 	FRotator lookRotator = (opponentPlayerRotator - owner->GetActorLocation()).Rotation ( );
 	owner->SetActorRotation ( FMath::RInterpTo ( owner->GetActorRotation ( ) , lookRotator , deltatime , 100.0f ) );
@@ -104,7 +104,7 @@ void UAIStateWalkCross::MoveStep ( float DeltaTime )
 		float LerpFactor = (orbitRadius - minDistance) / (maxDistance - minDistance);
 		orbitSpeed = FMath::Lerp ( maxSpeed , minSpeed , LerpFactor );
 	}
-
+	//속도가 처음에 크고 끝에는 작아지게 하면 좋을 것 같다.
 	orbitSpeed =FMath::Lerp(orbitSpeed,0, startFrame+=DeltaTime);
 
 	// 현재 각도를 시간에 따라 업데이트
@@ -116,6 +116,8 @@ void UAIStateWalkCross::MoveStep ( float DeltaTime )
 
 	// 적 캐릭터와 현재 캐릭터 사이의 거리로 반경을 설정
 	float RadAngle = FMath::DegreesToRadians (currentAngle);
+
+	//최소 거리가 아니라면 상대플레이어에게 조금씩 가까이 이동
 	if( orbitRadius > 115.0f )
 		orbitRadius -= reduceRange * DeltaTime;
 

@@ -101,13 +101,14 @@ AAICharacter::AAICharacter()
 	stateComboLaserAttack->SetStateOwner ( this );
 	stateWalkCross = CreateDefaultSubobject<UAIStateWalkCross> ( TEXT ( "stateWalkCross" ) );
 	stateWalkCross->SetStateOwner ( this );
-
+	//콤보 공격 정보
 	FAttackInfoInteraction attack1;
 	attack1.KnockBackDirection = FVector (250.f,0.f,0.f); //-0.5 뒤로 밀려난다 5*50 = 250.0f
 	attack1.DamageAmount = 10;
 	attack1.DamagePoint = EDamagePointInteraction::Middle;
-	attack1.HitFrame=23;
-	attack1.RetrieveFrame = 43;
+	attack1.HitFrame= 13;
+	attack1.RetrieveFrame = 11;
+
 	attack1.OwnerGuardFrame = -12;
 	attack1.OppositeHitFrame = 101;
 	attack1.OppositeCounterFrame = 101;
@@ -192,7 +193,20 @@ AAICharacter::AAICharacter()
 	stateComboLaserAttack->attackInfoArray.Add(attack7);
 	stateComboLaserAttack->attackInfoArray.Add(attack8);
 	stateComboLaserAttack->attackInfoArray.Add(attack9);
-	stateComboLaserAttack->SetStateOwner ( this );
+
+	FAttackInfoInteraction attackRHMiddle;
+	attackRHMiddle.KnockBackDirection = FVector ( 300.f , 0.f , 50.f ); //-0.5 보다 적게 예상 3*
+	attackRHMiddle.DamageAmount = 23;
+	attackRHMiddle.DamagePoint = EDamagePointInteraction::Middle;
+	attackRHMiddle.HitFrame = 20; //HitFrame
+	attackRHMiddle.RetrieveFrame = 19; //회수Frame
+	//내가 손해면 - 상대가 손해면 +
+	attackRHMiddle.HitFrame = 60;
+	attackRHMiddle.GrardFrame = -12; 
+	attackRHMiddle.CounterFrame = 60; 
+	attackRHMiddle.MissFrame = -10;
+	SetAttackInfoOwnerOpposite(attackRHMiddle);
+	stateAttackRH->attackInfoArray.Add ( attackRHMiddle );
 	
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Hit_High.Hit_High'" ) );
 	if ( NE.Succeeded ( ) )
@@ -207,7 +221,19 @@ AAICharacter::AAICharacter()
 	AIControllerClass = AAICharacterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
+void AAICharacter::SetAttackInfoOwnerOpposite ( FAttackInfoInteraction& attackInfo )
+{
+	//공격자
+	attackInfo.OwnerHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame < 0 ? attackInfo.HitFrame * -1 : 0);
+	attackInfo.OwnerGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame < 0 ? attackInfo.GrardFrame * -1 : 0);
+	attackInfo.OwnerCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame < 0 ? attackInfo.CounterFrame * -1 : 0);
+	attackInfo.OwnerMissFrame = attackInfo.RetrieveFrame + (attackInfo.MissFrame < 0 ? attackInfo.MissFrame * -1 : 0);
 
+	//수비자
+	attackInfo.OppositeHitFrame = attackInfo.RetrieveFrame + (attackInfo.HitFrame > 0 ? attackInfo.HitFrame : 0);
+	attackInfo.OppositeGuardFrame = attackInfo.RetrieveFrame + (attackInfo.GrardFrame > 0 ? attackInfo.GrardFrame : 0);
+	attackInfo.OppositeCounterFrame = attackInfo.RetrieveFrame + (attackInfo.CounterFrame > 0 ? attackInfo.CounterFrame : 0);
+}
 // Called when the game starts or when spawned
 void AAICharacter::BeginPlay()
 {
@@ -412,6 +438,7 @@ void AAICharacter::OffAttackCollisionRH ( )
 {
 	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
 	currentState->AddAttackCount(1);
+	GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "OffAttackCollisionRH : %f " ) , collisionRH->GetUnscaledSphereRadius()+FVector::Dist(GetMesh ( )->GetComponentLocation (),GetActorLocation())));
 	IsAttacked = false;
 }
 
@@ -595,7 +622,16 @@ void AAICharacter::CurrentAttackCountToZero ( )
 	currentState->AddAttackCount(-1*currentState->GetAttackCount());
 }
 
-void AAICharacter::LookTarget (const float& deltaTime , FRotator& rotator )
+void AAICharacter::LookTarget (const float& deltaTime)
 {
-	SetActorRotation ( FMath::RInterpConstantTo ( GetActorRotation ( ) , rotator , deltaTime , 200.0f ) );
+	if(nullptr==aOpponentPlayer)
+		return;
+	FVector opponentPlayerRotator = aOpponentPlayer->GetMesh()->GetBoneLocation((TEXT("head")));
+	opponentPlayerRotator.Z = GetActorLocation ( ).Z;
+	FRotator lookRotator = (opponentPlayerRotator - GetActorLocation ( )).Rotation ( );
+	SetActorRotation ( FMath::RInterpTo ( GetActorRotation ( ) , lookRotator , deltaTime , 20.0f ) );
+}
+void AAICharacter::LookTarget ( const float& deltaTime , FRotator lookRotator)
+{
+	SetActorRotation ( FMath::RInterpTo ( GetActorRotation ( ) , lookRotator , deltaTime , 20.0f ) );
 }
