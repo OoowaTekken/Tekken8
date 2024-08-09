@@ -1,20 +1,19 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AIStateAttackRH.h"
+#include "AIStateAttackLH.h"
 #include "AICharacterAnimInstance.h"
 #include "CPP_CharacterPaul.h"
 #include "AICharacter.h"
 #include "Components/SphereComponent.h"
-void UAIStateAttackRH::Enter ( UAICharacterAnimInstance* pAnimInstance )
+void UAIStateAttackLH::Enter ( UAICharacterAnimInstance* pAnimInstance )
 {
-	Super::Enter(pAnimInstance);
+	Super::Enter ( pAnimInstance );
 	startLocation = owner->GetMesh ( )->GetBoneLocation ( (TEXT ( "head" )) );
-	//공격거리 head 기준 175.0f RH Middle
-	//공격거리 head 기준 81.0f LH Top
-	//공격거리 head 기준 157 LF Lower
+	//공격거리 head 기준 174.0f RH
+	//공격거리 head 기준 92.0f LH
 
-	animInstace->PlayeAttackRHMontage ();
+	animInstace->PlayeAttackLHMontage ( );
 
 	owner->GetCurrentMontage ( )->GetSectionStartAndEndTime ( 0 , startFrame , endFrame );
 	TArray<const FAnimNotifyEvent*> notifyEvents;
@@ -29,18 +28,19 @@ void UAIStateAttackRH::Enter ( UAICharacterAnimInstance* pAnimInstance )
 
 }
 
-void UAIStateAttackRH::Execute ( const float& deltatime )
+void UAIStateAttackLH::Execute ( const float& deltatime )
 {
 	ToLookTargetRotate ( deltatime );
 	totalTime += deltatime;
-	if ( totalTime >= endFrame && !btest)
+	if ( totalTime >= endFrame && !btest )
 	{
-		GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "range : %f " ) , FVector::Dist ( owner->collisionRH->GetComponentLocation ( ) , startLocation ) ) );
+		GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "range : %f " ) , FVector::Dist ( owner->collisionLH->GetComponentLocation ( ) , startLocation ) ) );
 		btest = true;
 	}
 }
 
-void UAIStateAttackRH::Exit ( )
+void UAIStateAttackLH::Exit ( )
 {
 	Super::Exit ( );
 }
+

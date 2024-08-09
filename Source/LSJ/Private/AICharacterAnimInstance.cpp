@@ -137,6 +137,10 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/KB_Pivot-R_T1_Montage.KB_Pivot-R_T1_Montage'" ) );
     if ( crossWalkCounterclockwiseMontageFinder.Succeeded ( ) )
         crossWalkCounterclockwiseMontage = crossWalkCounterclockwiseMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLowerLFMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/AM_LowKick_Left1_Montage.AM_LowKick_Left1_Montage'" ) );
+    if ( attackLowerLFMontageFinder.Succeeded ( ) )
+        attackLowerLFMontage = attackLowerLFMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Laser.Laser'" ) );
     if ( NE.Succeeded ( ) )
     {
@@ -190,6 +194,11 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
             owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
         }
         else
+		if ( Montage == attackLHMontage )
+		{
+			owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
+		}
+        else
             if ( Montage == attackRHMontage )
             {
                 owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
@@ -224,6 +233,10 @@ void UAICharacterAnimInstance::HandleOnMontageEnded ( UAnimMontage* Montage , bo
          else if ( Montage == boundMontage )
         {
             owner->ExitCurrentState ( ECharacterStateInteraction::HitFalling );
+        }
+         else if ( Montage == attackLowerLFMontage )
+        {
+            owner->ExitCurrentState ( ECharacterStateInteraction::AttackLower );
         }
     }
 }
@@ -299,6 +312,12 @@ void UAICharacterAnimInstance::PlayeAttackLFMontage ( )
 {
     Montage_Play ( attackLFMontage );
 }
+
+void UAICharacterAnimInstance::PlayeAttackLowerLFMontage ( )
+{
+    Montage_Play ( attackLowerLFMontage );
+}
+
 void UAICharacterAnimInstance::PlayerIdleMontage ( )
 {
     //UAnimMontage* MontageToPlay, float InPlayRate/*= 1.f*/, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages

@@ -7,8 +7,10 @@
 #include "AIStateInterface.h"
 #include "AIStateComponent.generated.h"
 
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE ( FOnStateWalkForwardComplete );
+
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LSJ_API UAIStateComponent : public UActorComponent , public IAIStateInterface
 {
@@ -24,6 +26,7 @@ protected:
 	class AAICharacter* owner;
 	FRotator toLookTargetRotator;
 public:	
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void AddAttackCount ( int32 amount );

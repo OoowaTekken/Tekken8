@@ -25,6 +25,7 @@
 #include "GameMode_MH.h"
 #include "../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "AIStateWalkCross.h"
+#include "AIStateAttackLH.h"
 
 
 // Sets default values
@@ -91,6 +92,8 @@ AAICharacter::AAICharacter()
 	stateAttackLF->SetStateOwner ( this );
 	stateAttackRH = CreateDefaultSubobject<UAIStateAttackRH> ( TEXT ( "stateAttackRH" ) );
 	stateAttackRH->SetStateOwner ( this );
+	stateAttackLH = CreateDefaultSubobject<UAIStateAttackLH> ( TEXT ( "stateAttackLH" ) );
+	stateAttackLH->SetStateOwner ( this );
 	stateHit=CreateDefaultSubobject<UAIStateHit> ( TEXT ( "stateHit" ) );
 	stateHit->SetStateOwner ( this );
 	stateHitFalling = CreateDefaultSubobject<UAIStateHitFalling> ( TEXT ( "stateHitFalling" ) );
@@ -204,9 +207,37 @@ AAICharacter::AAICharacter()
 	attackRHMiddle.HitFrame = 60;
 	attackRHMiddle.GrardFrame = -12; 
 	attackRHMiddle.CounterFrame = 60; 
-	attackRHMiddle.MissFrame = -10;
-	SetAttackInfoOwnerOpposite(attackRHMiddle);
+	attackRHMiddle.MissFrame = 0;
+	SetAttackInfoOwnerOpposite(attackRHMiddle); //나머지값 넣기
 	stateAttackRH->attackInfoArray.Add ( attackRHMiddle );
+
+	//내가 손해면 - 상대가 손해면 +
+	FAttackInfoInteraction attackTopLH;
+	attackTopLH.KnockBackDirection = FVector ( 300.f , 0.f , 50.f ); //-0.5 보다 적게 예상 3*
+	attackTopLH.DamageAmount = 5;
+	attackTopLH.DamagePoint = EDamagePointInteraction::Top;
+	attackTopLH.HitFrame = 10; //HitFrame
+	attackTopLH.RetrieveFrame = 20; //회수Frame
+	attackTopLH.GrardFrame = 1;
+	attackTopLH.HitFrame = 8;
+	attackTopLH.CounterFrame = 8;
+	attackTopLH.MissFrame = 0;
+	SetAttackInfoOwnerOpposite ( attackTopLH );
+	stateAttackLH->attackInfoArray.Add ( attackTopLH );
+
+	//내가 손해면 - 상대가 손해면 +
+	FAttackInfoInteraction attackLowerLF;
+	attackLowerLF.KnockBackDirection = FVector ( 300.f , 0.f , 50.f ); //-0.5 보다 적게 예상 3*
+	attackLowerLF.DamageAmount = 7;
+	attackLowerLF.DamagePoint = EDamagePointInteraction::Lower;
+	attackLowerLF.HitFrame = 12; //HitFrame
+	attackLowerLF.RetrieveFrame = 15; //회수Frame
+	attackLowerLF.GrardFrame = -13;
+	attackLowerLF.HitFrame = -2;
+	attackLowerLF.CounterFrame = -2;
+	attackLowerLF.MissFrame = 0;
+	SetAttackInfoOwnerOpposite ( attackLowerLF );
+	stateAttackLF->attackInfoArray.Add ( attackLowerLF );
 	
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NE ( TEXT ( "/Script/Niagara.NiagaraSystem'/Game/Jaebin/Effects/Hit_High.Hit_High'" ) );
 	if ( NE.Succeeded ( ) )
@@ -438,7 +469,7 @@ void AAICharacter::OffAttackCollisionRH ( )
 {
 	collisionRH->SetCollisionEnabled ( ECollisionEnabled::NoCollision );
 	currentState->AddAttackCount(1);
-	GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "OffAttackCollisionRH : %f " ) , collisionRH->GetUnscaledSphereRadius()+FVector::Dist(GetMesh ( )->GetComponentLocation (),GetActorLocation())));
+	//GEngine->AddOnScreenDebugMessage ( -1 , 1.f , FColor::Red , FString::Printf ( TEXT ( "OffAttackCollisionRH : %f " ) , FVector::Dist(GetMesh()->GetBoneLocation ((TEXT("head"))), collisionRH->GetComponentLocation())));
 	IsAttacked = false;
 }
 
@@ -572,7 +603,7 @@ bool AAICharacter::HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken
 		if( gameMode )
 			gameMode->UpdatePlayerHP(this,Hp);
 		// 확대할 위치 , 줌 정도 0.5 기본 , 흔들림정도 , 흔들림 시간
-		//aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 10.0f , 10.0f , 0.3f );
+		aMainCamera->RequestZoomEffect ( GetActorLocation ( ) , 0.5f , 10.0f , 0.3f );
 
 		ExitCurrentState ( ECharacterStateInteraction::HitGround );
 		if ( attackInfo.KnockBackDirection.Z > 0 || currentState == stateBound || currentState == stateHitFalling )

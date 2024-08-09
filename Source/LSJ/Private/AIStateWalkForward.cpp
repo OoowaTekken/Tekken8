@@ -49,10 +49,7 @@ void UAIStateWalkForward::Execute ( const float& deltatime )
 	Super::Execute ( deltatime );
 	if( nullptr==owner )
 		return;
-	if ( FMath::Abs ( lookPlayerRotator.Yaw - owner->GetActorRotation ( ).Yaw ) < 0.1 )
-		owner->LookTarget ( deltatime , lookPlayerRotator);
-	else
-		return;
+	ToLookTargetRotate ( deltatime );
 
 	//속도가 처음에 크고 끝에는 작아지게 하면 좋을 것 같다.
 	float moveSpeed;
