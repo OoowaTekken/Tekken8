@@ -140,6 +140,7 @@ public:
 	bool bJumpping = 0;
 	bool bFalling = 0;
 	bool bNuckDown = 0;
+	bool bDead = 0;
 
 	void SetActtacInfoSkell ( EDamagePointInteraction damagePointInteraction ,
 	int32 damageAmount , int32 actionFrame , int32 retrieveFrame ,
