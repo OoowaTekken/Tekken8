@@ -25,6 +25,7 @@ void AGameMode_MH::BeginPlay()
 
 	ACPP_InputControl* Control = Cast<ACPP_InputControl>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
+	//플레이어 A,B 스폰
 	if (this->Player1Class)
 	{
 		this->Player1 = this->GetWorld()->SpawnActor<ACPP_Tekken8CharacterParent>(
@@ -363,22 +364,12 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 	}
 }
 
-float AGameMode_MH::SetShakeIntensity(float Damage)
+void AGameMode_MH::UpdateTextVisibility(const FString& TextName, bool bVisible)
 {
-	if (Damage >= 7.0f)
+	if(inGameUI)
 	{
-		return 1.0f; // 강한 흔들림
+		inGameUI->ShowTextVisibility(TextName);
 	}
-	else if (Damage >= 3.0f)
-	{
-		return 0.5f; // 중간 흔들림
-	}
-	else if (Damage > 0.0f)
-	{
-		return 0.2f; // 약한 흔들림
-	}
-	//일단 흔들리게만 하기... 
-	return 0.0f;
 }
 
 void AGameMode_MH::CheckRoundWinner()

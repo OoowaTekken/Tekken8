@@ -75,3 +75,24 @@ void UinGameUI::HideGameOver()
 		can_GameOver->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
+
+//텍스트 비지블
+void UinGameUI::ShowTextVisibility(const FString& TextName)
+{
+	UTextBlock* TextBlock = Cast<UTextBlock>(GetWidgetFromName(FName(*TextName)));
+	
+	if (TextBlock)
+	{
+		TextBlock->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UinGameUI::HideTextVisibility(const FString& TextName)
+{
+	UTextBlock* TextBlock = Cast<UTextBlock>(GetWidgetFromName(FName(*TextName)));
+	
+	if (TextBlock)
+	{
+		TextBlock->SetVisibility(ESlateVisibility::Visible);
+	}
+}
