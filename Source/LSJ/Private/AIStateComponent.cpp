@@ -46,6 +46,10 @@ void UAIStateComponent::Enter ( class UAICharacterAnimInstance* pAnimInstance )
 {
 	SetComponentTickEnabled ( true );
 	animInstace = pAnimInstance;
+	//초기 상대를 바라보는 Rotator
+	FVector opponentPlayerRotator = owner->aOpponentPlayer->GetMesh()->GetBoneLocation((TEXT("head")));
+	opponentPlayerRotator.Z = owner->GetActorLocation ( ).Z;
+	toLookTargetRotator = (opponentPlayerRotator - owner->GetActorLocation ( )).Rotation ( );
 }
 
 void UAIStateComponent::Execute ( const float& deltatime )
@@ -63,4 +67,12 @@ void UAIStateComponent::Exit ( )
 void UAIStateComponent::SetStateOwner ( AAICharacter* pOwner )
 {
 	owner = pOwner;
+}
+
+void UAIStateComponent::ToLookTargetRotate (const float& deltaTime)
+{
+	if(nullptr==owner)
+		return;
+	if ( FMath::Abs ( toLookTargetRotator.Yaw - owner->GetActorRotation ( ).Yaw ) > 0.1 )
+		owner->LookTarget ( deltaTime , toLookTargetRotator );
 }

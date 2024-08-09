@@ -46,9 +46,12 @@ class LSJ_API AAICharacter : public ACPP_Tekken8CharacterParent
 
 	class AAICharacterController* aiController;
 	class UBlackboardComponent* blackboardComp;
+
+	void SetAttackInfoOwnerOpposite ( FAttackInfoInteraction& attackInfo );
 public:
 	// Sets default values for this character's properties
 	AAICharacter();
+
 	//이펙트
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	class UNiagaraSystem* niagaraFXSystem;
@@ -135,8 +138,8 @@ public:
 	//회전
 	bool bLookTarget;
 	FRotator targetRotator;
-	virtual void LookTarget(const float& deltaTime, FRotator& rotator);
-
+	virtual void LookTarget(const float& deltaTime);
+	virtual void LookTarget ( const float& deltaTime , FRotator lookRotator );
 	//상체 콜리전 Overlap
 	UFUNCTION()
 	virtual void OnHitBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

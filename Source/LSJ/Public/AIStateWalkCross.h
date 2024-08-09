@@ -17,11 +17,19 @@ class LSJ_API UAIStateWalkCross : public UAIStateComponent
 	//float RadAngle;
 	float direction = 1.0f;
 	float reduceRange = 20.f;
-	float OrbitRadius;
-	float OrbitSpeed;
-	float CurrentAngle;
+	float orbitRadius;
+	float orbitSpeed;
+	float currentAngle;
 	float startFrame;
 	float endFrame;
+	FVector targetCenter;
+	// 최소 거리와 최대 거리
+	const float minDistance = 100.0f;
+	const float maxDistance = 500.0f;
+
+	// 최소 속도와 최대 속도
+	const float minSpeed = 33.0f;
+	const float maxSpeed = 150.0f;
 	//FVector OrbitLocation;
 public:
 	UPROPERTY(EditAnywhere, Category = "AI")
@@ -30,6 +38,6 @@ public:
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
 
-	void OrbitAroundTarget (float Speed );
+	void OrbitAroundTarget ();
 	void MoveStep ( float DeltaTime );
 };
