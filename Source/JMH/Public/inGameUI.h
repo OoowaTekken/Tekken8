@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class JMH_API UinGameUI : public UUserWidget
 {
@@ -44,6 +45,12 @@ public:
 
 	UFUNCTION()
 	void HideGameOver();
+	
+	UFUNCTION()
+	void ShowTextVisibility(const FString& TextName);
+
+	UFUNCTION()
+	void HideTextVisibility(const FString& TextName);
 	
 	UPROPERTY(EditAnywhere,meta=(BindWidget),Category="MySettings")
 	class UTextBlock* text_Round;
