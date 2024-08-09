@@ -6,6 +6,11 @@
 #include "AIStateComponent.h"
 #include "AIStateAttackRH.generated.h"
 
+enum class AttackRHInfo
+{
+	//중단 공격
+	attackMiddle,
+};
 /**
  * 
  */
@@ -18,6 +23,5 @@ public:
 	virtual void Enter ( class UAICharacterAnimInstance* pAnimInstance ) override;
 	virtual void Execute ( const float& deltatime ) override;
 	virtual void Exit ( ) override;
-
 };
 

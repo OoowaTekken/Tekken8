@@ -88,9 +88,13 @@ UAICharacterAnimInstance::UAICharacterAnimInstance ( )
     if ( idleMontageFinder.Succeeded ( ) )
        idleMontage = idleMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>attackRHMontageFinder
-    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Punching_Anim1_Montage.Punching_Anim1_Montage'" ) );
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/AM_A_PunchBody_R_M2_Montage.AM_A_PunchBody_R_M2_Montage'" ) );
     if ( attackRHMontageFinder.Succeeded ( ) )
         attackRHMontage = attackRHMontageFinder.Object;
+    static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLHMontageFinder
+    ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Combo1/AM_KB_Cross-L_S_2_Montage.AM_KB_Cross-L_S_2_Montage'" ) );
+    if ( attackLHMontageFinder.Succeeded ( ) )
+        attackLHMontage = attackLHMontageFinder.Object;
     static ConstructorHelpers::FObjectFinder <UAnimMontage>attackLFMontageFinder
     ( TEXT ( "/Script/Engine.AnimMontage'/Game/LSJ/Animation/FinalAnimation/Kicking_Anim1_Montage.Kicking_Anim1_Montage'" ) );
     if ( attackLFMontageFinder.Succeeded ( ) )
@@ -270,7 +274,7 @@ void UAICharacterAnimInstance::PlayerWalkForwardMontage ( )
 {
    // NowLocation = owner->GetActorLocation ( );
    // BeforeLocation = NowLocation;
-    Montage_Play( walkForwardMontage );
+    Montage_Play( walkForwardMontage,1.0f);
 }
 
 void UAICharacterAnimInstance::PlayerWalkBackMontage ( )
@@ -286,6 +290,10 @@ void UAICharacterAnimInstance::PlayerBackDashMontage ( )
 void UAICharacterAnimInstance::PlayeAttackRHMontage ( )
 {
     Montage_Play ( attackRHMontage );
+}
+void UAICharacterAnimInstance::PlayeAttackLHMontage ( )
+{
+    Montage_Play ( attackLHMontage );
 }
 void UAICharacterAnimInstance::PlayeAttackLFMontage ( )
 {
@@ -402,3 +410,7 @@ void UAICharacterAnimInstance::AnimNotify_Laser ( )
 
 }
 
+float UAICharacterAnimInstance::GetCurrentMontageTime ( )
+{
+    return Montage_GetPosition(GetCurrentActiveMontage());
+}
