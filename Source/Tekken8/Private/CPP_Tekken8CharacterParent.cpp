@@ -21,3 +21,9 @@ bool ACPP_Tekken8CharacterParent::HitDecision ( FAttackInfoInteraction attackInf
 	return false;
 }
 
+bool ACPP_Tekken8CharacterParent::SetDead(bool value)
+{
+	this->bIsDead;
+	return this->bIsDead;
+}
+
