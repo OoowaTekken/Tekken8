@@ -456,7 +456,13 @@ void ACPP_CharacterPaul::SettingCommandTree ( )
 
 	//this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLPkey, downLKkey } , LP , 0 , 0 , 0 , &ACPP_CharacterPaul::CommandEnd );
 
-// 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLKkey , 0 , 0 , &ACPP_CharacterPaul::CommandSitSpineKick );
+ 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey } , downLKkey , 1 , 2 , &ACPP_CharacterPaul::CommandSitSpineKick );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , 0 , 1 , 2 , & ACPP_CharacterPaul::CommandUpCrouch );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , downLKkey , 1 , 2 , & ACPP_CharacterPaul::CommandDownCrouch );
+	SetSelfReLinkTree ( { 0 ,downkey, downkey, downkey, downLKkey, downLKkey } );
+	this->SetLinkTree ( { 0, downkey, downkey, downkey, downLKkey, downLKkey } , { 0, downkey, downkey } );
+	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey, downLKkey } , 0 , 1 , 2 , & ACPP_CharacterPaul::CommandEnd );
+
 // 	this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey } , downLKkey , 0 , 0  , &ACPP_CharacterPaul::CommandDownCrouch );
 // 	SetSelfReLinkTree ( { 0,downkey, downkey, downkey, downLKkey, downLKkey } );
 	//this->AddCommandBaseTree ( { 0 ,downkey, downkey, downkey, downLKkey, downLKkey } , LK , 0 , 0 , 0 , & ACPP_CharacterPaul::CommandEnd );
@@ -1018,7 +1024,6 @@ void ACPP_CharacterPaul::CommandJingun ( )
 
 	this->sFrameStatus.FrameUsing = sAttackInfo.ActionFrame + sAttackInfo.RetrieveFrame;
 	this->sNextCommand = this->mBaseCommandTree[0]->NextTrees[2048]->NextTrees[2048];
-
 }
 
 void ACPP_CharacterPaul::CommandHighKick ( )
@@ -1028,16 +1033,8 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 
 	this->eCharacterState = ECharacterStateInteraction::AttackTop;
 
-	sAttackInfo.DamagePoint = EDamagePointInteraction::Top;
-	sAttackInfo.DamageAmount = 17;
+	SetActtacInfoSkell ( EDamagePointInteraction::Top , 17 , 12 , 20 , 0 , 14 , 4 , 57 );
 
-	sAttackInfo.ActionFrame = 12;
-	sAttackInfo.RetrieveFrame = 5;
-
-	sAttackInfo.MissFrame = 0;
-	sAttackInfo.HitFrame = 14;
-	sAttackInfo.GrardFrame = 4;
-	sAttackInfo.CounterFrame = 57;
 	sAttackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , 60 );
 	sAttackInfo.KnockBackDirection = this->RelativePointVector ( 150 , 0 , 0 );
 
@@ -1053,6 +1050,7 @@ void ACPP_CharacterPaul::CommandHighKick ( )
 	PlayMontageFrameSystem ( uMtgHighKick );
 
 	this->sFrameStatus.FrameUsing = sAttackInfo.ActionFrame + sAttackInfo.RetrieveFrame;
+	this->sNextCommand = this->mBaseCommandTree[0]->NextTrees[4096]->NextTrees[4096];
 }
 
 void ACPP_CharacterPaul::CommandBungGuan ( )
@@ -1061,19 +1059,10 @@ void ACPP_CharacterPaul::CommandBungGuan ( )
 		UE_LOG ( LogTemp , Warning , TEXT ( "CommandBungGuan Pressed" ) );
 
 	this->bCrouched = false;
+	SetActtacInfoSkell ( EDamagePointInteraction::Top , 17 , 12 , 20 , 0 , 14 , 4 , 57 );
 
 	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
-
-	sAttackInfo.DamagePoint = EDamagePointInteraction::Middle;
-	sAttackInfo.DamageAmount = 17;
-
-	sAttackInfo.ActionFrame = 0;
-	sAttackInfo.RetrieveFrame = 0;
-
-	sAttackInfo.MissFrame = 0;
-	sAttackInfo.HitFrame = 0;
-	sAttackInfo.GrardFrame = 0;
-	sAttackInfo.CounterFrame = 0;
+	SetActtacInfoSkell ( EDamagePointInteraction::Middle , 17 , 20, 20 , 0 ,0 , 0 ,0 );
 
 	sAttackInfo.skellEffectLocation = this->RelativePointVector ( 200 , -5 , 60 );
 	sAttackInfo.KnockBackDirection = this->RelativePointVector ( 500 , 0 , 20 );
@@ -1101,17 +1090,7 @@ void ACPP_CharacterPaul::CommandJinJee ( )
 
 	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
 
-
-	sAttackInfo.DamagePoint = EDamagePointInteraction::Middle;
-	sAttackInfo.DamageAmount = 20;
-
-	sAttackInfo.ActionFrame = 5;
-	sAttackInfo.RetrieveFrame = 5;
-
-	sAttackInfo.MissFrame = 0;
-	sAttackInfo.HitFrame = 15;
-	sAttackInfo.GrardFrame = -14;
-	sAttackInfo.CounterFrame = 0;
+	SetActtacInfoSkell ( EDamagePointInteraction::Middle , 20 , 5 , 12 , 0 , 15 , -14 , 0 );
 
 	sAttackInfo.skellEffectLocation = this->RelativePointVector ( 50 , -5 , 10 );
 	sAttackInfo.KnockBackDirection = this->RelativePointVector ( 10 , 0 , 300 );
@@ -1139,17 +1118,7 @@ void ACPP_CharacterPaul::CommandSitJab( )
 
 	this->eCharacterState = ECharacterStateInteraction::AttackMiddle;
 
-
-	sAttackInfo.DamagePoint = EDamagePointInteraction::Middle;
-	sAttackInfo.DamageAmount = 15;
-
-	sAttackInfo.ActionFrame = 4;
-	sAttackInfo.RetrieveFrame = 5;
-
-	sAttackInfo.MissFrame = 0;
-	sAttackInfo.HitFrame = 10;
-	sAttackInfo.GrardFrame = -5;
-	sAttackInfo.CounterFrame = 6;
+	SetActtacInfoSkell ( EDamagePointInteraction::Middle , 15 , 4 , 8 , 0 , 10 , -5 , 6 );
 
 	sAttackInfo.skellEffectLocation = this->RelativePointVector ( 80 , -5 , 10 );
 	sAttackInfo.KnockBackDirection = this->RelativePointVector ( 120 , 0 , 0 );
@@ -1177,17 +1146,8 @@ void ACPP_CharacterPaul::CommandSitSpineKick ( )
 
 	this->eCharacterState = ECharacterStateInteraction::AttackLower;
 
+	SetActtacInfoSkell ( EDamagePointInteraction::Lower , 15 , 12 , 8 , 0 , 10 , -5 , 6 );
 
-	sAttackInfo.DamagePoint = EDamagePointInteraction::Lower;
-	sAttackInfo.DamageAmount = 15;
-
-	sAttackInfo.ActionFrame = 4;
-	sAttackInfo.RetrieveFrame = 5;
-
-	sAttackInfo.MissFrame = 0;
-	sAttackInfo.HitFrame = 10;
-	sAttackInfo.GrardFrame = -5;
-	sAttackInfo.CounterFrame = 6;
 
 	sAttackInfo.skellEffectLocation = this->RelativePointVector ( 120 , -5 , -40 );
 	sAttackInfo.KnockBackDirection = this->RelativePointVector ( 140 , -5 , 0 );
