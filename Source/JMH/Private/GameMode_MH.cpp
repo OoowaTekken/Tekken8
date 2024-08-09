@@ -19,7 +19,6 @@ AGameMode_MH::AGameMode_MH()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-
 void AGameMode_MH::BeginPlay()
 {
 	Super::BeginPlay();
@@ -110,19 +109,30 @@ void AGameMode_MH::BeginPlay()
 		initPlayerBRot = playerB->GetActorRotation();
 
 		//플레이어 인풋 막기 왜안돼는지 모르겟
-/*
-		playerAController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		playerBController = UGameplayStatics::GetPlayerController(GetWorld(), 1);
-		
-		if (playerAController)
+		//playerAController = playerA->GetController();
+		//playerBController = playerB->GetController();
+		//DisablePlayerInput();
+		if (playerA)
 		{
-			playerAController->DisableInput(nullptr);
+			/*
+			GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("!!!!!!!!!!!!!!!!!!!!!!!"));
+			//Cast<ACPP_CharacterPaul>(playerA)->SetDead(false);
+			UInputComponent* ControlA = playerA->FindComponentByClass<UInputComponent>();
+			if (ControlA)
+			{
+				ControlA->SetActive(false);
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-2 , 5.f , FColor::Red , TEXT("...................."));
+			}
 		}
-		if (playerBController)
+
+		if (playerB)
 		{
-			playerBController->DisableInput(nullptr);
+			//PlayerBController = Cast<APlayerController>(playerB->GetController());
 		}*/
-		
+		}
 	}
 	//라운드 스코어 초기화
 	InitRoundState();
@@ -183,7 +193,15 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	switch (NewState)
 	{
 	case EGameState::GameStart:
-		
+
+
+		//inputplayerController = GetWorld()->GetFirstPlayerController();
+		//if(inputplayerController)
+		//{
+		//	DisablePlayerInput();
+		//	GEngine->AddOnScreenDebugMessage(-11, 5.f , FColor::Red , TEXT("inputplayerController"));
+		//}
+
 		//라운드 시작
 		//라운드 초기화
 		//라운드 스코어 초기화
@@ -209,19 +227,22 @@ void AGameMode_MH::HandleNewState(EGameState NewState)
 	//라운드 num 띄우기
 		inGameUI->ShowRoundText(++CurrentRoundNum);
 
-	//5초후 라운드 시작 //인풋 막아두기.
+	//5초후 라운드 시작 //인풋 막아두기rl
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle , this , &AGameMode_MH::RoundStart , 3.0f , false);
 
 		GEngine->AddOnScreenDebugMessage(-5 , 5.f , FColor::Red , TEXT("RoundStart"));
 		break;
 
 	case EGameState::InProgress:
-		
-		//게임 진행 중
-		//HP체크,타임체크
+		GEngine->AddOnScreenDebugMessage(-9 , 5.f , FColor::Red , TEXT("InProgress"));
+
+	//게임 진행 중
+	//HP체크,타임체크
 		break;
 
 	case EGameState::RoundEnd:
+
+
 		// 라운드 종료 처리
 		//HP가 0이 되었을 때 호출,
 		//타이머가 0 이 되었을 떄 호출
@@ -321,7 +342,7 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 	if (Player == playerA)
 	{
 		player1HP = NewHP;
-		if(PlayerInfoUI)
+		if (PlayerInfoUI)
 		{
 			PlayerInfoUI->PlayHPShakeAnim(1);
 		}
@@ -329,7 +350,7 @@ void AGameMode_MH::UpdatePlayerHP(ACPP_Tekken8CharacterParent* Player , float Ne
 	else if (Player == playerB)
 	{
 		player2HP = NewHP;
-		if(PlayerInfoUI)
+		if (PlayerInfoUI)
 		{
 			PlayerInfoUI->PlayHPShakeAnim(2);
 		}
@@ -414,10 +435,44 @@ void AGameMode_MH::HandleRoundEnd(AActor* RoundWinner)
 
 void AGameMode_MH::DisablePlayerInput()
 {
+	if (PlayerAController)
+	{
+		PlayerAController->DisableInput(nullptr); // 또는 플레이어 A의 컨트롤러를 비활성화
+		GEngine->AddOnScreenDebugMessage(-10 , 5.f , FColor::Red , TEXT("Player A Input Disabled"));
+	}
+
+	if (PlayerBController)
+	{
+		PlayerBController->DisableInput(nullptr); // 또는 플레이어 B의 컨트롤러를 비활성화
+		GEngine->AddOnScreenDebugMessage(-11 , 5.f , FColor::Red , TEXT("Player B Input Disabled"));
+	}
+	/*
+	if (inputplayerController)
+	{
+		inputplayerController->DisableInput(nullptr);
+		GEngine->AddOnScreenDebugMessage(-10 , 5.f , FColor::Red , TEXT("DisablePlayerInput"));
+	}*/
 }
 
 void AGameMode_MH::EnablePlayerInput()
 {
+	//if (PlayerAController)
+	//{
+	//PlayerAController->EnableInput(nullptr); // 또는 플레이어 A의 컨트롤러를 활성화
+	//GEngine->AddOnScreenDebugMessage(-12, 5.f, FColor::Green, TEXT("Player A Input Enabled"));
+	//}
+
+	//if (PlayerBController)
+	//{
+	//PlayerBController->EnableInput(nullptr); // 또는 플레이어 B의 컨트롤러를 활성화
+	//GEngine->AddOnScreenDebugMessage(-13, 5.f, FColor::Green, TEXT("Player B Input Enabled"));
+	//}
+	/*
+	if (inputplayerController)
+	{
+		inputplayerController->EnableInput(nullptr);
+		GEngine->AddOnScreenDebugMessage(-10 , 5.f , FColor::Red , TEXT("EnablePlayerInput"));
+	}*/
 }
 
 void AGameMode_MH::CheckPlayerHP()
