@@ -160,7 +160,9 @@ public:
 	int32 MaxHp = 180;
 	int32 RageGauge = 0;
 	int32 HitGauge = 100;
+	bool bIsDead = false;
 
+	
 	// SetCamera 
 	APlayerCameraPawn* aMainCamera;
 	
@@ -187,4 +189,6 @@ public:
 	ECharacterStateInteraction eCharacterState;
 	FAttackInfoInteraction sAttackInfo;
 	virtual	bool HitDecision ( FAttackInfoInteraction attackInfo , ACPP_Tekken8CharacterParent* ownerHitPlayer )  ;
+
+	virtual bool SetDead(bool value);
 };

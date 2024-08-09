@@ -208,9 +208,12 @@ public:
 	void EnablePlayerInput();
 
 	UPROPERTY()
-	class APlayerController* playerAController;
-UPROPERTY()
-	class APlayerController* playerBController;
+	APlayerController* PlayerAController;
+	UPROPERTY()
+	AController* PlayerBController;
+	//class AController* inputplayerController;
+    //UPROPERTY()
+	//class AController* playerBController;
 
 	
 	//Camera
