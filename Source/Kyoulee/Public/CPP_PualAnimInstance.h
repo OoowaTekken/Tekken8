@@ -39,4 +39,5 @@ public:
 
 	UFUNCTION ( )
 	void HandleOnMontageEnded ( UAnimMontage* Montage , bool bInterrupted );
+	bool bDead;
 };
